@@ -1,0 +1,44 @@
+/*===========================================================================
+ OBWFilteringMenuActionItemViewTests.swift
+ Silversides
+ Copyright (c) 2016 OrderedBytes. All rights reserved.
+ ===========================================================================*/
+
+import XCTest
+@testable import OBWControls
+
+/*==========================================================================*/
+
+class OBWFilteringMenuActionItemViewTests: XCTestCase {
+    
+    /*==========================================================================*/
+    override func setUp() {
+        super.setUp()
+        // Put setup code here. This method is called before the invocation of each test method in the class.
+    }
+    
+    /*==========================================================================*/
+    override func tearDown() {
+        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        super.tearDown()
+    }
+    
+    /*==========================================================================*/
+    func testPreferredSizeForMenuItem() {
+        
+        let smallMenuItem = OBWFilteringMenuItem( title: "A" )
+        let smallItemSize = OBWFilteringMenuItemView.preferredSizeForMenuItem( smallMenuItem )
+        XCTAssertTrue( smallItemSize.width > 0.0 )
+        XCTAssertTrue( smallItemSize.height > 0.0 )
+        
+        let largeMenuItem = OBWFilteringMenuItem( title: "A menu item with a much longer name" )
+        let largeItemSize = OBWFilteringMenuItemView.preferredSizeForMenuItem( largeMenuItem )
+        XCTAssertTrue( largeItemSize.width > smallItemSize.width )
+        XCTAssertEqual( largeItemSize.height, smallItemSize.height )
+    }
+    
+    /*==========================================================================*/
+    func testExample() {
+        // TODO: Find more opportunities to test OBWFilteringMenuActionItemView...
+    }
+}
