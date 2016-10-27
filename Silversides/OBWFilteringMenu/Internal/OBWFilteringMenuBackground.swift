@@ -31,18 +31,8 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
     
     /*==========================================================================*/
     override init( frame frameRect: NSRect ) {
+        
         super.init( frame: frameRect )
-        self.commonInitialization()
-    }
-    
-    /*==========================================================================*/
-    required init?( coder: NSCoder ) {
-        super.init( coder: coder )
-        self.commonInitialization()
-    }
-    
-    /*==========================================================================*/
-    private func commonInitialization() {
         
         self.autoresizingMask = [ .ViewWidthSizable, .ViewHeightSizable ]
         self.autoresizesSubviews = true
@@ -51,6 +41,11 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         self.state = .Active
         
         self.resetMaskImage()
+    }
+    
+    /*==========================================================================*/
+    required init?( coder: NSCoder ) {
+        fatalError( "init(coder:) has not been implemented" )
     }
     
     /*==========================================================================*/
