@@ -40,43 +40,18 @@ class OBWPathItemView: NSView {
     
     /*==========================================================================*/
     override init( frame frameRect: NSRect ) {
-        
-        let imageView = OBWPathItemView.createItemImageView()
-        self.imageView = imageView
-        
-        let titleField = OBWPathItemView.createTitleField()
-        self.titleField = titleField
-        
-        let dividerView = OBWPathItemView.createDividerImageView()
-        self.dividerView = dividerView
-        
         super.init( frame: frameRect )
-        
-        self.currentWidth = self.bounds.size.width
-        self.idleWidth = self.currentWidth
-        self.preferredWidth = self.currentWidth
-        
-        self.addSubview( imageView )
-        self.addSubview( titleField )
-        self.addSubview( dividerView )
-        
-        self.autoresizingMask = .ViewNotSizable
-        self.layerContentsRedrawPolicy = .DuringViewResize
+        self.commonInitialization()
     }
     
     /*==========================================================================*/
     required init?( coder: NSCoder ) {
-        
-        let imageView = OBWPathItemView.createItemImageView()
-        self.imageView = imageView
-        
-        let titleField = OBWPathItemView.createTitleField()
-        self.titleField = titleField
-        
-        let dividerView = OBWPathItemView.createDividerImageView()
-        self.dividerView = dividerView
-        
         super.init( coder: coder )
+        self.commonInitialization()
+    }
+    
+    /*==========================================================================*/
+    private func commonInitialization() {
         
         self.currentWidth = self.bounds.size.width
         self.idleWidth = self.currentWidth
@@ -390,16 +365,54 @@ class OBWPathItemView: NSView {
     // MARK: - OBWPathItemView internal
     
     private static let offscreenTextField = NSTextField( frame: NSZeroRect )
-    
     private var active: Bool = true
     
-    unowned private let imageView: NSImageView
-    unowned private let titleField: NSTextField
-    unowned private let dividerView: NSImageView
+    /*==========================================================================*/
+    private let imageView: NSImageView = {
+        
+        let itemImageView = NSImageView( frame: NSZeroRect )
+        itemImageView.autoresizingMask = .ViewNotSizable
+        itemImageView.hidden = true
+        itemImageView.cell?.setAccessibilityElement( false )
+        
+        return itemImageView
+    }()
+    
+    /*==========================================================================*/
+    private let titleField: NSTextField = {
+        
+        let titleField = NSTextField( frame: NSZeroRect )
+        titleField.cell?.setAccessibilityElement( false )
+        titleField.cell?.lineBreakMode = .ByTruncatingTail
+        titleField.autoresizingMask = .ViewNotSizable
+        titleField.editable = false
+        titleField.selectable = false
+        titleField.bezeled = false
+        titleField.drawsBackground = false
+        
+        return titleField
+    }()
+    
+    /*==========================================================================*/
+    private let dividerView: NSImageView = {
+        
+        let dividerImage = OBWPathItemView.dividerImage
+        
+        let frame = NSRect( size: dividerImage.size )
+        
+        let dividerImageView = NSImageView( frame: frame )
+        dividerImageView.cell?.setAccessibilityElement( false )
+        dividerImageView.image = dividerImage
+        dividerImageView.autoresizingMask = .ViewMaxXMargin
+        dividerImageView.hidden = true
+        
+        return dividerImageView
+    }()
     
     private static let titleFontSize: CGFloat = 11.0
     private static let disabledViewAlpha: CGFloat = 0.5
     
+    /*==========================================================================*/
     private static let imageMargins: NSEdgeInsets = {
         
         let minorVersion = NSProcessInfo.processInfo().operatingSystemVersion.minorVersion
@@ -417,48 +430,6 @@ class OBWPathItemView: NSView {
     
     private static let minimumTitleWidthWithoutImage: CGFloat = 20.0
 
-    /*==========================================================================*/
-    private class func createItemImageView() -> NSImageView {
-        
-        let itemImageView = NSImageView( frame: NSZeroRect )
-        itemImageView.autoresizingMask = .ViewNotSizable
-        itemImageView.hidden = true
-        itemImageView.cell?.setAccessibilityElement( false )
-        
-        return itemImageView
-    }
-    
-    /*==========================================================================*/
-    private class func createTitleField() -> NSTextField {
-        
-        let titleField = NSTextField( frame: NSZeroRect )
-        titleField.cell?.setAccessibilityElement( false )
-        titleField.cell?.lineBreakMode = .ByTruncatingTail
-        titleField.autoresizingMask = .ViewNotSizable
-        titleField.editable = false
-        titleField.selectable = false
-        titleField.bezeled = false
-        titleField.drawsBackground = false
-        
-        return titleField
-    }
-    
-    /*==========================================================================*/
-    private class func createDividerImageView() -> NSImageView {
-        
-        let dividerImage = OBWPathItemView.dividerImage
-        
-        let frame = NSRect( size: dividerImage.size )
-        
-        let dividerImageView = NSImageView( frame: frame )
-        dividerImageView.cell?.setAccessibilityElement( false )
-        dividerImageView.image = dividerImage
-        dividerImageView.autoresizingMask = .ViewMaxXMargin
-        dividerImageView.hidden = true
-        
-        return dividerImageView
-    }
-    
     /*==========================================================================*/
     private static var dividerImage: NSImage = {
         
