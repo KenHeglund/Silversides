@@ -33,8 +33,8 @@ class OBWFilteringMenuItemScrollViewTests: XCTestCase {
         
         let scrollView = OBWFilteringMenuItemScrollView( menu: menu )
         let viewSize = scrollView.frame.size
-        XCTAssertTrue( viewSize.width > 0.0 )
-        XCTAssertTrue( viewSize.height > 0.0 )
+        XCTAssertGreaterThan( viewSize.width, 0.0 )
+        XCTAssertGreaterThan( viewSize.height, 0.0 )
     }
     
     /*==========================================================================*/

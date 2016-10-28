@@ -116,9 +116,9 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         scrollTracking.scrollEvent( self.scrollContentDownEvent )
         NSRunLoop.currentRunLoop().runUntilDate( NSDate( timeIntervalSinceNow: 0.100 ) )
-        XCTAssertTrue( notificationCount > 0 )
-        XCTAssertTrue( notificationBounds.origin.y > geometry.initialBounds.origin.y )
-        XCTAssertTrue( notificationBounds.size.height == geometry.initialBounds.size.height )
+        XCTAssertGreaterThan( notificationCount, 0 )
+        XCTAssertGreaterThan( notificationBounds.origin.y, geometry.initialBounds.origin.y )
+        XCTAssertEqual( notificationBounds.size.height, geometry.initialBounds.size.height )
         
         NSNotificationCenter.defaultCenter().removeObserver( observation )
     }
@@ -167,9 +167,9 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         scrollTracking.scrollEvent( self.scrollContentUpEvent )
         NSRunLoop.currentRunLoop().runUntilDate( NSDate( timeIntervalSinceNow: 0.500 ) )
-        XCTAssertTrue( notificationCount > 0 )
-        XCTAssertTrue( notificationBounds.origin.y < geometry.initialBounds.origin.y )
-        XCTAssertTrue( notificationBounds.size.height > geometry.initialBounds.size.height )
+        XCTAssertGreaterThan( notificationCount, 0 )
+        XCTAssertLessThan( notificationBounds.origin.y, geometry.initialBounds.origin.y )
+        XCTAssertGreaterThan( notificationBounds.size.height, geometry.initialBounds.size.height )
         
         NSNotificationCenter.defaultCenter().removeObserver( observation )
     }
@@ -218,8 +218,8 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         scrollTracking.scrollEvent( self.scrollContentUpEvent )
         NSRunLoop.currentRunLoop().runUntilDate( NSDate( timeIntervalSinceNow: 0.25 ) )
-        XCTAssertTrue( notificationCount > 0 )
-        XCTAssertTrue( notificationBounds.origin.y < geometry.initialBounds.origin.y )
+        XCTAssertGreaterThan( notificationCount, 0 )
+        XCTAssertLessThan( notificationBounds.origin.y, geometry.initialBounds.origin.y )
         XCTAssertTrue( notificationBounds.size.height == geometry.initialBounds.size.height )
         
         NSNotificationCenter.defaultCenter().removeObserver( observation )
@@ -269,9 +269,9 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         scrollTracking.scrollEvent( self.scrollContentDownEvent )
         NSRunLoop.currentRunLoop().runUntilDate( NSDate( timeIntervalSinceNow: 0.25 ) )
-        XCTAssertTrue( notificationCount > 0 )
+        XCTAssertGreaterThan( notificationCount, 0 )
         XCTAssertTrue( notificationBounds.origin.y == geometry.initialBounds.origin.y )
-        XCTAssertTrue( notificationBounds.size.height > geometry.initialBounds.size.height )
+        XCTAssertGreaterThan( notificationBounds.size.height, geometry.initialBounds.size.height )
         
         NSNotificationCenter.defaultCenter().removeObserver( observation )
     }
