@@ -26,6 +26,8 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
     /*==========================================================================*/
     func testForegroundApplicationChangedEvents() {
         
+        // These tests may fail if the user is switching foreground applications while the test is running, or conceivably if Finder.app is not running.
+        
         let eventMask = NSEventMask.ApplicationDefined
         let eventWaitTime: NSTimeInterval = 0.05
         let threadSleepTime: NSTimeInterval = 0.10
@@ -96,7 +98,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         
         eventSource.eventMask = []
         
-        let xcodeApp = NSRunningApplication.runningApplicationsWithBundleIdentifier( "com.apple.dt.Xcode" ).first
+        let xcodeApp = NSRunningApplication.runningApplicationsWithBundleIdentifier( "com.orderedbytes.SilversidesApp" ).first
         xcodeApp?.activateWithOptions( [] )
     }
     
