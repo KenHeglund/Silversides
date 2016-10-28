@@ -29,17 +29,20 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         // These tests may fail if the user is switching foreground applications while the test is running, or conceivably if Finder.app is not running.
         
         let eventMask = NSEventMask.ApplicationDefined
-        let eventWaitTime: NSTimeInterval = 0.05
-        let threadSleepTime: NSTimeInterval = 0.10
+        let eventWaitTime: NSTimeInterval = 0.050
+        let threadSleepTime: NSTimeInterval = 0.100
         var event: NSEvent?
         
         let eventSource = OBWFilteringMenuEventSource()
         eventSource.eventMask = .ApplicationDidResignActive
         
-        let finderApp = NSRunningApplication.runningApplicationsWithBundleIdentifier( "com.apple.finder" ).first
+        let finderApp = NSRunningApplication.runningApplicationsWithBundleIdentifier( "com.apple.finder" ).first!
+        
+        NSApp.activateIgnoringOtherApps( true )
+        NSThread.sleepForTimeInterval( threadSleepTime )
         
         // Activate Finder, SHOULD receive a deactivation event
-        finderApp?.activateWithOptions( [] )
+        finderApp.activateWithOptions( [] )
         NSThread.sleepForTimeInterval( threadSleepTime )
         event = NSApp.nextEventMatchingMask( eventMask, untilDate: NSDate( timeIntervalSinceNow: eventWaitTime ), inMode: NSDefaultRunLoopMode, dequeue: true )
         XCTAssertNotNil( event )
@@ -54,7 +57,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         eventSource.eventMask = .ApplicationDidBecomeActive
         
         // Activate Finder, should NOT receive a deactivation event
-        finderApp?.activateWithOptions( [] )
+        finderApp.activateWithOptions( [] )
         NSThread.sleepForTimeInterval( threadSleepTime )
         event = NSApp.nextEventMatchingMask( eventMask, untilDate: NSDate( timeIntervalSinceNow: eventWaitTime ), inMode: NSDefaultRunLoopMode, dequeue: true )
         XCTAssertNil( event )
@@ -69,7 +72,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         eventSource.eventMask = []
         
         // Activate Finder, should NOT receive a deactivation event
-        finderApp?.activateWithOptions( [] )
+        finderApp.activateWithOptions( [] )
         NSThread.sleepForTimeInterval( threadSleepTime )
         event = NSApp.nextEventMatchingMask( eventMask, untilDate: NSDate( timeIntervalSinceNow: eventWaitTime ), inMode: NSDefaultRunLoopMode, dequeue: true )
         XCTAssertNil( event )
@@ -83,7 +86,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         eventSource.eventMask = [ .ApplicationDidBecomeActive, .ApplicationDidResignActive ]
         
         // Activate Finder, SHOULD receive a deactivation event
-        finderApp?.activateWithOptions( [] )
+        finderApp.activateWithOptions( [] )
         NSThread.sleepForTimeInterval( threadSleepTime )
         event = NSApp.nextEventMatchingMask( eventMask, untilDate: NSDate( timeIntervalSinceNow: eventWaitTime ), inMode: NSDefaultRunLoopMode, dequeue: true )
         XCTAssertNotNil( event )
@@ -97,9 +100,6 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.ApplicationDidBecomeActive.rawValue )
         
         eventSource.eventMask = []
-        
-        let xcodeApp = NSRunningApplication.runningApplicationsWithBundleIdentifier( "com.orderedbytes.SilversidesApp" ).first
-        xcodeApp?.activateWithOptions( [] )
     }
     
     /*==========================================================================*/
