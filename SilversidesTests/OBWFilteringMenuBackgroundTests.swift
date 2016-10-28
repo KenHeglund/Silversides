@@ -37,17 +37,12 @@ class OBWFilteringMenuBackgroundTests: XCTestCase {
         let frame = NSRect( width: 40.0, height: 60.0 )
         let background = OBWFilteringMenuBackground( frame: frame )
         
-        background.roundedCorners = .TopLeft
-        XCTAssertEqual( self.roundedCornersForBackground( background ), OBWFilteringMenuCorners.TopLeft )
-        
-        background.roundedCorners = .BottomLeft
-        XCTAssertEqual( self.roundedCornersForBackground( background ), OBWFilteringMenuCorners.BottomLeft )
-        
-        background.roundedCorners = .BottomRight
-        XCTAssertEqual( self.roundedCornersForBackground( background ), OBWFilteringMenuCorners.BottomRight )
-        
-        background.roundedCorners = .TopRight
-        XCTAssertEqual( self.roundedCornersForBackground( background ), OBWFilteringMenuCorners.TopRight )
+        for rawValue: UInt in 0...15 {
+            
+            let corners = OBWFilteringMenuCorners( rawValue: rawValue )
+            background.roundedCorners = corners
+            XCTAssertEqual( self.roundedCornersForBackground( background ), corners, "corners: \(rawValue)" )
+        }
     }
     
     /*==========================================================================*/
@@ -72,7 +67,7 @@ class OBWFilteringMenuBackgroundTests: XCTestCase {
         if !image.hitTestRect( testRect, withImageDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
             roundedCorners.insert( .BottomRight )
         }
-        
+
         testRect.origin.y = imageFrame.maxY - 1.0
         if !image.hitTestRect( testRect, withImageDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
             roundedCorners.insert( .TopRight )
