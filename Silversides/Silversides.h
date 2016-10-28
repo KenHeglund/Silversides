@@ -3,7 +3,7 @@
 //  Silversides
 //
 //  Created by Ken Heglund on 7/29/16.
-//  Copyright © 2016 OrderedBytes. All rights reserved.
+//  Copyright © 2016 Ken Heglund. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

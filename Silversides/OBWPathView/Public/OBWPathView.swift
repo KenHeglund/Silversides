@@ -1,7 +1,7 @@
 /*===========================================================================
  OBWPathView.swift
  Silversides
- Copyright (c) 2016 OrderedBytes. All rights reserved.
+ Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
 import Cocoa
