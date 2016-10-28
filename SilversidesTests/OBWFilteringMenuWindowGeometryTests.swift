@@ -145,6 +145,24 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
     }
     
     /*==========================================================================*/
+    func testMinimumFrameSize() {
+        
+        let screen = NSScreen.screens()!.first!
+        let screenCenter = NSPoint( x: screen.frame.midX, y: screen.frame.midY )
+        
+        let menu = OBWFilteringMenu()
+        let window = OBWFilteringMenuWindow( menu: menu, screen: screen)
+        let geometry = OBWFilteringMenuWindowGeometry( window: window )
+        XCTAssertFalse( geometry.frame.isEmpty )
+        
+        geometry.updateGeometryWithResizedMenu()
+        XCTAssertFalse( geometry.frame.isEmpty )
+        
+        geometry.updateGeometryToDisplayMenuLocation( NSZeroPoint, atScreenLocation: screenCenter, allowWindowToGrowUpward: true )
+        XCTAssertFalse( geometry.frame.isEmpty )
+    }
+    
+    /*==========================================================================*/
     // MARK: - updateGeometryToDisplayMenuLocation(_:atScreenLocation:allowWindowToGrowUpward:)
     
     /*==========================================================================*/

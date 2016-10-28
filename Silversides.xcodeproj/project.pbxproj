@@ -28,6 +28,8 @@
 		BE4685C81D91F44400AC4B6F /* OBWFilteringMenuScrollTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4685C71D91F44400AC4B6F /* OBWFilteringMenuScrollTrackingTests.swift */; };
 		BE4685CA1D91F53D00AC4B6F /* OBWFilteringMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4685C91D91F53D00AC4B6F /* OBWFilteringMenuView.swift */; };
 		BE4685CC1D91F8E900AC4B6F /* NSControl+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */; };
+		BE7F3ED91DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7F3ED81DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift */; };
+		BE7F3EDB1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7F3EDA1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift */; };
 		BE9CB0B01D84665B00323D09 /* OBWFilteringMenuFieldEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0AF1D84665B00323D09 /* OBWFilteringMenuFieldEditor.swift */; };
 		BE9CB0B21D8469BC00323D09 /* OBWFilteringMenuWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */; };
 		BE9CB0B41D84925700323D09 /* OBWFilteringMenuWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0B31D84925700323D09 /* OBWFilteringMenuWindowTests.swift */; };
@@ -114,6 +116,8 @@
 		BE4685C71D91F44400AC4B6F /* OBWFilteringMenuScrollTrackingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuScrollTrackingTests.swift; sourceTree = "<group>"; };
 		BE4685C91D91F53D00AC4B6F /* OBWFilteringMenuView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuView.swift; sourceTree = "<group>"; };
 		BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSControl+OBWExtension.swift"; sourceTree = "<group>"; };
+		BE7F3ED81DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuViewTests.swift; sourceTree = "<group>"; };
+		BE7F3EDA1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSSize+OBWExtensions.swift"; sourceTree = "<group>"; };
 		BE9CB0AF1D84665B00323D09 /* OBWFilteringMenuFieldEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuFieldEditor.swift; sourceTree = "<group>"; };
 		BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuWindow.swift; sourceTree = "<group>"; };
 		BE9CB0B31D84925700323D09 /* OBWFilteringMenuWindowTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuWindowTests.swift; sourceTree = "<group>"; };
@@ -228,8 +232,9 @@
 				BE4685C31D91F2F000AC4B6F /* OBWFilteringMenuItemScrollViewTests.swift */,
 				BEFDC9411D6F6D1C0005ACFF /* OBWFilteringMenuItemTests.swift */,
 				BE4685C51D91F34100AC4B6F /* OBWFilteringMenuItemViewTests.swift */,
-				BEFDC93F1D6F64920005ACFF /* OBWFilteringMenuTests.swift */,
 				BE4685C71D91F44400AC4B6F /* OBWFilteringMenuScrollTrackingTests.swift */,
+				BEFDC93F1D6F64920005ACFF /* OBWFilteringMenuTests.swift */,
+				BE7F3ED81DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift */,
 				BE9CB0B31D84925700323D09 /* OBWFilteringMenuWindowTests.swift */,
 				BEFDC94F1D6FB0FD0005ACFF /* OBWFilteringMenuWindowGeometryTests.swift */,
 				BEC489CA1D4C173500CE7AB8 /* OBWPathViewTests.swift */,
@@ -301,6 +306,7 @@
 				BEF9D5621DC2881300EA6FE0 /* NSImage+OBWExtension.swift */,
 				BE44C8DA1DA72D92009517A5 /* NSRect+OBWExtension.swift */,
 				BEF9D5641DC28AEB00EA6FE0 /* NSScreen+OBWExtension.swift */,
+				BE7F3EDA1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift */,
 				BE4685BB1D8FDCE400AC4B6F /* NSView+OBWExtension.swift */,
 				BE44C8D81DA55E8A009517A5 /* NSWindow+OBWExtension.swift */,
 			);
@@ -479,6 +485,7 @@
 				BE9CB0B01D84665B00323D09 /* OBWFilteringMenuFieldEditor.swift in Sources */,
 				BEFDC94E1D6FB01C0005ACFF /* OBWFilteringMenuWindowGeometry.swift in Sources */,
 				BE9CB0B81D8656DE00323D09 /* OBWFilteringMenuItemFilterStatus.swift in Sources */,
+				BE7F3EDB1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift in Sources */,
 				BEBEECC81D77E59A0050D277 /* OBWFilteringMenuBackground.swift in Sources */,
 				BE4685CA1D91F53D00AC4B6F /* OBWFilteringMenuView.swift in Sources */,
 				BE9CB0BC1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift in Sources */,
@@ -511,6 +518,7 @@
 			files = (
 				BE4685C61D91F34100AC4B6F /* OBWFilteringMenuItemViewTests.swift in Sources */,
 				BE4685B21D8CF8C200AC4B6F /* NSEvent+OBWExtensionTests.swift in Sources */,
+				BE7F3ED91DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift in Sources */,
 				BE9CB0B41D84925700323D09 /* OBWFilteringMenuWindowTests.swift in Sources */,
 				BE4685BE1D8FDF2300AC4B6F /* NSView+OBWExtensionTests.swift in Sources */,
 				BEFDC9501D6FB0FD0005ACFF /* OBWFilteringMenuWindowGeometryTests.swift in Sources */,

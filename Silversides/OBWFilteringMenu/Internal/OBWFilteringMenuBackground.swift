@@ -75,7 +75,7 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
             if changedCorners.isEmpty { return }
             
             let bounds = self.bounds
-            let roundedCornerRadius = self.roundedCornerRadius
+            let roundedCornerRadius = OBWFilteringMenuBackground.roundedCornerRadius
             
             var dirtyRect = NSRect(
                 x: bounds.origin.x,
@@ -123,15 +123,15 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuBackground private
     
-    private let roundedCornerRadius: CGFloat = 6.0
-    private let squareCornerRadius: CGFloat = 0.0
+    static let roundedCornerRadius: CGFloat = 6.0
+    static let squareCornerRadius: CGFloat = 0.0
     
     /*==========================================================================*/
     private var maskPath: NSBezierPath {
         
         let roundedCorners = self.roundedCorners
-        let roundedCornerRadius = self.roundedCornerRadius
-        let squareCornerRadius = self.squareCornerRadius
+        let roundedCornerRadius = OBWFilteringMenuBackground.roundedCornerRadius
+        let squareCornerRadius = OBWFilteringMenuBackground.squareCornerRadius
         
         let topLeftRadius = roundedCorners.contains( .TopLeft ) ? roundedCornerRadius : squareCornerRadius
         let bottomLeftRadius = roundedCorners.contains( .BottomLeft ) ? roundedCornerRadius : squareCornerRadius

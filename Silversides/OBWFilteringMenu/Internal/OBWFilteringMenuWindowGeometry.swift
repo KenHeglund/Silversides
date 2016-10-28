@@ -56,12 +56,13 @@ class OBWFilteringMenuWindowGeometry {
         let menuFrameInScreen = NSRect(
             x: locationInScreen.x - locationInMenu.x,
             y: locationInScreen.y - locationInMenu.y,
-            width: totalMenuItemSize.width,
-            height: totalMenuItemSize.height
+            size: totalMenuItemSize
         )
         
         let interiorFrameInScreen = menuFrameInScreen - menuView.outerMenuMargins
-        let windowFrameInScreen = interiorFrameInScreen - OBWFilteringMenuWindow.interiorMargins
+        
+        var windowFrameInScreen = interiorFrameInScreen - OBWFilteringMenuWindow.interiorMargins
+        windowFrameInScreen.size = max( windowFrameInScreen.size, OBWFilteringMenuWindow.minimumFrameSize )
         
         self.frame = windowFrameInScreen
         
@@ -77,7 +78,14 @@ class OBWFilteringMenuWindowGeometry {
     /*==========================================================================*/
     func updateGeometryToDisplayMenuLocation( locationInMenu: NSPoint, adjacentToScreenArea areaInScreen: NSRect, preferredAlignment: OBWFilteringMenuAlignment ) -> OBWFilteringMenuAlignment {
         
-        let rightAlignmentLocation = NSPoint( x: areaInScreen.maxX, y: areaInScreen.maxY )
+        let rightAlignmentLocation: NSPoint
+        
+        if areaInScreen.height < self.frame.size.height {
+            rightAlignmentLocation = NSPoint( x: areaInScreen.maxX, y: areaInScreen.maxY )
+        }
+        else {
+            rightAlignmentLocation = NSPoint( x: areaInScreen.maxX, y: areaInScreen.midY )
+        }
         
         var rightGeometry: OBWFilteringMenuWindowGeometry? = OBWFilteringMenuWindowGeometry( window: self.window )
         if let geometry = rightGeometry {
@@ -85,14 +93,25 @@ class OBWFilteringMenuWindowGeometry {
             if !geometry.updateGeometryToDisplayMenuLocation( locationInMenu, atScreenLocation: rightAlignmentLocation, allowWindowToGrowUpward: true ) {
                 rightGeometry = nil
             }
-            
         }
         
-        let leftAlignmentLocation = NSPoint(
-            x: areaInScreen.origin.x - self.frame.size.width,
-            y: areaInScreen.maxY
-        )
+        let leftAlignmentLocation: NSPoint
         
+        if areaInScreen.height < self.frame.size.height {
+            
+            leftAlignmentLocation = NSPoint(
+                x: areaInScreen.origin.x - self.frame.size.width,
+                y: areaInScreen.maxY
+            )
+        }
+        else {
+            
+            leftAlignmentLocation = NSPoint(
+                x: areaInScreen.origin.x - self.frame.size.width,
+                y: areaInScreen.midY
+            )
+        }
+    
         var leftGeometry: OBWFilteringMenuWindowGeometry? = OBWFilteringMenuWindowGeometry( window: self.window )
         if let geometry = leftGeometry {
             
@@ -181,6 +200,7 @@ class OBWFilteringMenuWindowGeometry {
         }
         
         windowFrameInScreen = interiorFrameInScreen - interiorMargins
+        windowFrameInScreen.size = max( windowFrameInScreen.size, OBWFilteringMenuWindow.minimumFrameSize )
         self.frame = windowFrameInScreen
         
         self.initialBounds = NSRect( size: totalMenuItemSize )
@@ -218,6 +238,7 @@ class OBWFilteringMenuWindowGeometry {
         
         interiorFrameInScreen = menuFrameInScreen - outerMenuMargins
         windowFrameInScreen = interiorFrameInScreen - interiorMargins
+        windowFrameInScreen.size = max( windowFrameInScreen.size, OBWFilteringMenuWindow.minimumFrameSize )
         self.frame = windowFrameInScreen
         
         self.initialBounds = menuItemBounds

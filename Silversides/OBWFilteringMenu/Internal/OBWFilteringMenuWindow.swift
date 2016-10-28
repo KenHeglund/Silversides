@@ -34,29 +34,18 @@ class OBWFilteringMenuWindow: NSWindow {
         let menuView = OBWFilteringMenuView( menu: menu )
         self.menuView = menuView
         
-        let menuViewSize = menuView.frame.size
+        let menuViewOrigin = NSPoint( x: 0.0, y: OBWFilteringMenuWindow.interiorMargins.bottom )
+        self.menuView.setFrameOrigin( menuViewOrigin )
         
-        let menuViewFrame = NSRect(
-            x: 0.0,
-            y: OBWFilteringMenuWindow.interiorMargins.bottom,
-            size: menuViewSize
-        )
-        self.menuView.setFrameOrigin( menuViewFrame.origin )
-        
-        let windowSize = NSSize(
-            width: menuViewFrame.size.width + OBWFilteringMenuWindow.interiorMargins.width,
-            height: menuViewFrame.size.height + OBWFilteringMenuWindow.interiorMargins.height
-        )
+        let windowContentSize = menuView.frame.size - OBWFilteringMenuWindow.interiorMargins
+        let windowFrameSize = max( windowContentSize, OBWFilteringMenuWindow.minimumFrameSize )
         
         let windowOrigin = NSPoint(
-            x: screen.frame.midX - floor( windowSize.width / 2.0 ),
-            y: screen.frame.midY - floor( windowSize.height / 2.0 )
+            x: screen.frame.midX - floor( windowFrameSize.width / 2.0 ),
+            y: screen.frame.midY - floor( windowFrameSize.height / 2.0 )
         )
         
-        let contentFrame = NSRect(
-            origin: windowOrigin,
-            size: windowSize
-        )
+        let contentFrame = NSRect( origin: windowOrigin, size: windowFrameSize )
         
         super.init( contentRect: contentFrame, styleMask: NSBorderlessWindowMask, backing: .Buffered, defer: false )
         
@@ -128,6 +117,11 @@ class OBWFilteringMenuWindow: NSWindow {
     // MARK: - OBWFilteringMenuWindow implementation
     
     static let interiorMargins = NSEdgeInsets( top: 4.0, left: 0.0, bottom: 4.0, right: 0.0 )
+    
+    static let minimumFrameSize = NSSize(
+        width: 80.0 + OBWFilteringMenuBackground.roundedCornerRadius * 2.0,
+        height: OBWFilteringMenuBackground.roundedCornerRadius * 2.0
+    )
     
     let filteringMenu: OBWFilteringMenu
     unowned let menuView: OBWFilteringMenuView

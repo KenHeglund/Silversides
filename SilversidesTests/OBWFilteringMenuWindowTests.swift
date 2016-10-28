@@ -131,4 +131,14 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         // Sanity check to verify that there is still menu content outside of the visible bounds
         XCTAssertTrue( geometry.initialBounds.size.height < geometry.totalMenuItemSize.height )
     }
+    
+    /*==========================================================================*/
+    func testMinimumWindowSize() {
+        
+        let screen = NSScreen.screens()!.first!
+        let menu = OBWFilteringMenu( title: "menu" )
+        
+        let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
+        XCTAssertFalse( window.frame.isEmpty )
+    }
 }
