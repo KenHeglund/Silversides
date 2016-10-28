@@ -62,8 +62,8 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         
         let largerWindowFrame = window.frame
         
-        XCTAssertTrue( largerWindowFrame.size.width > initialWindowFrame.size.width )
-        XCTAssertTrue( largerWindowFrame.size.height > initialWindowFrame.size.height )
+        XCTAssertGreaterThan( largerWindowFrame.size.width, initialWindowFrame.size.width )
+        XCTAssertGreaterThan( largerWindowFrame.size.height, initialWindowFrame.size.height )
         
         // Smaller menu width, window with remains unchanged
         // Smaller menu height, window height returns to inital height
@@ -109,7 +109,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         let distanceToScroll: CGFloat = 25.0
         
         // Sanity check to verify that not all of the menu's contents are visible in the window, ie. there is room to scroll
-        XCTAssertTrue( geometry.initialBounds.size.height + distanceToScroll < geometry.totalMenuItemSize.height )
+        XCTAssertLessThan( geometry.initialBounds.size.height + distanceToScroll, geometry.totalMenuItemSize.height )
         
         let scrolledBounds = NSRect(
             x: geometry.initialBounds.origin.x,
@@ -129,7 +129,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         XCTAssertEqual( scrolledWindowFrame.size.height, initialWindowFrame.size.height + distanceToScroll )
         
         // Sanity check to verify that there is still menu content outside of the visible bounds
-        XCTAssertTrue( geometry.initialBounds.size.height < geometry.totalMenuItemSize.height )
+        XCTAssertLessThan( geometry.initialBounds.size.height, geometry.totalMenuItemSize.height )
     }
     
     /*==========================================================================*/

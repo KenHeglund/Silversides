@@ -81,7 +81,7 @@ class SilversidesTests: XCTestCase {
         
         let trimmedImage: NSImage! = sourceImage.imageByTrimmingTransparentEdges()
         XCTAssertNotNil( trimmedImage )
-        XCTAssertTrue( NSEqualSizes( drawnFrame.size, trimmedImage.size ) )
+        XCTAssertEqual( drawnFrame.size, trimmedImage.size )
     }
     
     /*==========================================================================*/
