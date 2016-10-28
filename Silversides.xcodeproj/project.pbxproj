@@ -682,6 +682,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TEST_HOST = "$(BUILD_ROOT)/Debug/SilversidesDemo.app";
 			};
 			name = Debug;
 		};
@@ -700,6 +701,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.OBWControls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				TEST_HOST = "$(BUILD_ROOT)/Debug/SilversidesDemo.app";
 			};
 			name = Release;
 		};

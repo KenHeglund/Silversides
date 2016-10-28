@@ -140,8 +140,8 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         let geometry = OBWFilteringMenuWindowGeometry( window: window )
         
         XCTAssertEqual( geometry.initialBounds.size.height, geometry.finalBounds.size.height )
-        XCTAssertTrue( geometry.initialBounds.size.height < geometry.totalMenuItemSize.height )
-        XCTAssertTrue( geometry.finalBounds.size.height < geometry.totalMenuItemSize.height )
+        XCTAssertLessThan( geometry.initialBounds.size.height, geometry.totalMenuItemSize.height )
+        XCTAssertLessThan( geometry.finalBounds.size.height, geometry.totalMenuItemSize.height )
     }
     
     /*==========================================================================*/
@@ -202,7 +202,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         XCTAssertEqual( geometry.frame, windowFrame )
         XCTAssertEqual( geometry.initialBounds.size, geometry.totalMenuItemSize )
         XCTAssertEqual( geometry.finalBounds.size, geometry.totalMenuItemSize )
-        XCTAssertTrue( geometry.frame.width < screenLimits.size.width )
+        XCTAssertLessThan( geometry.frame.width, screenLimits.size.width )
     }
     
     /*==========================================================================*/
@@ -291,7 +291,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         XCTAssertEqual( geometry.frame, windowFrame )
         XCTAssertEqual( geometry.initialBounds.size, geometry.totalMenuItemSize )
         XCTAssertEqual( geometry.finalBounds.size, geometry.totalMenuItemSize )
-        XCTAssertTrue( geometry.frame.width < screenLimits.size.width )
+        XCTAssertLessThan( geometry.frame.width, screenLimits.size.width )
     }
     
     /*==========================================================================*/
@@ -332,7 +332,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         XCTAssertEqual( geometry.frame, windowFrame )
         XCTAssertEqual( geometry.initialBounds.size, geometry.totalMenuItemSize )
         XCTAssertEqual( geometry.finalBounds.size, geometry.totalMenuItemSize )
-        XCTAssertTrue( geometry.frame.width < screenLimits.size.width )
+        XCTAssertLessThan( geometry.frame.width, screenLimits.size.width )
     }
     
     /*==========================================================================*/
@@ -373,7 +373,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         XCTAssertEqual( geometry.frame, windowFrame )
         XCTAssertEqual( geometry.initialBounds.size, geometry.totalMenuItemSize )
         XCTAssertEqual( geometry.finalBounds.size, geometry.totalMenuItemSize )
-        XCTAssertTrue( geometry.frame.width < screenLimits.size.width )
+        XCTAssertLessThan( geometry.frame.width, screenLimits.size.width )
     }
     
     /*==========================================================================*/
@@ -420,7 +420,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         XCTAssertEqual( geometry.frame, windowFrame )
         XCTAssertEqual( geometry.initialBounds.size, menuFrame.size )
         XCTAssertEqual( geometry.finalBounds.size, geometry.totalMenuItemSize )
-        XCTAssertTrue( geometry.frame.width < screenLimits.size.width )
+        XCTAssertLessThan( geometry.frame.width, screenLimits.size.width )
     }
     
     /*==========================================================================*/
@@ -461,7 +461,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         XCTAssertEqual( geometry.frame, windowFrame )
         XCTAssertEqual( geometry.initialBounds.size, menuFrame.size )
         XCTAssertEqual( geometry.finalBounds.size, geometry.totalMenuItemSize )
-        XCTAssertTrue( geometry.frame.width < screenLimits.size.width )
+        XCTAssertLessThan( geometry.frame.width, screenLimits.size.width )
     }
     
     /*==========================================================================*/
@@ -508,7 +508,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         XCTAssertEqual( geometry.frame, windowFrame )
         XCTAssertEqual( geometry.initialBounds.size, menuFrame.size )
         XCTAssertEqual( geometry.finalBounds.size, geometry.totalMenuItemSize )
-        XCTAssertTrue( geometry.frame.width < screenLimits.size.width )
+        XCTAssertLessThan( geometry.frame.width, screenLimits.size.width )
     }
     
     /*==========================================================================*/
@@ -549,7 +549,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         XCTAssertEqual( geometry.frame, windowFrame )
         XCTAssertEqual( geometry.initialBounds.size, menuFrame.size )
         XCTAssertEqual( geometry.finalBounds.size, geometry.totalMenuItemSize )
-        XCTAssertTrue( geometry.frame.width < screenLimits.size.width )
+        XCTAssertLessThan( geometry.frame.width, screenLimits.size.width )
     }
     
     /*==========================================================================*/
@@ -711,10 +711,10 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-8]/" ) )
         geometry.updateGeometryWithResizedMenu()
         
-        XCTAssertTrue( geometry.frame.size.height < preResizeHeight )
-        XCTAssertTrue( screenAnchor.size.height < geometry.frame.size.height )
-        XCTAssertTrue( geometry.frame.maxY > screenAnchor.maxY )
-        XCTAssertTrue( geometry.frame.minY < screenAnchor.minY )
+        XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
+        XCTAssertLessThan( screenAnchor.size.height, geometry.frame.size.height )
+        XCTAssertGreaterThan( geometry.frame.maxY, screenAnchor.maxY )
+        XCTAssertLessThan( geometry.frame.minY, screenAnchor.minY )
         
         // Window overlaps bottom of anchor > top alignment
         
@@ -726,8 +726,8 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-7]/" ) )
         geometry.updateGeometryWithResizedMenu()
         
-        XCTAssertTrue( geometry.frame.size.height < preResizeHeight )
-        XCTAssertTrue( screenAnchor.size.height < geometry.frame.size.height )
+        XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
+        XCTAssertLessThan( screenAnchor.size.height, geometry.frame.size.height )
         XCTAssertEqual( geometry.frame.maxY, screenAnchor.maxY + interiorMargins.top + outerMenuMargins.top )
         
         // Window overlaps top of anchor > bottom alignment
@@ -740,8 +740,8 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-6]/" ) )
         geometry.updateGeometryWithResizedMenu()
         
-        XCTAssertTrue( geometry.frame.size.height < preResizeHeight )
-        XCTAssertTrue( screenAnchor.size.height < geometry.frame.size.height )
+        XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
+        XCTAssertLessThan( screenAnchor.size.height, geometry.frame.size.height )
         XCTAssertEqual( geometry.frame.minY, screenAnchor.minY - interiorMargins.bottom - outerMenuMargins.bottom )
         
         // Window below anchor > top alignment
@@ -754,8 +754,8 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-5]/" ) )
         geometry.updateGeometryWithResizedMenu()
         
-        XCTAssertTrue( geometry.frame.size.height < preResizeHeight )
-        XCTAssertTrue( screenAnchor.size.height < geometry.frame.size.height )
+        XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
+        XCTAssertLessThan( screenAnchor.size.height, geometry.frame.size.height )
         XCTAssertEqual( geometry.frame.maxY, screenAnchor.maxY + interiorMargins.top + outerMenuMargins.top )
         
         // Window above anchor > bottom alignment
@@ -768,8 +768,8 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-4]/" ) )
         geometry.updateGeometryWithResizedMenu()
         
-        XCTAssertTrue( geometry.frame.size.height < preResizeHeight )
-        XCTAssertTrue( screenAnchor.size.height < geometry.frame.size.height )
+        XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
+        XCTAssertLessThan( screenAnchor.size.height, geometry.frame.size.height )
         XCTAssertEqual( geometry.frame.minY, screenAnchor.minY - interiorMargins.bottom - outerMenuMargins.bottom )
     }
     
@@ -817,8 +817,8 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-8]/" ) )
         geometry.updateGeometryWithResizedMenu()
         
-        XCTAssertTrue( screenAnchor.size.height > geometry.frame.size.height )
-        XCTAssertTrue( geometry.frame.size.height < preResizeHeight )
+        XCTAssertGreaterThan( screenAnchor.size.height, geometry.frame.size.height )
+        XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
         XCTAssertEqual( geometry.frame.maxY, screenAnchor.maxY + interiorMargins.top + outerMenuMargins.top )
         
         // Window overlaps top of anchor > top alignment
@@ -831,8 +831,8 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-7]/" ) )
         geometry.updateGeometryWithResizedMenu()
         
-        XCTAssertTrue( screenAnchor.size.height > geometry.frame.size.height )
-        XCTAssertTrue( geometry.frame.size.height < preResizeHeight )
+        XCTAssertGreaterThan( screenAnchor.size.height, geometry.frame.size.height )
+        XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
         XCTAssertEqual( geometry.frame.maxY, screenAnchor.maxY + interiorMargins.top + outerMenuMargins.top )
         
         // Window overlaps bottom of anchor > bottom alignment
@@ -845,8 +845,8 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-6]/" ) )
         geometry.updateGeometryWithResizedMenu()
         
-        XCTAssertTrue( screenAnchor.size.height > geometry.frame.size.height )
-        XCTAssertTrue( geometry.frame.size.height < preResizeHeight )
+        XCTAssertGreaterThan( screenAnchor.size.height, geometry.frame.size.height )
+        XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
         XCTAssertEqual( geometry.frame.maxY, screenAnchor.maxY + interiorMargins.top + outerMenuMargins.top )
         
         // Window above anchor > top alignment
@@ -859,8 +859,8 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-5]/" ) )
         geometry.updateGeometryWithResizedMenu()
         
-        XCTAssertTrue( screenAnchor.size.height > geometry.frame.size.height )
-        XCTAssertTrue( geometry.frame.size.height < preResizeHeight )
+        XCTAssertGreaterThan( screenAnchor.size.height, geometry.frame.size.height )
+        XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
         XCTAssertEqual( geometry.frame.maxY, screenAnchor.maxY + interiorMargins.top + outerMenuMargins.top )
         
         // Window below anchor > bottom alignment
@@ -873,8 +873,8 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-4]/" ) )
         geometry.updateGeometryWithResizedMenu()
         
-        XCTAssertTrue( screenAnchor.size.height > geometry.frame.size.height )
-        XCTAssertTrue( geometry.frame.size.height < preResizeHeight )
+        XCTAssertGreaterThan( screenAnchor.size.height, geometry.frame.size.height )
+        XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
         XCTAssertEqual( geometry.frame.maxY, screenAnchor.maxY + interiorMargins.top + outerMenuMargins.top )
     }
     
