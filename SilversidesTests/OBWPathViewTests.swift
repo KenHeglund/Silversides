@@ -187,6 +187,7 @@ class SilversidesTests: XCTestCase {
         viewController.configurePathViewToShowURL( URL1 )
         
         #if INTERACTIVE_TESTS
+            Swift.print( "The currently displayed URL should have animated to a new URL" )
             self.waitforInterval( 3.0 )
         #endif // INTERACTIVE_TESTS
         
@@ -194,6 +195,7 @@ class SilversidesTests: XCTestCase {
         viewController.configurePathViewToShowURL( URL2 )
         
         #if INTERACTIVE_TESTS
+            Swift.print( "The currently displayed URL should have animated to a new URL" )
             self.waitforInterval( 3.0 )
         #endif // INTERACTIVE_TESTS
         
@@ -201,6 +203,7 @@ class SilversidesTests: XCTestCase {
         viewController.configurePathViewToShowURL( URL3 )
         
         #if INTERACTIVE_TESTS
+            Swift.print( "The currently displayed URL should have animated to a new URL" )
             self.waitforInterval( 3.0 )
         #endif // INTERACTIVE_TESTS
     }

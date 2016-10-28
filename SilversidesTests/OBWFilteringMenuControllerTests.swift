@@ -43,6 +43,7 @@ class OBWFilteringMenuControllerTests: XCTestCase {
         )
         
         #if INTERACTIVE_TESTS
+            Swift.print( "Make a menu selection in the lower-right corner of the screen..." )
             OBWFilteringMenuController.popUpMenuPositioningItem( firstMenu.itemArray.first!, atLocation: locationInScreen, inView: nil, withEvent: nil, highlighted: false )
         #endif // INTERACTIVE_TESTS
         
@@ -77,6 +78,7 @@ class OBWFilteringMenuControllerTests: XCTestCase {
         }
         
         #if INTERACTIVE_TESTS
+            Swift.print( "Make a menu selection in the lower-right corner of the screen..." )
             OBWFilteringMenuController.popUpMenuPositioningItem( secondMenu.itemArray.first!, atLocation: locationInScreen, inView: nil, withEvent: nil, highlighted: false )
         #endif // INTERACTIVE_TESTS
     }
