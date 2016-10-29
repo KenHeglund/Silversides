@@ -40,26 +40,12 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         self.material = .Menu
         self.state = .Active
         
-        self.resetMaskImage()
+        self.updateMaskImage()
     }
     
     /*==========================================================================*/
     required init?( coder: NSCoder ) {
         fatalError( "init(coder:) has not been implemented" )
-    }
-    
-    /*==========================================================================*/
-    // MARK: - NSView overrides
-    
-    /*==========================================================================*/
-    override func resizeWithOldSuperviewSize( oldSize: NSSize ) {
-        
-        super.resizeWithOldSuperviewSize( oldSize )
-        
-        // TODO: -NSImage.capInsets / -NSImage.resizingMode
-        // Look into using the NSImage -capInsets and -resizingMode properties of the view's mask image to account for different view sizes.  It may be possible to use a single image (for a given combination of rounded corners) regardless of view size.  That would eliminate the need to rebuild the mask image when the view resizes.
-        
-        self.resetMaskImage()
     }
     
     /*==========================================================================*/
@@ -69,55 +55,8 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
     var roundedCorners = OBWFilteringMenuCorners.All {
         
         didSet ( previousCorners ) {
-            
-            let changedCorners = self.roundedCorners.exclusiveOr( previousCorners )
-            
-            if changedCorners.isEmpty { return }
-            
-            let bounds = self.bounds
-            let roundedCornerRadius = OBWFilteringMenuBackground.roundedCornerRadius
-            
-            var dirtyRect = NSRect(
-                x: bounds.origin.x,
-                y: bounds.origin.y,
-                width: roundedCornerRadius,
-                height: roundedCornerRadius )
-            
-            if changedCorners.contains( .BottomLeft ) {
-                self.setNeedsDisplayInRect( dirtyRect )
-            }
-            
-            dirtyRect.origin.y = bounds.maxY - roundedCornerRadius
-            
-            if changedCorners.contains( .TopLeft ) {
-                self.setNeedsDisplayInRect( dirtyRect )
-            }
-            
-            dirtyRect.origin.x = bounds.maxX - roundedCornerRadius
-            
-            if changedCorners.contains( .TopRight ) {
-                self.setNeedsDisplayInRect( dirtyRect )
-            }
-            
-            dirtyRect.origin.y = bounds.origin.y
-            
-            if changedCorners.contains( .BottomRight ) {
-                self.setNeedsDisplayInRect( dirtyRect )
-            }
-            
-            self.resetMaskImage()
+            self.updateMaskImage()
         }
-    }
-    
-    /*==========================================================================*/
-    func resetMaskImage() {
-        
-        let maskImage = NSImage( size: self.frame.size )
-        maskImage.withLockedFocus { 
-            self.maskPath.fill()
-        }
-        
-        self.maskImage = maskImage
     }
     
     /*==========================================================================*/
@@ -126,10 +65,26 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
     static let roundedCornerRadius: CGFloat = 6.0
     static let squareCornerRadius: CGFloat = 0.0
     
+    private static var maskImageCache: [NSImage?] = (0...15).map { _ in return nil }
+    
     /*==========================================================================*/
-    private var maskPath: NSBezierPath {
+    func updateMaskImage() {
         
-        let roundedCorners = self.roundedCorners
+        let index = Int(self.roundedCorners.rawValue)
+        
+        var maskImage = OBWFilteringMenuBackground.maskImageCache[index]
+        
+        if maskImage == nil {
+            maskImage = OBWFilteringMenuBackground.maskImage( self.roundedCorners )
+            OBWFilteringMenuBackground.maskImageCache[index] = maskImage
+        }
+        
+        self.maskImage = maskImage
+    }
+    
+    /*==========================================================================*/
+    private static func maskImage( roundedCorners: OBWFilteringMenuCorners ) -> NSImage {
+        
         let roundedCornerRadius = OBWFilteringMenuBackground.roundedCornerRadius
         let squareCornerRadius = OBWFilteringMenuBackground.squareCornerRadius
         
@@ -138,7 +93,10 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         let bottomRightRadius = roundedCorners.contains( .BottomRight ) ? roundedCornerRadius : squareCornerRadius
         let topRightRadius = roundedCorners.contains( .TopRight ) ? roundedCornerRadius : squareCornerRadius
         
-        let bounds = self.bounds
+        let bounds = NSRect(
+            width: roundedCornerRadius * 3.0,
+            height: roundedCornerRadius * 3.0
+        )
         
         let topLeftPoint = NSPoint( x: bounds.origin.x + topLeftRadius, y: bounds.maxY - topLeftRadius )
         let bottomLeftPoint = NSPoint( x: bounds.origin.x + bottomLeftRadius, y: bounds.origin.y + bottomLeftRadius )
@@ -152,7 +110,20 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         path.appendBezierPathWithArcWithCenter( topLeftPoint, radius: topLeftRadius, startAngle: 90.0, endAngle: 180.0 )
         path.closePath()
         
-        return path
+        let maskImage = NSImage( size: bounds.size )
+        maskImage.withLockedFocus {
+            path.fill()
+        }
+        
+        maskImage.resizingMode = .Stretch
+        maskImage.capInsets = NSEdgeInsets(
+            top: roundedCornerRadius + 1.0,
+            left: roundedCornerRadius + 1.0,
+            bottom: roundedCornerRadius + 1.0,
+            right: roundedCornerRadius + 1.0
+        )
+        
+        return maskImage
     }
     
 }
