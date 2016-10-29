@@ -811,115 +811,59 @@ class OBWFilteringMenuController {
     /*==========================================================================*/
     private func updateMenuCorners() {
         
-        // TODO: Update only the top two windows, the corners of lower windows should have no reason to change
-        
         let menuWindowArray = self.menuWindowArray
-        guard var previousWindow = menuWindowArray.first else { return }
+        let menuCount = menuWindowArray.count
         
-        var previousRoundedCorners: OBWFilteringMenuCorners = .All
-        var previousFrame = previousWindow.frame
-        var previousLocation: CGFloat = 0.0
+        guard let firstWindow = menuWindowArray.last else { return }
         
-        for index in menuWindowArray.startIndex.successor() ..< menuWindowArray.endIndex {
+        let secondWindow: OBWFilteringMenuWindow? = ( menuCount >= 2 ? menuWindowArray[menuCount-2] : nil )
+        
+        if let secondWindow = secondWindow {
             
-            let nextWindow = menuWindowArray[index]
-            var nextRoundedCorners = nextWindow.roundedCorners
-            let nextFrame = nextWindow.frame
-            var nextLocation: CGFloat = 0.0
-            
-            switch nextWindow.alignmentFromPrevious {
-                
-            case .Left:
-                
-                previousLocation = previousFrame.origin.y
-                nextLocation = nextFrame.origin.y
-                
-                if previousLocation < nextLocation {
-                    previousRoundedCorners.insert( .BottomLeft )
-                    nextRoundedCorners.remove( .BottomRight )
-                }
-                else if previousLocation > nextLocation {
-                    previousRoundedCorners.remove( .BottomLeft )
-                    nextRoundedCorners.insert( .BottomRight )
-                }
-                else {
-                    previousRoundedCorners.remove( .BottomLeft )
-                    nextRoundedCorners.remove( .BottomRight )
-                }
-                
-                previousLocation = previousFrame.maxY
-                nextLocation = nextFrame.maxY
-                
-                if previousLocation < nextLocation {
-                    previousRoundedCorners.remove( .TopLeft )
-                    nextRoundedCorners.insert( .TopRight )
-                }
-                else if previousLocation > nextLocation {
-                    previousRoundedCorners.insert( .TopLeft )
-                    nextRoundedCorners.remove( .TopRight )
-                }
-                else {
-                    previousRoundedCorners.remove( .TopLeft )
-                    nextRoundedCorners.remove( .TopRight )
-                }
-                
-            case .Right:
-                
-                previousLocation = previousFrame.origin.y
-                nextLocation = nextFrame.origin.y
-                
-                if previousLocation < nextLocation {
-                    previousRoundedCorners.insert( .BottomRight )
-                    nextRoundedCorners.remove( .BottomLeft )
-                }
-                else if previousLocation > nextLocation {
-                    previousRoundedCorners.remove( .BottomRight )
-                    nextRoundedCorners.insert( .BottomLeft )
-                }
-                else {
-                    previousRoundedCorners.remove( .BottomRight )
-                    nextRoundedCorners.remove( .BottomLeft )
-                }
-                
-                previousLocation = previousFrame.maxY
-                nextLocation = nextFrame.maxY
-                if previousLocation < nextLocation {
-                    previousRoundedCorners.remove( .TopRight )
-                    nextRoundedCorners.insert( .TopLeft )
-                }
-                else if previousLocation > nextLocation {
-                    previousRoundedCorners.insert( .TopRight )
-                    nextRoundedCorners.remove( .TopLeft )
-                }
-                else {
-                    previousRoundedCorners.remove( .TopRight )
-                    nextRoundedCorners.remove( .TopLeft )
-                }
+            if firstWindow.alignmentFromPrevious == .Right {
+                self.updateRoundedCornersBetween( leftWindow: secondWindow, rightWindow: firstWindow )
+                firstWindow.roundedCorners.unionInPlace( [ .TopRight, .BottomRight ] )
             }
-            
-            if previousRoundedCorners != previousWindow.roundedCorners {
-                previousWindow.roundedCorners = previousRoundedCorners
+            else {
+                self.updateRoundedCornersBetween( leftWindow: firstWindow, rightWindow: secondWindow )
+                firstWindow.roundedCorners.unionInPlace( [ .TopLeft, .BottomLeft ] )
             }
-            
-            previousWindow = nextWindow
-            previousRoundedCorners = nextRoundedCorners
-            previousFrame = nextFrame
-            previousLocation = nextLocation
+        }
+        else {
+            firstWindow.roundedCorners = .All
+        }
+    }
+    
+    /*==========================================================================*/
+    private func updateRoundedCornersBetween( leftWindow leftWindow: OBWFilteringMenuWindow, rightWindow: OBWFilteringMenuWindow ) {
+        
+        let leftFrame = leftWindow.frame
+        let rightFrame = rightWindow.frame
+        
+        if leftFrame.maxY > rightFrame.maxY {
+            leftWindow.roundedCorners.insert( .TopRight )
+            rightWindow.roundedCorners.remove( .TopLeft )
+        }
+        else if leftFrame.maxY < rightFrame.maxY {
+            leftWindow.roundedCorners.remove( .TopRight )
+            rightWindow.roundedCorners.insert( .TopLeft )
+        }
+        else {
+            leftWindow.roundedCorners.remove( .TopRight )
+            rightWindow.roundedCorners.remove( .TopLeft )
         }
         
-        switch previousWindow.alignmentFromPrevious {
-            
-        case .Left:
-            previousRoundedCorners.insert( .TopLeft )
-            previousRoundedCorners.insert( .BottomLeft )
-            
-        case .Right:
-            previousRoundedCorners.insert( .TopRight )
-            previousRoundedCorners.insert( .BottomRight )
+        if leftFrame.minY < rightFrame.minY {
+            leftWindow.roundedCorners.insert( .BottomRight )
+            rightWindow.roundedCorners.remove( .BottomLeft )
         }
-        
-        if previousRoundedCorners != previousWindow.roundedCorners {
-            previousWindow.roundedCorners = previousRoundedCorners
+        else if leftFrame.minY > rightFrame.minY {
+            leftWindow.roundedCorners.remove( .BottomRight )
+            rightWindow.roundedCorners.insert( .BottomLeft )
+        }
+        else {
+            leftWindow.roundedCorners.remove( .BottomRight )
+            rightWindow.roundedCorners.remove( .BottomLeft )
         }
     }
     
