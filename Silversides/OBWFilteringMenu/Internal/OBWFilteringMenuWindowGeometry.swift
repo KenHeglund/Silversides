@@ -81,10 +81,10 @@ class OBWFilteringMenuWindowGeometry {
         let rightAlignmentLocation: NSPoint
         
         if areaInScreen.height < self.frame.size.height {
-            rightAlignmentLocation = NSPoint( x: areaInScreen.maxX, y: areaInScreen.maxY )
+            rightAlignmentLocation = NSPoint( x: areaInScreen.maxX + 1.0, y: areaInScreen.maxY )
         }
         else {
-            rightAlignmentLocation = NSPoint( x: areaInScreen.maxX, y: areaInScreen.midY )
+            rightAlignmentLocation = NSPoint( x: areaInScreen.maxX + 1.0, y: areaInScreen.midY )
         }
         
         var rightGeometry: OBWFilteringMenuWindowGeometry? = OBWFilteringMenuWindowGeometry( window: self.window )
@@ -100,14 +100,14 @@ class OBWFilteringMenuWindowGeometry {
         if areaInScreen.height < self.frame.size.height {
             
             leftAlignmentLocation = NSPoint(
-                x: areaInScreen.origin.x - self.frame.size.width,
+                x: areaInScreen.origin.x - self.frame.size.width - 1.0,
                 y: areaInScreen.maxY
             )
         }
         else {
             
             leftAlignmentLocation = NSPoint(
-                x: areaInScreen.origin.x - self.frame.size.width,
+                x: areaInScreen.origin.x - self.frame.size.width - 1.0,
                 y: areaInScreen.midY
             )
         }
