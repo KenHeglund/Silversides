@@ -262,6 +262,9 @@ class OBWFilteringMenuController {
                 case .beginGesture, .endGesture:
                     break
                     
+                case .pressure:
+                    break
+                    
                 case NSEventType( rawValue: 21 )!:
                     // This event type does not currently have a symbolic name, but occurs when Expose is activated or deactivated.  It also occurs when right-clicking outside of the current application.
                     result = .cancel
