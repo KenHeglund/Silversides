@@ -26,7 +26,7 @@ class OBWFilteringMenuBackgroundTests: XCTestCase {
     /*==========================================================================*/
     func testThatAllCornersAreRoundedByDefault() {
         
-        let frame = NSRect( width: 40.0, height: 60.0 )
+        let frame = NSRect(x: 40.0, y: 40.0, width: 60.0, height: 60.0)
         let background = OBWFilteringMenuBackground( frame: frame )
         XCTAssertEqual( self.roundedCornersForBackground( background ), OBWFilteringMenuCorners.All )
     }
@@ -34,7 +34,7 @@ class OBWFilteringMenuBackgroundTests: XCTestCase {
     /*==========================================================================*/
     func testThatTheMaskImageUpdatesCornersCorrectly() {
         
-        let frame = NSRect( width: 40.0, height: 60.0 )
+        let frame = NSRect(x: 40.0, y: 40.0, width: 60.0, height: 60.0)
         let background = OBWFilteringMenuBackground( frame: frame )
         
         for rawValue: UInt in 0...15 {
@@ -46,7 +46,7 @@ class OBWFilteringMenuBackgroundTests: XCTestCase {
     }
     
     /*==========================================================================*/
-    private func roundedCornersForBackground( view: OBWFilteringMenuBackground ) -> OBWFilteringMenuCorners {
+    fileprivate func roundedCornersForBackground( _ view: OBWFilteringMenuBackground ) -> OBWFilteringMenuCorners {
         
         guard let image = view.maskImage else { return [] }
         let imageFrame = NSRect( size: image.size )
@@ -54,22 +54,22 @@ class OBWFilteringMenuBackgroundTests: XCTestCase {
         var roundedCorners: OBWFilteringMenuCorners = []
         
         var testRect = NSRect( x: imageFrame.origin.x, y: imageFrame.maxY - 1.0, width: 1.0, height: 1.0 )
-        if !image.hitTestRect( testRect, withImageDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
+        if !image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
             roundedCorners.insert( .TopLeft )
         }
         
         testRect.origin.y = imageFrame.origin.y
-        if !image.hitTestRect( testRect, withImageDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
+        if !image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
             roundedCorners.insert( .BottomLeft )
         }
         
         testRect.origin.x = imageFrame.maxX - 1.0
-        if !image.hitTestRect( testRect, withImageDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
+        if !image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
             roundedCorners.insert( .BottomRight )
         }
 
         testRect.origin.y = imageFrame.maxY - 1.0
-        if !image.hitTestRect( testRect, withImageDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
+        if !image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
             roundedCorners.insert( .TopRight )
         }
         

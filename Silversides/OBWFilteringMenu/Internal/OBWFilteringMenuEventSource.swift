@@ -8,7 +8,7 @@ import Cocoa
 
 /*==========================================================================*/
 
-struct OBWApplicationEventSubtype: OptionSetType {
+struct OBWApplicationEventSubtype: OptionSet {
     
     init( rawValue: Int16 ) {
         self.rawValue = rawValue
@@ -46,11 +46,11 @@ class OBWFilteringMenuEventSource: NSObject {
     }
     
     /*==========================================================================*/
-    private func updateObservation( previousMask: OBWApplicationEventSubtype ) {
+    fileprivate func updateObservation( _ previousMask: OBWApplicationEventSubtype ) {
         
         let activeMask: OBWApplicationEventSubtype = [ .ApplicationDidBecomeActive, .ApplicationDidResignActive ]
-        let wasObservingActive = !previousMask.intersect( activeMask ).isEmpty
-        let shouldObserveActive = !self.eventMask.intersect( activeMask ).isEmpty
+        let wasObservingActive = !previousMask.intersection( activeMask ).isEmpty
+        let shouldObserveActive = !self.eventMask.intersection( activeMask ).isEmpty
         
         if shouldObserveActive == wasObservingActive {
             return
@@ -58,7 +58,7 @@ class OBWFilteringMenuEventSource: NSObject {
         
         if shouldObserveActive {
             
-            self.currentApplication.addObserver( self, forKeyPath: "active", options: [ .New, .Old ], context: &OBWFilteringMenuEventSource.kvoContext )
+            self.currentApplication.addObserver( self, forKeyPath: "active", options: [ .new, .old ], context: &OBWFilteringMenuEventSource.kvoContext )
         }
         else {
             
@@ -69,13 +69,13 @@ class OBWFilteringMenuEventSource: NSObject {
     /*==========================================================================*/
     // MARK: - NSKeyValueObserving implementation
     
-    override func observeValueForKeyPath( keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void> ) {
+    override func observeValue( forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer? ) {
         
         guard context == &OBWFilteringMenuEventSource.kvoContext else { return }
         guard keyPath == "active" else { return }
         
-        guard let isActive = change?[NSKeyValueChangeNewKey] as? Bool else { return }
-        guard let wasActive = change?[NSKeyValueChangeOldKey] as? Bool else { return }
+        guard let isActive = change?[NSKeyValueChangeKey.newKey] as? Bool else { return }
+        guard let wasActive = change?[NSKeyValueChangeKey.oldKey] as? Bool else { return }
         
         if isActive == wasActive { return }
         
@@ -83,11 +83,11 @@ class OBWFilteringMenuEventSource: NSObject {
         
         if isActive && self.eventMask.contains( .ApplicationDidBecomeActive ) {
             
-            cocoaEvent = NSEvent.otherEventWithType(
-                .ApplicationDefined,
+            cocoaEvent = NSEvent.otherEvent(
+                with: .applicationDefined,
                 location: NSZeroPoint,
                 modifierFlags: [],
-                timestamp: NSProcessInfo.processInfo().systemUptime,
+                timestamp: ProcessInfo().systemUptime,
                 windowNumber: 0,
                 context: nil,
                 subtype: OBWApplicationEventSubtype.ApplicationDidBecomeActive.rawValue,
@@ -97,11 +97,11 @@ class OBWFilteringMenuEventSource: NSObject {
         }
         else if !isActive && self.eventMask.contains( .ApplicationDidResignActive ) {
             
-            cocoaEvent = NSEvent.otherEventWithType(
-                .ApplicationDefined,
+            cocoaEvent = NSEvent.otherEvent(
+                with: .applicationDefined,
                 location: NSZeroPoint,
                 modifierFlags: [],
-                timestamp: NSProcessInfo.processInfo().systemUptime,
+                timestamp: ProcessInfo().systemUptime,
                 windowNumber: 0,
                 context: nil,
                 subtype: OBWApplicationEventSubtype.ApplicationDidResignActive.rawValue,
@@ -121,13 +121,13 @@ class OBWFilteringMenuEventSource: NSObject {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuEventSource implementation
     
-    func startPeriodicApplicationEventsAfterDelay( delayInSeconds: NSTimeInterval, withPeriod periodInSeconds: NSTimeInterval ) {
+    func startPeriodicApplicationEventsAfterDelay( _ delayInSeconds: TimeInterval, withPeriod periodInSeconds: TimeInterval ) {
         
         if let _ = self.eventTimer {
             self.stopPeriodicApplicationEvents()
         }
         
-        let timer = NSTimer(
+        let timer = Timer(
             timeInterval: periodInSeconds,
             target: self,
             selector: #selector(OBWFilteringMenuEventSource.periodicApplicationEventTimerDidFire(_:)),
@@ -135,8 +135,8 @@ class OBWFilteringMenuEventSource: NSObject {
             repeats: true
         )
         
-        timer.fireDate = NSDate( timeIntervalSinceNow: delayInSeconds )
-        NSRunLoop.currentRunLoop().addTimer( timer, forMode: NSRunLoopCommonModes )
+        timer.fireDate = Date( timeIntervalSinceNow: delayInSeconds )
+        RunLoop.current.add( timer, forMode: RunLoopMode.commonModes )
         
         self.eventTimer = timer
         self.eventMask.insert( .Periodic )
@@ -150,28 +150,28 @@ class OBWFilteringMenuEventSource: NSObject {
         self.eventTimer?.invalidate()
         self.eventTimer = nil
         
-        NSApplication.sharedApplication().discardEventsMatchingMask( NSEventMask.ApplicationDefined, beforeEvent: nil )
+        NSApplication.shared().discardEvents( matching: NSEventMask.applicationDefined, before: nil )
     }
     
     
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuEventSource private
     
-    lazy private var currentApplication: NSRunningApplication = NSRunningApplication.currentApplication()
-    weak private var eventTimer: NSTimer? = nil
+    lazy fileprivate var currentApplication: NSRunningApplication = NSRunningApplication.current()
+    weak fileprivate var eventTimer: Timer? = nil
     
-    private static var kvoContext = "OBWApplicationObservingContext"
+    fileprivate static var kvoContext = "OBWApplicationObservingContext"
     
     /*==========================================================================*/
-    @objc private func periodicApplicationEventTimerDidFire( timer: NSTimer ) {
+    @objc fileprivate func periodicApplicationEventTimerDidFire( _ timer: Timer ) {
         
         guard self.eventMask.contains( .Periodic ) else { return }
         
-        guard let cocoaEvent = NSEvent.otherEventWithType(
-            .ApplicationDefined,
+        guard let cocoaEvent = NSEvent.otherEvent(
+            with: .applicationDefined,
             location: NSZeroPoint,
             modifierFlags: [],
-            timestamp: NSProcessInfo.processInfo().systemUptime,
+            timestamp: ProcessInfo().systemUptime,
             windowNumber: 0,
             context: nil,
             subtype: OBWApplicationEventSubtype.Periodic.rawValue,

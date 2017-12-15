@@ -54,7 +54,7 @@ class OBWFilteringMenuCursorTracking {
     }
     
     /*==========================================================================*/
-    func isCursorProgressingTowardSubmenu( event: NSEvent ) -> Bool {
+    func isCursorProgressingTowardSubmenu( _ event: NSEvent ) -> Bool {
         
         if let eventLocation = event.obw_locationInScreen {
             
@@ -87,27 +87,27 @@ class OBWFilteringMenuCursorTracking {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuCursorTracking private
     
-    private static let trackingInterval = 0.10
-    private static let minimumSpeed = 10.0
+    fileprivate static let trackingInterval = 0.10
+    fileprivate static let minimumSpeed = 10.0
     
-    private let destinationArea: NSRect
+    fileprivate let destinationArea: NSRect
     
-    private var applyLimits = false
+    fileprivate var applyLimits = false
     
-    private var lastMouseTimestamp: NSTimeInterval? = nil
+    fileprivate var lastMouseTimestamp: TimeInterval? = nil
     
-    private let cursorWaypoints: [OBWFilteringMenuCursorTrackingWaypoint] =
+    fileprivate let cursorWaypoints: [OBWFilteringMenuCursorTrackingWaypoint] =
         (1...20).map({ _ in OBWFilteringMenuCursorTrackingWaypoint() })
     
     
-    private var topSlope: CGFloat = 0.0
-    private var topOffset: CGFloat = 0.0
-    private var bottomSlope: CGFloat = 0.0
-    private var bottomOffset: CGFloat = 0.0
-    private var minimumDrawX: CGFloat = 0.0
-    private var maximumDrawX: CGFloat = 0.0
+    fileprivate var topSlope: CGFloat = 0.0
+    fileprivate var topOffset: CGFloat = 0.0
+    fileprivate var bottomSlope: CGFloat = 0.0
+    fileprivate var bottomOffset: CGFloat = 0.0
+    fileprivate var minimumDrawX: CGFloat = 0.0
+    fileprivate var maximumDrawX: CGFloat = 0.0
     
-    private static let debugWindow: OBWFilteringMenuCursorTrackingDebugWindow? = {
+    fileprivate static let debugWindow: OBWFilteringMenuCursorTrackingDebugWindow? = {
         #if DEBUG_CURSOR_TRACKING
             return OBWFilteringMenuCursorTrackingDebugWindow()
         #else
@@ -117,7 +117,7 @@ class OBWFilteringMenuCursorTracking {
 
     
     /*==========================================================================*/
-    private func recalculateLimits() {
+    fileprivate func recalculateLimits() {
         
         let sourceLine = self.sourceLine
         let destinationArea = self.destinationArea
@@ -195,7 +195,7 @@ class OBWFilteringMenuCursorTracking {
     }
     
     /*==========================================================================*/
-    private func resetWaypoints() {
+    fileprivate func resetWaypoints() {
         
         for waypoint in self.cursorWaypoints {
             waypoint.timestamp = nil
@@ -203,15 +203,15 @@ class OBWFilteringMenuCursorTracking {
     }
     
     /*==========================================================================*/
-    private func isCursorMovingFastEnough( timestamp: NSTimeInterval, locationInScreen: NSPoint ) -> Bool {
+    fileprivate func isCursorMovingFastEnough( _ timestamp: TimeInterval, locationInScreen: NSPoint ) -> Bool {
         
         let waypoints = self.cursorWaypoints
         var oldestIndex = waypoints.startIndex
         
-        let firstIndex = waypoints.startIndex.successor()
-        let lastIndex = waypoints.endIndex.predecessor()
+        let firstIndex = (waypoints.startIndex + 1)
+        let lastIndex = (waypoints.endIndex - 1)
         
-        for index in (firstIndex...lastIndex).reverse() {
+        for index in (firstIndex...lastIndex).reversed() {
             
             let newTimestamp = waypoints[index - 1].timestamp
             let newLocation = waypoints[index - 1].locationInScreen
@@ -249,7 +249,7 @@ class OBWFilteringMenuCursorTracking {
 // MARK: -
 
 private class OBWFilteringMenuCursorTrackingWaypoint {
-    var timestamp: NSTimeInterval? = nil
+    var timestamp: TimeInterval? = nil
     var locationInScreen: NSPoint = NSZeroPoint
 }
 
@@ -260,11 +260,11 @@ private class OBWFilteringMenuCursorTrackingDebugView: NSView {
     
     weak var cursorTracking: OBWFilteringMenuCursorTracking? = nil
     
-    override func drawRect( dirtyRect: NSRect ) {
+    override func draw( _ dirtyRect: NSRect ) {
         
         let bounds = self.bounds
         
-        NSColor.clearColor().set()
+        NSColor.clear.set()
         NSRectFill( bounds )
         
         guard let cursorTracking = self.cursorTracking else { return }
@@ -292,11 +292,11 @@ private class OBWFilteringMenuCursorTrackingDebugView: NSView {
         NSColor( deviceRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.15 ).set()
         
         let path = NSBezierPath()
-        path.moveToPoint( topRight )
-        path.lineToPoint( topLeft )
-        path.lineToPoint( bottomLeft )
-        path.lineToPoint( bottomRight )
-        path.closePath()
+        path.move( to: topRight )
+        path.line( to: topLeft )
+        path.line( to: bottomLeft )
+        path.line( to: bottomRight )
+        path.close()
         path.fill()
         
         NSColor( deviceRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.5 ).set()
@@ -319,16 +319,16 @@ private class OBWFilteringMenuCursorTrackingDebugWindow: NSWindow {
         let trackingView = OBWFilteringMenuCursorTrackingDebugView( frame: screenFrame )
         self.trackingView = trackingView
         
-        super.init( contentRect: screenFrame, styleMask: NSBorderlessWindowMask, backing: .Buffered, defer: false )
+        super.init( contentRect: screenFrame, styleMask: NSBorderlessWindowMask, backing: .buffered, defer: false )
         
-        self.level = CGWindowLevelForKey( .ScreenSaverWindowLevelKey ) - 10
-        self.opaque = false
-        self.backgroundColor = NSColor.clearColor()
+        self.level = Int(CGWindowLevelForKey( .screenSaverWindow )) - 10
+        self.isOpaque = false
+        self.backgroundColor = NSColor.clear
         self.hasShadow = false
         self.ignoresMouseEvents = true
         self.acceptsMouseMovedEvents = false
-        self.releasedWhenClosed = false
-        self.animationBehavior = .None
+        self.isReleasedWhenClosed = false
+        self.animationBehavior = .none
         
         self.contentView?.addSubview( trackingView )
     }

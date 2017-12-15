@@ -8,18 +8,18 @@ import Cocoa
 
 /*==========================================================================*/
 
-public struct OBWPathItemStyle: OptionSetType {
+public struct OBWPathItemStyle: OptionSet {
     
     public init( rawValue: UInt ) {
         self.rawValue = rawValue & 0x7
     }
     
-    public var rawValue: UInt
+    public let rawValue: UInt
     
-    public static let Default       = OBWPathItemStyle( rawValue: 0 )
-    public static let Italic        = OBWPathItemStyle( rawValue: 1 << 0 )
-    public static let Bold          = OBWPathItemStyle( rawValue: 1 << 1 )
-    public static let NoTextShadow  = OBWPathItemStyle( rawValue: 1 << 2 )
+    public static let `default`     = OBWPathItemStyle( rawValue: 0 )
+    public static let italic        = OBWPathItemStyle( rawValue: 1 << 0 )
+    public static let bold          = OBWPathItemStyle( rawValue: 1 << 1 )
+    public static let noTextShadow  = OBWPathItemStyle( rawValue: 1 << 2 )
 }
 
 /*==========================================================================*/

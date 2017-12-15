@@ -33,13 +33,13 @@ extension NSEvent {
         guard let window = self.window else { return self.locationInWindow }
         
         let rectInWindow = NSRect( origin: self.locationInWindow, size: NSZeroSize )
-        let rectInScreen = window.convertRectToScreen( rectInWindow )
+        let rectInScreen = window.convertToScreen( rectInWindow )
         
         return rectInScreen.origin
     }
     
     /*==========================================================================*/
-    func obw_locationInView( view: NSView ) -> NSPoint? {
+    func obw_locationInView( _ view: NSView ) -> NSPoint? {
         
         guard NSEvent.obw_isLocationPropertyValid( self.type ) else { return nil }
         guard let viewWindow = view.window else { return nil }
@@ -55,8 +55,8 @@ extension NSEvent {
             else {
                 
                 let rectInEventWindow = NSRect( origin: self.locationInWindow, size: NSZeroSize )
-                let rectInScreen = eventWindow.convertRectToScreen( rectInEventWindow )
-                let rectInViewWindow = viewWindow.convertRectFromScreen( rectInScreen )
+                let rectInScreen = eventWindow.convertToScreen( rectInEventWindow )
+                let rectInViewWindow = viewWindow.convertFromScreen( rectInScreen )
                 
                 locationInViewWindow = rectInViewWindow.origin;
             }
@@ -64,30 +64,30 @@ extension NSEvent {
         else {
             
             let rectInScreen = NSRect( origin: self.locationInWindow, size: NSZeroSize )
-            let rectInWindow = viewWindow.convertRectFromScreen( rectInScreen )
+            let rectInWindow = viewWindow.convertFromScreen( rectInScreen )
             
             locationInViewWindow = rectInWindow.origin
         }
         
-        return view.convertPoint( locationInViewWindow, fromView: nil )
+        return view.convert( locationInViewWindow, from: nil )
     }
     
     /*==========================================================================*/
-    private class func obw_isLocationPropertyValid( type: NSEventType ) -> Bool {
+    fileprivate class func obw_isLocationPropertyValid( _ type: NSEventType ) -> Bool {
         
         let locationValidMask: NSEventMask = [
-            .LeftMouseDown,
-            .LeftMouseUp,
-            .RightMouseDown,
-            .RightMouseUp,
-            .MouseMoved,
-            .LeftMouseDragged,
-            .RightMouseDragged,
-            .ScrollWheel,
-            .OtherMouseDown,
-            .OtherMouseUp,
-            .OtherMouseDragged,
-            .CursorUpdate
+            .leftMouseDown,
+            .leftMouseUp,
+            .rightMouseDown,
+            .rightMouseUp,
+            .mouseMoved,
+            .leftMouseDragged,
+            .rightMouseDragged,
+            .scrollWheel,
+            .otherMouseDown,
+            .otherMouseUp,
+            .otherMouseDragged,
+            .cursorUpdate
         ]
         
         return locationValidMask.contains( NSEventMaskFromType( type ) )

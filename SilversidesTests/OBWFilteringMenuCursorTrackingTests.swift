@@ -51,7 +51,7 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
         )
         
         let intervalPerEvent = 0.05
-        var timestamp = NSProcessInfo.processInfo().systemUptime
+        var timestamp = ProcessInfo().systemUptime
         
         var result = true
         
@@ -60,8 +60,8 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
             locationInScreen.x += distancePerEvent
             timestamp += intervalPerEvent
             
-            let event = NSEvent.mouseEventWithType(
-                .MouseMoved,
+            let event = NSEvent.mouseEvent(
+                with: .mouseMoved,
                 location: locationInScreen,
                 modifierFlags: [],
                 timestamp: timestamp,
@@ -108,7 +108,7 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
         )
         
         let intervalPerEvent = 0.1
-        var timestamp = NSProcessInfo.processInfo().systemUptime
+        var timestamp = ProcessInfo().systemUptime
         
         var result = true
         
@@ -117,8 +117,8 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
             locationInScreen.x += distancePerEvent
             timestamp += intervalPerEvent
             
-            let event = NSEvent.mouseEventWithType(
-                .MouseMoved,
+            let event = NSEvent.mouseEvent(
+                with: .mouseMoved,
                 location: locationInScreen,
                 modifierFlags: [],
                 timestamp: timestamp,
@@ -166,7 +166,7 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
         )
         
         let intervalPerEvent = 0.05
-        var timestamp = NSProcessInfo.processInfo().systemUptime
+        var timestamp = ProcessInfo().systemUptime
         
         var result = true
         
@@ -177,8 +177,8 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
             
             timestamp += intervalPerEvent
             
-            let event = NSEvent.mouseEventWithType(
-                .MouseMoved,
+            let event = NSEvent.mouseEvent(
+                with: .mouseMoved,
                 location: locationInScreen,
                 modifierFlags: [],
                 timestamp: timestamp,

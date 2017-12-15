@@ -22,7 +22,7 @@ class OBWImageCell: NSImageCell {
 
 extension NSGraphicsContext {
     
-    static func withSavedGraphicsState( @noescape handler: () -> Void ) {
+    static func withSavedGraphicsState( _ handler: () -> Void ) {
         NSGraphicsContext.saveGraphicsState()
         handler()
         NSGraphicsContext.restoreGraphicsState()
@@ -54,17 +54,17 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         super.init( menuItem: menuItem )
         
         itemTitleField.cell = OBWTextFieldCell()
-        itemTitleField.editable = false
-        itemTitleField.selectable = false
-        itemTitleField.bezeled = false
+        itemTitleField.isEditable = false
+        itemTitleField.isSelectable = false
+        itemTitleField.isBezeled = false
         #if DEBUG_MENU_TINTING
             itemTitleField.drawsBackground = true
             itemTitleField.backgroundColor = NSColor( deviceRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.15 )
         #else
             itemTitleField.drawsBackground = false
         #endif
-        itemTitleField.cell?.lineBreakMode = .ByClipping
-        itemTitleField.textColor = NSColor.blackColor()
+        itemTitleField.cell?.lineBreakMode = .byClipping
+        itemTitleField.textColor = NSColor.black
         itemTitleField.alphaValue = ( menuItem.enabled ? 1.0 : 0.35 )
         itemTitleField.attributedStringValue = self.attributedStringValue
         
@@ -72,22 +72,22 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         itemImageView.cell = OBWImageCell()
         itemImageView.image = menuItem.image
-        itemImageView.imageFrameStyle = .None
-        itemImageView.editable = false
-        itemImageView.hidden = ( menuItem.image == nil )
-        itemImageView.enabled = menuItem.enabled
+        itemImageView.imageFrameStyle = .none
+        itemImageView.isEditable = false
+        itemImageView.isHidden = ( menuItem.image == nil )
+        itemImageView.isEnabled = menuItem.enabled
         
         self.addSubview( itemImageView )
         
         subviewArrowImageView.cell = OBWImageCell()
         subviewArrowImageView.image = OBWFilteringMenuArrows.blackRightArrow
-        subviewArrowImageView.imageFrameStyle = .None
-        subviewArrowImageView.editable = false
-        subviewArrowImageView.hidden = ( menuItem.submenu == nil )
+        subviewArrowImageView.imageFrameStyle = .none
+        subviewArrowImageView.isEditable = false
+        subviewArrowImageView.isHidden = ( menuItem.submenu == nil )
         
         self.addSubview( subviewArrowImageView )
         
-        NSNotificationCenter.defaultCenter().addObserver( self, selector: #selector(OBWFilteringMenuActionItemView.highlightedItemDidChange(_:)), name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: nil )
+        NotificationCenter.default.addObserver( self, selector: #selector(OBWFilteringMenuActionItemView.highlightedItemDidChange(_:)), name: NSNotification.Name(rawValue: OBWFilteringMenu.highlightedItemDidChangeNotification), object: nil )
     }
     
     /*==========================================================================*/
@@ -97,14 +97,14 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     
     /*==========================================================================*/
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver( self, name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: nil )
+        NotificationCenter.default.removeObserver( self, name: NSNotification.Name(rawValue: OBWFilteringMenu.highlightedItemDidChangeNotification), object: nil )
     }
     
     /*==========================================================================*/
     // MARK: - NSView overrides
     
     /*==========================================================================*/
-    override func resizeSubviewsWithOldSize( oldSize: NSSize ) {
+    override func resizeSubviews( withOldSize oldSize: NSSize ) {
         
         let itemViewBounds = self.bounds
         let interiorMargins = OBWFilteringMenuActionItemView.interiorMargins
@@ -114,8 +114,8 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let titleFrameOffsetY: CGFloat
         
         let attributedTitleLength = self.menuItem.attributedTitle?.length ?? 0
-        let fontHeight = self.menuItem.font
-        if attributedTitleLength == 0 && fontHeight == NSFont.systemFontSizeForControlSize( .Regular ) {
+        let fontHeight = self.menuItem.font.pointSize
+        if attributedTitleLength == 0 && fontHeight == NSFont.systemFontSize( for: .regular ) {
             // Special cases for the standard Regular control size
             imageFrameOffsetY = 1.0
             titleFrameOffsetY = 1.0
@@ -149,7 +149,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    override func drawRect( dirtyRect: NSRect ) {
+    override func draw( _ dirtyRect: NSRect ) {
         
         #if DEBUG_MENU_TINTING
             NSColor( deviceRed: 0.0, green: 1.0, blue: 0.0, alpha: 0.1 ).set()
@@ -161,11 +161,11 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         NSGraphicsContext.withSavedGraphicsState {
             
             let localOrigin = self.bounds.origin
-            let originInWindow = self.convertPoint( localOrigin, toView: nil )
+            let originInWindow = self.convert( localOrigin, to: nil )
             
-            NSGraphicsContext.currentContext()?.patternPhase = originInWindow
+            NSGraphicsContext.current()?.patternPhase = originInWindow
             
-            NSColor.selectedMenuItemColor().setFill()
+            NSColor.selectedMenuItemColor.setFill()
             NSRectFill( self.bounds )
         }
     }
@@ -174,7 +174,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     // MARK: - OBWFilteringMenuItemView overrides
     
     /*==========================================================================*/
-    override class func preferredSizeForMenuItem( menuItem: OBWFilteringMenuItem ) -> NSSize {
+    override class func preferredSizeForMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSSize {
         
         let interiorMargins = OBWFilteringMenuActionItemView.interiorMargins
         let imageMargins = OBWFilteringMenuActionItemView.imageMargins
@@ -218,13 +218,13 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let standardSmallControlMenuItemHeight: CGFloat = 16.0
         let standardRegularControlMenuItemHeight: CGFloat = 18.0
         
-        if NSFont.systemFontSizeForControlSize( .Mini ) == fontHeight {
+        if NSFont.systemFontSize( for: .mini ) == fontHeight {
             preferredSize.height = max( preferredSize.height, standardMiniControlMenuItemHeight )
         }
-        else if NSFont.systemFontSizeForControlSize( .Small ) == fontHeight {
+        else if NSFont.systemFontSize( for: .small ) == fontHeight {
             preferredSize.height = max( preferredSize.height, standardSmallControlMenuItemHeight )
         }
-        else if NSFont.systemFontSizeForControlSize( .Regular ) == fontHeight {
+        else if NSFont.systemFontSize( for: .regular ) == fontHeight {
             preferredSize.height = max( preferredSize.height, standardRegularControlMenuItemHeight )
         }
         
@@ -232,7 +232,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    override func applyFilterStatus( status: OBWFilteringMenuItemFilterStatus ) {
+    override func applyFilterStatus( _ status: OBWFilteringMenuItemFilterStatus ) {
         
         super.applyFilterStatus( status )
         
@@ -262,13 +262,13 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    override func accessibilityParent() -> AnyObject? {
+    override func accessibilityParent() -> Any? {
         guard let superview = self.superview else { return nil }
         return NSAccessibilityUnignoredAncestor( superview )
     }
     
     /*==========================================================================*/
-    override func accessibilityValue() -> AnyObject? {
+    override func accessibilityValue() -> Any? {
         return self.menuItem.title ?? nil
     }
     
@@ -279,7 +279,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    override func accessibilityChildren() -> [AnyObject]? {
+    override func accessibilityChildren() -> [Any]? {
         return []
     }
     
@@ -311,14 +311,14 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         let format = menuItem.submenu == nil ? itemWithoutSubmenuFormat : itemWithSubmenuFormat
         
-        return NSString( format: format, title ) as String
+        return NSString( format: format as NSString, title ) as String
     }
     
     /*==========================================================================*/
     override func accessibilityPerformPress() -> Bool {
-        let notificationCenter = NSNotificationCenter.defaultCenter()
+        let notificationCenter = NotificationCenter.default
         let userInfo = [ OBWFilteringMenuItemKey : self.menuItem ]
-        notificationCenter.postNotificationName( OBWFilteringMenuAXDidOpenMenuItemNotification, object: self, userInfo: userInfo )
+        notificationCenter.post( name: Notification.Name(rawValue: OBWFilteringMenuAXDidOpenMenuItemNotification), object: self, userInfo: userInfo )
         return true
     }
     
@@ -326,7 +326,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     // MARK: - OBWFilteringMenuActionItemView internal
     
     /*==========================================================================*/
-    static func titleOffsetForMenuItem( menuItem: OBWFilteringMenuItem ) -> NSSize {
+    static func titleOffsetForMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSSize {
         
         let interiorMargins = OBWFilteringMenuActionItemView.interiorMargins
         let imageMargins = OBWFilteringMenuActionItemView.imageMargins
@@ -348,7 +348,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             
             let fontHeight = menuItem.font.pointSize
             
-            if NSFont.systemFontSizeForControlSize( .Regular ) == fontHeight {
+            if NSFont.systemFontSize( for: .regular ) == fontHeight {
                 // Special cases for standard Regular control font size
                 titleFrameOffsetY = 1.0
             }
@@ -378,17 +378,17 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuActionItemView private
     
-    unowned private let itemTitleField: NSTextField
-    unowned private let itemImageView: NSImageView
-    unowned private let subviewArrowImageView: NSImageView
+    unowned fileprivate let itemTitleField: NSTextField
+    unowned fileprivate let itemImageView: NSImageView
+    unowned fileprivate let subviewArrowImageView: NSImageView
     
-    private static let subviewArrowFrame = NSRect( width: 9.0, height: 10.0 )
-    private static let interiorMargins = NSEdgeInsets( top: 0.0, left: 19.0, bottom: 0.0, right: 10.0 )
-    private static let imageMargins = NSEdgeInsets( top: 2.0, left: 2.0, bottom: 2.0, right: 2.0 )
-    private static let titleToSubmenuArrowSpacing: CGFloat = 37.0
+    fileprivate static let subviewArrowFrame = NSRect( width: 9.0, height: 10.0 )
+    fileprivate static let interiorMargins = EdgeInsets( top: 0.0, left: 19.0, bottom: 0.0, right: 10.0 )
+    fileprivate static let imageMargins = EdgeInsets( top: 2.0, left: 2.0, bottom: 2.0, right: 2.0 )
+    fileprivate static let titleToSubmenuArrowSpacing: CGFloat = 37.0
     
     /*==========================================================================*/
-    private var attributedStringValue: NSAttributedString {
+    fileprivate var attributedStringValue: NSAttributedString {
         
         if let filterStatus = self.filterStatus {
             
@@ -398,7 +398,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             
             let attributedString = NSMutableAttributedString( attributedString: filterStatus.highlightedTitle )
             let range = NSRange( location: 0, length: attributedString.length )
-            attributedString.addAttribute( NSForegroundColorAttributeName, value: NSColor.whiteColor(), range: range )
+            attributedString.addAttribute( NSForegroundColorAttributeName, value: NSColor.white, range: range )
             
             return attributedString
         }
@@ -411,7 +411,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    private class func preferredViewSizeForTitleOfMenuItem( menuItem: OBWFilteringMenuItem ) -> NSSize {
+    fileprivate class func preferredViewSizeForTitleOfMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSSize {
         
         let titleSize = OBWFilteringMenuActionItemView.titleSizeForMenuItem( menuItem )
         
@@ -433,16 +433,16 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    private class func titleSizeForMenuItem( menuItem: OBWFilteringMenuItem ) -> NSSize {
+    fileprivate class func titleSizeForMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSSize {
         return OBWFilteringMenuActionItemView.attributedTitleForMenuItem( menuItem )?.size() ?? NSZeroSize
     }
     
     /*==========================================================================*/
-    private class func attributedTitleForMenuItem( menuItem: OBWFilteringMenuItem ) -> NSAttributedString? {
+    fileprivate class func attributedTitleForMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSAttributedString? {
         
         let attributedTitle: NSMutableAttributedString
         
-        if menuItem.attributedTitle?.length > 0 {
+        if let menuItemTitle = menuItem.attributedTitle, menuItemTitle.length > 0 {
             attributedTitle = menuItem.attributedTitle!.mutableCopy() as! NSMutableAttributedString
         }
         else {
@@ -455,14 +455,14 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         let range = NSRange( location: 0, length: attributedTitle.length )
         
-        let paragraphStyle = NSParagraphStyle.defaultParagraphStyle().mutableCopy() as! NSMutableParagraphStyle
-        paragraphStyle.lineBreakMode = .ByTruncatingTail
+        let paragraphStyle = NSParagraphStyle.default().mutableCopy() as! NSMutableParagraphStyle
+        paragraphStyle.lineBreakMode = .byTruncatingTail
         
         let paragraphAttribute = [ NSParagraphStyleAttributeName : paragraphStyle ]
         attributedTitle.addAttributes( paragraphAttribute, range: range )
         
         if menuItem.isHighlighted {
-            let colorAttribute = [ NSForegroundColorAttributeName : NSColor.selectedMenuItemTextColor() ]
+            let colorAttribute = [ NSForegroundColorAttributeName : NSColor.selectedMenuItemTextColor ]
             attributedTitle.addAttributes( colorAttribute, range: range )
         }
         
@@ -470,7 +470,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    @objc private func highlightedItemDidChange( notification: NSNotification ) {
+    @objc fileprivate func highlightedItemDidChange( _ notification: Notification ) {
         
         guard let userInfo = notification.userInfo else { return }
         

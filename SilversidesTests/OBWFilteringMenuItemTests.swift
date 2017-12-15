@@ -98,7 +98,7 @@ class OBWFilteringMenuItemTests: XCTestCase {
             menu.addItem( menuItem )
         }
         
-        menuItems[1].keyEquivalentModifierMask = .Control
+        menuItems[1].keyEquivalentModifierMask = .control
         
         let alternateItems = [
             OBWFilteringMenuItem( title: "item 1" ),
@@ -106,23 +106,23 @@ class OBWFilteringMenuItemTests: XCTestCase {
             OBWFilteringMenuItem( title: "item 3" ),
         ]
         
-        alternateItems[0].keyEquivalentModifierMask = .Command
-        alternateItems[1].keyEquivalentModifierMask = [ .Control, .Shift ]
-        alternateItems[2].keyEquivalentModifierMask = .Option
+        alternateItems[0].keyEquivalentModifierMask = .command
+        alternateItems[1].keyEquivalentModifierMask = [ .control, .shift ]
+        alternateItems[2].keyEquivalentModifierMask = .option
         
         for alternateItem in alternateItems {
             try! menuItems[0].addAlternateItem( alternateItem )
         }
         
-        XCTAssertTrue( menuItems[0].visibleItemForModifierFlags( .Command ) === alternateItems[0] )
-        XCTAssertTrue( menuItems[0].visibleItemForModifierFlags( .Control ) === menuItems[0] )
+        XCTAssertTrue( menuItems[0].visibleItemForModifierFlags( .command ) === alternateItems[0] )
+        XCTAssertTrue( menuItems[0].visibleItemForModifierFlags( .control ) === menuItems[0] )
         XCTAssertTrue( menuItems[0].visibleItemForModifierFlags( [] ) === menuItems[0] )
-        XCTAssertTrue( menuItems[0].visibleItemForModifierFlags( [ .Command, .Shift ] ) === menuItems[0] )
+        XCTAssertTrue( menuItems[0].visibleItemForModifierFlags( [ .command, .shift ] ) === menuItems[0] )
         
-        XCTAssertTrue( alternateItems[2].visibleItemForModifierFlags( .Option ) === alternateItems[2] )
-        XCTAssertNil( alternateItems[2].visibleItemForModifierFlags( .Shift ) )
+        XCTAssertTrue( alternateItems[2].visibleItemForModifierFlags( .option ) === alternateItems[2] )
+        XCTAssertNil( alternateItems[2].visibleItemForModifierFlags( .shift ) )
         
-        XCTAssertNil( menuItems[1].visibleItemForModifierFlags( .Shift ) )
+        XCTAssertNil( menuItems[1].visibleItemForModifierFlags( .shift ) )
     }
     
     /*==========================================================================*/
@@ -139,16 +139,16 @@ class OBWFilteringMenuItemTests: XCTestCase {
         ]
         
         for alternateItem in alternateItems {
-            alternateItem.keyEquivalentModifierMask = .Command
+            alternateItem.keyEquivalentModifierMask = .command
         }
         
         try! menuItem.addAlternateItem( alternateItems[0] )
         
-        XCTAssertTrue( menuItem.visibleItemForModifierFlags( .Command ) === alternateItems[0] )
+        XCTAssertTrue( menuItem.visibleItemForModifierFlags( .command ) === alternateItems[0] )
         
         try! menuItem.addAlternateItem( alternateItems[1] )
         
-        XCTAssertFalse( menuItem.visibleItemForModifierFlags( .Command ) === alternateItems[0] )
-        XCTAssertTrue( menuItem.visibleItemForModifierFlags( .Command ) === alternateItems[1] )
+        XCTAssertFalse( menuItem.visibleItemForModifierFlags( .command ) === alternateItems[0] )
+        XCTAssertTrue( menuItem.visibleItemForModifierFlags( .command ) === alternateItems[1] )
     }
 }

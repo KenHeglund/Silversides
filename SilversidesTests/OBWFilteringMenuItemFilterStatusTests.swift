@@ -79,10 +79,10 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         for index in 0 ..< highlightedTitle.length {
             
             if underlinedIndicies.contains( index ) {
-                XCTAssertNotNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNotNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
             }
             else {
-                XCTAssertNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
             }
         }
         
@@ -102,10 +102,10 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         for index in 0 ..< highlightedTitle.length {
             
             if underlinedIndicies.contains( index ) {
-                XCTAssertNotNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNotNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
             }
             else {
-                XCTAssertNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
             }
         }
         
@@ -118,7 +118,7 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         
         menuItem.attributedTitle = NSAttributedString(
             string: "sampleAttributedTitle",
-            attributes: [ NSForegroundColorAttributeName : NSColor.redColor() ]
+            attributes: [ NSForegroundColorAttributeName : NSColor.red ]
         )
         
         let status = OBWFilteringMenuItemFilterStatus.filterStatus( menuItem, filterString: "g/t{2,}/" )
@@ -130,10 +130,10 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         for index in 0 ..< highlightedTitle.length {
             
             if underlinedIndicies.contains( index ) {
-                XCTAssertNotNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNotNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
             }
             else {
-                XCTAssertNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, atIndex: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
             }
         }
         
@@ -155,15 +155,15 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         let parentMenuItem = OBWFilteringMenuItem( title: "parentItem" )
         
         let shiftItem = OBWFilteringMenuItem( title: "shiftItem" )
-        shiftItem.keyEquivalentModifierMask = [ .Shift ]
+        shiftItem.keyEquivalentModifierMask = [ .shift ]
         try! parentMenuItem.addAlternateItem( shiftItem )
         
         let optionItem = OBWFilteringMenuItem( title: "optionItem" )
-        optionItem.keyEquivalentModifierMask = [ .Option ]
+        optionItem.keyEquivalentModifierMask = [ .option ]
         try! parentMenuItem.addAlternateItem( optionItem )
         
         let commandItem = OBWFilteringMenuItem( title: "commandItem" )
-        commandItem.keyEquivalentModifierMask = [ .Command ]
+        commandItem.keyEquivalentModifierMask = [ .command ]
         try! parentMenuItem.addAlternateItem( commandItem )
         
         let stringFilterStatus = OBWFilteringMenuItemFilterStatus.filterStatus( parentMenuItem, filterString: "tt" )
@@ -172,9 +172,9 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         let stringFilterAlternates = stringFilterStatus.alternateStatus!
         XCTAssertNotNil( stringFilterAlternates )
         
-        let shiftKey = OBWFilteringMenuItem.dictionaryKeyWithModifierMask( .Shift )
-        let optionKey = OBWFilteringMenuItem.dictionaryKeyWithModifierMask( .Option )
-        let commandKey = OBWFilteringMenuItem.dictionaryKeyWithModifierMask( .Command )
+        let shiftKey = OBWFilteringMenuItem.dictionaryKeyWithModifierMask( .shift )
+        let optionKey = OBWFilteringMenuItem.dictionaryKeyWithModifierMask( .option )
+        let commandKey = OBWFilteringMenuItem.dictionaryKeyWithModifierMask( .command )
         
         XCTAssertEqual( stringFilterAlternates[shiftKey]!.matchScore, 2 )
         XCTAssertEqual( stringFilterAlternates[optionKey]!.matchScore, 2 )

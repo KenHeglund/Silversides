@@ -16,7 +16,7 @@ extension NSView {
         let viewBounds = self.bounds
         var lowerLeftCorner = viewBounds.origin
         
-        if self.flipped {
+        if self.isFlipped {
             lowerLeftCorner.y += viewBounds.size.height
         }
         
@@ -26,19 +26,19 @@ extension NSView {
     /*==========================================================================*/
     var obw_boundsInScreen: NSRect {
         
-        let boundsInWindow = self.convertRect( self.bounds, toView: nil )
+        let boundsInWindow = self.convert( self.bounds, to: nil )
         guard let window = self.window else { return self.bounds }
-        return window.convertRectToScreen( boundsInWindow )
+        return window.convertToScreen( boundsInWindow )
     }
     
     /*==========================================================================*/
-    func obw_convertPointToScreen( locationInView: NSPoint ) -> NSPoint {
+    func obw_convertPointToScreen( _ locationInView: NSPoint ) -> NSPoint {
         
         guard let window = self.window else { return locationInView }
-        let locationInWindow = self.convertPoint( locationInView, toView: nil )
+        let locationInWindow = self.convert( locationInView, to: nil )
         
         let rectInWindow = NSRect( origin: locationInWindow, size: NSZeroSize )
-        let rectInScreen = window.convertRectToScreen( rectInWindow )
+        let rectInScreen = window.convertToScreen( rectInWindow )
         
         return rectInScreen.origin
     }

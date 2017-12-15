@@ -45,7 +45,7 @@ class OBWFilteringMenuWindowGeometry {
     // MARK: - OBWFilteringMenuWindowGeometry internal
     
     /*==========================================================================*/
-    func updateGeometryToDisplayMenuLocation( locationInMenu: NSPoint, atScreenLocation locationInScreen: NSPoint, allowWindowToGrowUpward: Bool ) -> Bool {
+    func updateGeometryToDisplayMenuLocation( _ locationInMenu: NSPoint, atScreenLocation locationInScreen: NSPoint, allowWindowToGrowUpward: Bool ) -> Bool {
         
         guard NSScreen.screenContainingLocation( locationInScreen ) != nil else { return false }
         
@@ -76,7 +76,7 @@ class OBWFilteringMenuWindowGeometry {
     }
     
     /*==========================================================================*/
-    func updateGeometryToDisplayMenuLocation( locationInMenu: NSPoint, adjacentToScreenArea areaInScreen: NSRect, preferredAlignment: OBWFilteringMenuAlignment ) -> OBWFilteringMenuAlignment {
+    func updateGeometryToDisplayMenuLocation( _ locationInMenu: NSPoint, adjacentToScreenArea areaInScreen: NSRect, preferredAlignment: OBWFilteringMenuAlignment ) -> OBWFilteringMenuAlignment {
         
         let rightAlignmentLocation: NSPoint
         
@@ -127,36 +127,36 @@ class OBWFilteringMenuWindowGeometry {
         
         if leftGeometry == nil {
             windowGeometry = rightGeometry!
-            alignment = .Right
+            alignment = .right
         }
         else if rightGeometry == nil {
             windowGeometry = leftGeometry!
-            alignment = .Left
+            alignment = .left
         }
         else {
             
             switch preferredAlignment {
                 
-            case .Left:
+            case .left:
                 
                 if leftGeometry!.frame.origin.x != leftAlignmentLocation.x && rightGeometry!.frame.origin.x == rightAlignmentLocation.x {
                     windowGeometry = rightGeometry!
-                    alignment = .Right
+                    alignment = .right
                 }
                 else {
                     windowGeometry = leftGeometry!
-                    alignment = .Left
+                    alignment = .left
                 }
                 
-            case .Right:
+            case .right:
                 
                 if rightGeometry!.frame.origin.x != rightAlignmentLocation.x && leftGeometry!.frame.origin.x == leftAlignmentLocation.x {
                     windowGeometry = leftGeometry!
-                    alignment = .Left
+                    alignment = .left
                 }
                 else {
                     windowGeometry = rightGeometry!
-                    alignment = .Right
+                    alignment = .right
                 }
             }
         }
@@ -212,7 +212,7 @@ class OBWFilteringMenuWindowGeometry {
     }
     
     /*==========================================================================*/
-    func updateGeometryToDisplayMenuItemBounds( menuItemBounds: NSRect ) -> Bool {
+    func updateGeometryToDisplayMenuItemBounds( _ menuItemBounds: NSRect ) -> Bool {
         
         let window = self.window
         
@@ -252,16 +252,16 @@ class OBWFilteringMenuWindowGeometry {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuWindowGeometry private
     
-    unowned private let window: OBWFilteringMenuWindow
+    unowned fileprivate let window: OBWFilteringMenuWindow
     var frame: NSRect
     var totalMenuItemSize: NSSize
     var initialBounds: NSRect
     var finalBounds: NSRect
     
-    static let screenMargins = NSEdgeInsets( top: 6.0, left: 6.0, bottom: 6.0, right: 6.0 )
+    static let screenMargins = EdgeInsets( top: 6.0, left: 6.0, bottom: 6.0, right: 6.0 )
     
     /*==========================================================================*/
-    private func constrainGeometryToScreen( allowWindowToGrowUpward allowWindowToGrowUpward: Bool ) {
+    fileprivate func constrainGeometryToScreen( allowWindowToGrowUpward: Bool ) {
         
         guard let screen = self.window.screen else { return }
         let menuView = window.menuView
@@ -346,7 +346,7 @@ class OBWFilteringMenuWindowGeometry {
     }
     
     /*==========================================================================*/
-    private class func constrainFrame( frame: NSRect, toAnchorRect anchor: NSRect ) -> NSRect {
+    fileprivate class func constrainFrame( _ frame: NSRect, toAnchorRect anchor: NSRect ) -> NSRect {
         
         let anchorBottom = anchor.origin.y
         let anchorTop = anchor.origin.y + anchor.size.height

@@ -13,7 +13,7 @@ class OBWFilteringMenuFieldEditor: NSTextView {
     /*==========================================================================*/
     override init( frame frameRect: NSRect, textContainer container: NSTextContainer? ) {
         super.init( frame: frameRect, textContainer: container )
-        self.fieldEditor = true
+        self.isFieldEditor = true
     }
     
     /*==========================================================================*/
@@ -25,9 +25,9 @@ class OBWFilteringMenuFieldEditor: NSTextView {
     // MARK: - NSTextView overrides
     
     /*==========================================================================*/
-    override func setSelectedRange( charRange: NSRange ) {
+    override func setSelectedRange( _ charRange: NSRange ) {
         
-        let automaticSelectionChange = ( NSRunLoop.currentRunLoop().currentMode != nil )
+        let automaticSelectionChange = ( RunLoop.current.currentMode != nil )
         
         guard !automaticSelectionChange else { return }
         

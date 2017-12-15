@@ -10,7 +10,7 @@ import Cocoa
 
 extension NSScreen {
     
-    class func screenContainingLocation( locationInScreen: NSPoint ) -> NSScreen? {
+    class func screenContainingLocation( _ locationInScreen: NSPoint ) -> NSScreen? {
         
         guard let screenList = self.screens() else { return nil }
         

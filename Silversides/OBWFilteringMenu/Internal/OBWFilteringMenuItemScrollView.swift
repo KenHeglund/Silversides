@@ -12,10 +12,10 @@ private class OBWColorView: NSView {
     
     var color: NSColor? = nil
     
-    override func drawRect( dirtyRect: NSRect ) {
+    override func draw( _ dirtyRect: NSRect ) {
         guard let color = self.color else { return }
         color.set()
-        NSRectFillUsingOperation( dirtyRect, .SourceOver )
+        NSRectFillUsingOperation( dirtyRect, .sourceOver )
     }
 }
 
@@ -57,7 +57,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         super.init( frame: initialFrame )
         
         self.buildItemViews()
-        self.repositionItemViews()
+        _ = self.repositionItemViews()
         
         let itemParentViewFrame = itemParentView.frame
         
@@ -70,11 +70,11 @@ class OBWFilteringMenuItemScrollView: NSView {
         )
         
         upArrowView.frame = upArrowFrame
-        upArrowView.imageScaling = .ScaleProportionallyDown
-        upArrowView.imageAlignment = .AlignCenter
-        upArrowView.autoresizingMask = [ .ViewMinYMargin, .ViewMinXMargin, .ViewMaxXMargin ]
+        upArrowView.imageScaling = .scaleProportionallyDown
+        upArrowView.imageAlignment = .alignCenter
+        upArrowView.autoresizingMask = [ .viewMinYMargin, .viewMinXMargin, .viewMaxXMargin ]
         upArrowView.image = OBWFilteringMenuArrows.upArrow
-        upArrowView.hidden = true
+        upArrowView.isHidden = true
         
         let downArrowFrame = NSRect(
             x: itemParentViewFrame.origin.x + floor( ( itemParentViewFrame.size.width - OBWFilteringMenuItemScrollView.arrowSize.width ) / 2.0 ),
@@ -83,14 +83,14 @@ class OBWFilteringMenuItemScrollView: NSView {
         )
         
         downArrowView.frame = downArrowFrame
-        downArrowView.imageScaling = .ScaleProportionallyDown
-        downArrowView.imageAlignment = .AlignCenter
-        downArrowView.autoresizingMask = [ .ViewMaxYMargin, .ViewMinXMargin, .ViewMaxXMargin ]
+        downArrowView.imageScaling = .scaleProportionallyDown
+        downArrowView.imageAlignment = .alignCenter
+        downArrowView.autoresizingMask = [ .viewMaxYMargin, .viewMinXMargin, .viewMaxXMargin ]
         downArrowView.image = OBWFilteringMenuArrows.downArrow
-        downArrowView.hidden = true
+        downArrowView.isHidden = true
         
         itemClipView.drawsBackground = false
-        itemClipView.autoresizingMask = [ .ViewWidthSizable, .ViewHeightSizable ]
+        itemClipView.autoresizingMask = [ .viewWidthSizable, .viewHeightSizable ]
         itemClipView.addSubview( itemParentView )
         
         self.setFrameSize( itemParentViewFrame.size )
@@ -98,7 +98,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         self.addSubview( upArrowView )
         self.addSubview( downArrowView )
         
-        self.autoresizingMask = [ .ViewWidthSizable, .ViewHeightSizable ]
+        self.autoresizingMask = [ .viewWidthSizable, .viewHeightSizable ]
         self.autoresizesSubviews = true
     }
     
@@ -111,9 +111,9 @@ class OBWFilteringMenuItemScrollView: NSView {
     // MARK: - NSView overrides
     
     /*==========================================================================*/
-    override func resizeSubviewsWithOldSize( oldSize: NSSize ) {
+    override func resizeSubviews( withOldSize oldSize: NSSize ) {
         
-        super.resizeSubviewsWithOldSize( oldSize )
+        super.resizeSubviews( withOldSize: oldSize )
         
         let heightDelta = self.frame.size.height - oldSize.height
         let itemClipView = self.itemClipView
@@ -148,24 +148,24 @@ class OBWFilteringMenuItemScrollView: NSView {
     
     /*==========================================================================*/
     var menuItemBounds: NSRect {
-        return self.convertRect( self.bounds, toView: self.itemClipView )
+        return self.convert( self.bounds, to: self.itemClipView )
     }
     
     /*==========================================================================*/
-    func menuItemAtLocation( locationInView: NSPoint ) -> OBWFilteringMenuItem? {
+    func menuItemAtLocation( _ locationInView: NSPoint ) -> OBWFilteringMenuItem? {
         
         let itemClipView = self.itemClipView
-        let locationInClipView = itemClipView.convertPoint( locationInView, fromView: self )
+        let locationInClipView = itemClipView.convert( locationInView, from: self )
         guard NSPointInRect( locationInClipView, itemClipView.bounds ) else { return nil }
         
         let itemParentView = self.itemParentView
-        let locationInParentView = itemParentView.convertPoint( locationInView, fromView: self )
+        let locationInParentView = itemParentView.convert( locationInView, from: self )
         
         for subview in itemParentView.subviews {
             
             guard let itemView = subview as? OBWFilteringMenuItemView else { continue }
             
-            guard !itemView.hidden else { continue }
+            guard !itemView.isHidden else { continue }
             guard NSPointInRect( locationInParentView, itemView.frame ) else { continue }
             
             let menuItem = itemView.menuItem
@@ -180,25 +180,25 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    func menuPartAtLocation( locationInView: NSPoint ) -> OBWFilteringMenuPart {
+    func menuPartAtLocation( _ locationInView: NSPoint ) -> OBWFilteringMenuPart {
         
         let itemClipFrame = self.itemClipView.frame
         
         if locationInView.x < itemClipFrame.origin.x || locationInView.x >= itemClipFrame.maxX {
-            return .None
+            return .none
         }
         else if locationInView.y < itemClipFrame.origin.y {
-            return self.downArrowView.hidden ? .None : .Down
+            return self.downArrowView.isHidden ? .none : .down
         }
         else if locationInView.y >= itemClipFrame.maxY {
-            return self.upArrowView.hidden ? .None : .Up
+            return self.upArrowView.isHidden ? .none : .up
         }
         
-        return .Item
+        return .item
     }
     
     /*==========================================================================*/
-    func viewForMenuItem( menuItem: OBWFilteringMenuItem ) -> OBWFilteringMenuItemView? {
+    func viewForMenuItem( _ menuItem: OBWFilteringMenuItem ) -> OBWFilteringMenuItemView? {
         
         guard !menuItem.isSeparatorItem else { return nil }
         
@@ -213,23 +213,23 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    func nextViewAfterItem( menuItem: OBWFilteringMenuItem? ) -> OBWFilteringMenuItemView? {
+    func nextViewAfterItem( _ menuItem: OBWFilteringMenuItem? ) -> OBWFilteringMenuItemView? {
         return self.nextViewAfterItem( menuItem, inViews: self.allItemViews )
     }
     
     /*==========================================================================*/
-    func previousViewBeforeItem( menuItem: OBWFilteringMenuItem? ) -> OBWFilteringMenuItemView? {
-        return self.nextViewAfterItem( menuItem, inViews: self.allItemViews.reverse() )
+    func previousViewBeforeItem( _ menuItem: OBWFilteringMenuItem? ) -> OBWFilteringMenuItemView? {
+        return self.nextViewAfterItem( menuItem, inViews: self.allItemViews.reversed() )
     }
     
     /*==========================================================================*/
-    func scrollItemToVisible( menuItem: OBWFilteringMenuItem ) {
+    func scrollItemToVisible( _ menuItem: OBWFilteringMenuItem ) {
         guard let itemView = self.viewForMenuItem( menuItem ) else { return }
         self.scrollItemViewIntoFrame( itemView )
     }
     
     /*==========================================================================*/
-    func scrollItemsDownWithAcceleration( acceleration: Double ) -> Bool {
+    func scrollItemsDownWithAcceleration( _ acceleration: Double ) -> Bool {
         
         let itemClipView = self.itemClipView
         let itemClipViewBounds = itemClipView.bounds
@@ -245,16 +245,16 @@ class OBWFilteringMenuItemScrollView: NSView {
         )
         
         guard let itemView = self.menuItemViewAtLocation( hitPoint ) ?? self.nextViewAfterItem( nil ) else {
-            return self.upArrowView.hidden
+            return self.upArrowView.isHidden
         }
         
         self.scrollItemViewIntoFrame( itemView )
         
-        return self.upArrowView.hidden
+        return self.upArrowView.isHidden
     }
     
     /*==========================================================================*/
-    func scrollItemsUpWithAcceleration( acceleration: Double ) -> Bool {
+    func scrollItemsUpWithAcceleration( _ acceleration: Double ) -> Bool {
         
         let itemClipView = self.itemClipView
         let itemClipViewBounds = itemClipView.bounds
@@ -269,12 +269,12 @@ class OBWFilteringMenuItemScrollView: NSView {
         )
         
         guard let itemView = self.menuItemViewAtLocation( hitPoint ) ?? self.previousViewBeforeItem( nil ) else {
-            return self.downArrowView.hidden
+            return self.downArrowView.isHidden
         }
         
         self.scrollItemViewIntoFrame( itemView )
         
-        return self.downArrowView.hidden
+        return self.downArrowView.isHidden
     }
     
     /*==========================================================================*/
@@ -318,7 +318,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    func setMenuItemBoundsOriginY( boundsOriginY: CGFloat ) {
+    func setMenuItemBoundsOriginY( _ boundsOriginY: CGFloat ) {
         
         let arrowAreaHeight = OBWFilteringMenuItemScrollView.arrowEdgeMargin + OBWFilteringMenuItemScrollView.arrowContentMargin + OBWFilteringMenuItemScrollView.arrowSize.height
         
@@ -343,10 +343,10 @@ class OBWFilteringMenuItemScrollView: NSView {
             itemClipBounds.origin.y += arrowAreaHeight
             itemClipBounds.size.height -= arrowAreaHeight
             
-            self.downArrowView.hidden = false
+            self.downArrowView.isHidden = false
         }
         else {
-            self.downArrowView.hidden = true
+            self.downArrowView.isHidden = true
         }
         
         if itemParentFrame.size.height > itemClipBounds.maxY {
@@ -354,23 +354,23 @@ class OBWFilteringMenuItemScrollView: NSView {
             itemClipFrame.size.height -= arrowAreaHeight
             itemClipBounds.size.height -= arrowAreaHeight
             
-            self.upArrowView.hidden = false
+            self.upArrowView.isHidden = false
         }
         else {
-            self.upArrowView.hidden = true
+            self.upArrowView.isHidden = true
         }
         
         let itemClipView = self.itemClipView
         itemClipView.frame = itemClipFrame
-        itemClipView.scrollToPoint( itemClipBounds.origin )
+        itemClipView.scroll( to: itemClipBounds.origin )
     }
     
     /*==========================================================================*/
-    func applyFilterResults( filterResults: [OBWFilteringMenuItemFilterStatus] ) -> Bool {
+    func applyFilterResults( _ filterResults: [OBWFilteringMenuItemFilterStatus] ) -> Bool {
         
         let itemViewArray = self.primaryItemViews
         
-        for index in filterResults.startIndex ..< filterResults.endIndex {
+        for index in filterResults.indices {
             
             let status = filterResults[index]
             let itemView = itemViewArray[index]
@@ -384,7 +384,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    func applyModifierFlags( modifierFlags: NSEventModifierFlags ) -> Bool {
+    func applyModifierFlags( _ modifierFlags: NSEventModifierFlags ) -> Bool {
         
         if modifierFlags == self.currentModifierFlags { return false }
         
@@ -396,22 +396,22 @@ class OBWFilteringMenuItemScrollView: NSView {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuItemScrollView private
     
-    private static let arrowEdgeMargin: CGFloat = 0.0
-    private static let arrowContentMargin: CGFloat = 5.0
-    private static let arrowSize = NSSize( width: 10.0, height: 9.0 )
-    private static let minimumItemWidth: CGFloat = 100.0
+    fileprivate static let arrowEdgeMargin: CGFloat = 0.0
+    fileprivate static let arrowContentMargin: CGFloat = 5.0
+    fileprivate static let arrowSize = NSSize( width: 10.0, height: 9.0 )
+    fileprivate static let minimumItemWidth: CGFloat = 100.0
     
-    unowned private let filteringMenu: OBWFilteringMenu
-    private var filteringMenuWindow: OBWFilteringMenuWindow? { return self.window as? OBWFilteringMenuWindow }
-    unowned private let itemParentView: NSView
-    unowned private let itemClipView: NSClipView
-    unowned private let upArrowView: NSImageView
-    unowned private let downArrowView: NSImageView
-    private var primaryItemViews: [OBWFilteringMenuItemView] = []
-    private var currentModifierFlags: NSEventModifierFlags = []
+    unowned fileprivate let filteringMenu: OBWFilteringMenu
+    fileprivate var filteringMenuWindow: OBWFilteringMenuWindow? { return self.window as? OBWFilteringMenuWindow }
+    unowned fileprivate let itemParentView: NSView
+    unowned fileprivate let itemClipView: NSClipView
+    unowned fileprivate let upArrowView: NSImageView
+    unowned fileprivate let downArrowView: NSImageView
+    fileprivate var primaryItemViews: [OBWFilteringMenuItemView] = []
+    fileprivate var currentModifierFlags: NSEventModifierFlags = []
     
     /*==========================================================================*/
-    private func buildItemViews() {
+    fileprivate func buildItemViews() {
         
         let itemParentView = self.itemParentView
         assert( itemParentView.subviews.isEmpty )
@@ -435,7 +435,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    private func repositionItemViews( modifierFlags modifierFlags: NSEventModifierFlags = [] ) -> Bool {
+    fileprivate func repositionItemViews( modifierFlags: NSEventModifierFlags = [] ) -> Bool {
         
         let itemParentView = self.itemParentView
         let itemParentBounds = itemParentView.bounds
@@ -443,7 +443,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         var itemViewOrigin = NSPoint( x: self.bounds.origin.x, y: 0.0 )
         var parentViewWidth = max( OBWFilteringMenuItemScrollView.minimumItemWidth, itemParentBounds.size.width )
         
-        for primaryItemView in self.primaryItemViews.reverse() {
+        for primaryItemView in self.primaryItemViews.reversed() {
             
             let primaryMenuItem = primaryItemView.menuItem
             let primaryFilterStatus = primaryItemView.filterStatus
@@ -474,12 +474,12 @@ class OBWFilteringMenuItemScrollView: NSView {
                 }
             }
             
-            if primaryViewVisible && primaryItemView.hidden {
-                primaryItemView.hidden = false
+            if primaryViewVisible && primaryItemView.isHidden {
+                primaryItemView.isHidden = false
                 NSAccessibilityPostNotification( primaryItemView, NSAccessibilityCreatedNotification )
             }
-            else if !primaryViewVisible && !primaryItemView.hidden {
-                primaryItemView.hidden = true
+            else if !primaryViewVisible && !primaryItemView.isHidden {
+                primaryItemView.isHidden = true
                 NSAccessibilityPostNotification( primaryItemView, NSAccessibilityUIElementDestroyedNotification )
             }
             
@@ -516,12 +516,12 @@ class OBWFilteringMenuItemScrollView: NSView {
                     }
                 }
                 
-                if alternateViewVisible && alternateItemView.hidden {
-                    alternateItemView.hidden = false
+                if alternateViewVisible && alternateItemView.isHidden {
+                    alternateItemView.isHidden = false
                     NSAccessibilityPostNotification( alternateItemView, NSAccessibilityCreatedNotification)
                 }
-                else if !alternateViewVisible && !alternateItemView.hidden {
-                    alternateItemView.hidden = true
+                else if !alternateViewVisible && !alternateItemView.isHidden {
+                    alternateItemView.isHidden = true
                     NSAccessibilityPostNotification( alternateItemView, NSAccessibilityUIElementDestroyedNotification )
                 }
                 
@@ -549,7 +549,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         
         guard let highlightedItem = self.filteringMenu.highlightedItem else { return totalMenuItemSizeChanged }
         
-        if self.viewForMenuItem( highlightedItem )?.hidden == true {
+        if self.viewForMenuItem( highlightedItem )?.isHidden == true {
             self.filteringMenu.highlightedItem = nil
         }
         
@@ -557,12 +557,12 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    private var allItemViews: [OBWFilteringMenuItemView] {
+    fileprivate var allItemViews: [OBWFilteringMenuItemView] {
         return self.itemParentView.subviews as! [OBWFilteringMenuItemView]
     }
     
     /*==========================================================================*/
-    private func minimumHeightForView( itemView: NSView ) -> CGFloat {
+    fileprivate func minimumHeightForView( _ itemView: NSView ) -> CGFloat {
         
         let minimumHeight = itemView.frame.size.height
         
@@ -574,7 +574,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    private func nextViewAfterItem( menuItem: OBWFilteringMenuItem?, inViews itemViewArray: [OBWFilteringMenuItemView] ) -> OBWFilteringMenuItemView? {
+    fileprivate func nextViewAfterItem( _ menuItem: OBWFilteringMenuItem?, inViews itemViewArray: [OBWFilteringMenuItemView] ) -> OBWFilteringMenuItemView? {
         
         let accessibilityActive = self.filteringMenuWindow?.accessibilityActive ?? false
         
@@ -592,7 +592,7 @@ class OBWFilteringMenuItemScrollView: NSView {
             }
             
             if !useNextAvailable { continue }
-            if itemView.hidden { continue }
+            if itemView.isHidden { continue }
             if !item.enabled && !accessibilityActive { continue }
             if !item.canHighlight { continue }
             
@@ -603,7 +603,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    private func nextViewAfterItemAtIndex( itemIndex: Int ) -> OBWFilteringMenuItemView {
+    fileprivate func nextViewAfterItemAtIndex( _ itemIndex: Int ) -> OBWFilteringMenuItemView {
         
         let itemViews = self.allItemViews
         let currentItemView = itemViews[itemIndex]
@@ -613,12 +613,12 @@ class OBWFilteringMenuItemScrollView: NSView {
         let accessibilityActive = window.accessibilityActive
         
         let startIndex = itemIndex + 1
-        let range = startIndex ..< itemViews.endIndex
+        let range = itemViews.indices.suffix(from: startIndex)
         for index in range {
             
             let itemView = itemViews[index]
             
-            if itemView.hidden { continue }
+            if itemView.isHidden { continue }
             
             let item = itemView.menuItem
             
@@ -632,7 +632,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    private func previousViewBeforeItemAtIndex( itemIndex: Int ) -> OBWFilteringMenuItemView {
+    fileprivate func previousViewBeforeItemAtIndex( _ itemIndex: Int ) -> OBWFilteringMenuItemView {
         
         let itemViews = self.allItemViews
         let currentItemView = itemViews[itemIndex]
@@ -643,11 +643,11 @@ class OBWFilteringMenuItemScrollView: NSView {
         
         let endIndex = itemIndex
         let range = itemViews.startIndex ..< endIndex
-        for index in range.reverse() {
+        for index in range.reversed() {
             
             let itemView = itemViews[index]
             
-            if itemView.hidden { continue }
+            if itemView.isHidden { continue }
             
             let item = itemView.menuItem
             
@@ -661,10 +661,10 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    private func menuItemViewAtLocation( locationInItemClipView: NSPoint ) -> OBWFilteringMenuItemView? {
+    fileprivate func menuItemViewAtLocation( _ locationInItemClipView: NSPoint ) -> OBWFilteringMenuItemView? {
         
         for itemView in self.allItemViews {
-            if itemView.hidden { continue }
+            if itemView.isHidden { continue }
             if NSPointInRect( locationInItemClipView, itemView.frame ) { return itemView }
         }
         
@@ -672,7 +672,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    private func firstFullyVisibleMenuItemView() -> OBWFilteringMenuItemView? {
+    fileprivate func firstFullyVisibleMenuItemView() -> OBWFilteringMenuItemView? {
         
         let itemClipViewBounds = self.itemClipView.bounds
         
@@ -696,7 +696,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    private func lastFullyVisibleMenuItemView() -> OBWFilteringMenuItemView? {
+    fileprivate func lastFullyVisibleMenuItemView() -> OBWFilteringMenuItemView? {
         
         let itemClipViewBounds = self.itemClipView.bounds
         
@@ -715,7 +715,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    private func scrollItemViewIntoFrame( itemView: OBWFilteringMenuItemView ) {
+    fileprivate func scrollItemViewIntoFrame( _ itemView: OBWFilteringMenuItemView ) {
         
         let itemViewFrame = itemView.frame
         let scrollViewBounds = self.bounds
@@ -761,7 +761,7 @@ class OBWFilteringMenuItemScrollView: NSView {
             y: itemViewFrame.maxY
         )
         
-        self.filteringMenuWindow?.displayMenuLocation( menuLocation, atScreenLocation: locationInScreen, allowWindowToGrowUpward: false, resetScrollTracking: false )
+        _ = self.filteringMenuWindow?.displayMenuLocation( menuLocation, atScreenLocation: locationInScreen, allowWindowToGrowUpward: false, resetScrollTracking: false )
     }
     
 }

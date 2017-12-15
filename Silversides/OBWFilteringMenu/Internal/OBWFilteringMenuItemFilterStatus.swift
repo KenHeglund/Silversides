@@ -17,7 +17,7 @@ extension NSRegularExpression: FilterArgument {}
 class OBWFilteringMenuItemFilterStatus {
     
     /*==========================================================================*/
-    private init( menuItem: OBWFilteringMenuItem ) {
+    fileprivate init( menuItem: OBWFilteringMenuItem ) {
         
         self.menuItem = menuItem
         
@@ -39,7 +39,7 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    class func filterStatus( menu: OBWFilteringMenu, filterString: String ) -> [OBWFilteringMenuItemFilterStatus] {
+    class func filterStatus( _ menu: OBWFilteringMenu, filterString: String ) -> [OBWFilteringMenuItemFilterStatus] {
         
         var statusArray: [OBWFilteringMenuItemFilterStatus] = []
         
@@ -51,7 +51,7 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    class func filterStatus( menuItem: OBWFilteringMenuItem, filterString: String ) -> OBWFilteringMenuItemFilterStatus {
+    class func filterStatus( _ menuItem: OBWFilteringMenuItem, filterString: String ) -> OBWFilteringMenuItemFilterStatus {
         
         let status = OBWFilteringMenuItemFilterStatus( menuItem: menuItem )
         
@@ -99,17 +99,17 @@ class OBWFilteringMenuItemFilterStatus {
     // MARK: - OBWFilteringMenuItemFilterStatus internal
     
     let menuItem: OBWFilteringMenuItem
-    private(set) var highlightedTitle: NSAttributedString
-    private(set) var matchScore = OBWFilteringMenuItemMatchCriteria.All.memberCount
-    private(set) var alternateStatus: [String:OBWFilteringMenuItemFilterStatus]? = nil
+    fileprivate(set) var highlightedTitle: NSAttributedString
+    fileprivate(set) var matchScore = OBWFilteringMenuItemMatchCriteria.All.memberCount
+    fileprivate(set) var alternateStatus: [String:OBWFilteringMenuItemFilterStatus]? = nil
     
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuItemFilterStatus private
     
-    private let searchableTitle: String
+    fileprivate let searchableTitle: String
     
     /*==========================================================================*/
-    private class func regexPatternFromString( filterString: String ) -> NSRegularExpression? {
+    fileprivate class func regexPatternFromString( _ filterString: String ) -> NSRegularExpression? {
         
         var pattern = filterString
         
@@ -117,10 +117,10 @@ class OBWFilteringMenuItemFilterStatus {
         guard filterString.hasSuffix( "/" ) else { return nil }
         guard !filterString.hasSuffix( "\\/" ) else { return nil }
         
-        pattern = pattern.stringByReplacingOccurrencesOfString( "g/", withString: "", options: [ .AnchoredSearch ], range: nil )
-        pattern = pattern.stringByReplacingOccurrencesOfString( "/", withString: "", options: [ .AnchoredSearch, .BackwardsSearch ], range: nil )
+        pattern = pattern.replacingOccurrences( of: "g/", with: "", options: [ .anchored ], range: nil )
+        pattern = pattern.replacingOccurrences( of: "/", with: "", options: [ .anchored, .backwards ], range: nil )
         
-        if let regex = try? NSRegularExpression( pattern: pattern, options: .AnchorsMatchLines ) {
+        if let regex = try? NSRegularExpression( pattern: pattern, options: .anchorsMatchLines ) {
             return regex
         }
         
@@ -128,7 +128,7 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    private func addAlternateStatus( status: OBWFilteringMenuItemFilterStatus, withKey key: String ) {
+    fileprivate func addAlternateStatus( _ status: OBWFilteringMenuItemFilterStatus, withKey key: String ) {
         
         if self.alternateStatus == nil {
             self.alternateStatus = [key:status]
@@ -139,14 +139,14 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    private static var highlightAttributes: [String:AnyObject] = [
+    fileprivate static var highlightAttributes: [String:AnyObject] = [
         NSBackgroundColorAttributeName : NSColor( deviceRed: 1.0, green: 1.0, blue: 0.0, alpha: 0.5 ),
-        NSUnderlineStyleAttributeName : 1,
+        NSUnderlineStyleAttributeName : 1 as AnyObject,
         NSUnderlineColorAttributeName : NSColor( deviceRed: 0.65, green: 0.50, blue: 0.0, alpha: 0.75 ),
     ]
     
     /*==========================================================================*/
-    private class func filter( status: OBWFilteringMenuItemFilterStatus, withString filterArgument: FilterArgument ) -> Int {
+    fileprivate class func filter( _ status: OBWFilteringMenuItemFilterStatus, withString filterArgument: FilterArgument ) -> Int {
         
         let worstScore = 0
         
@@ -162,15 +162,15 @@ class OBWFilteringMenuItemFilterStatus {
         var matchMask = OBWFilteringMenuItemMatchCriteria.All
         var lastMatchIndex: String.Index? = nil
         
-        for sourceIndex in filterString.startIndex ..< filterString.endIndex {
+        for sourceIndex in filterString.characters.indices {
             
             guard !searchRange.isEmpty else { return worstScore }
             
-            let filterSubstring = filterString.substringWithRange( sourceIndex ..< sourceIndex.successor() )
+            let filterSubstring = filterString.substring( with: sourceIndex ..< filterString.index(after: sourceIndex) )
             
-            guard let caseInsensitiveRange = searchableTitle.rangeOfString( filterSubstring, options: .CaseInsensitiveSearch, range: searchRange, locale: nil ) else { return worstScore }
+            guard let caseInsensitiveRange = searchableTitle.range( of: filterSubstring, options: .caseInsensitive, range: searchRange, locale: nil ) else { return worstScore }
             
-            let caseSensitiveRange = searchableTitle.rangeOfString( filterSubstring, options: .LiteralSearch, range: searchRange, locale: nil )
+            let caseSensitiveRange = searchableTitle.range( of: filterSubstring, options: .literal, range: searchRange, locale: nil )
             
             if caseSensitiveRange == nil || caseInsensitiveRange != caseSensitiveRange! {
                 matchMask.remove( .CaseSensitive )
@@ -178,20 +178,20 @@ class OBWFilteringMenuItemFilterStatus {
             
             if let lastMatchIndex = lastMatchIndex {
                 
-                if caseInsensitiveRange.startIndex != lastMatchIndex.successor() {
+                if caseInsensitiveRange.lowerBound != searchableTitle.index(after: lastMatchIndex) {
                     matchMask.remove( .Contiguous )
                 }
             }
             
             let highlightRange = NSRange(
-                location: searchableTitle.startIndex.distanceTo( caseInsensitiveRange.startIndex ),
+                location: searchableTitle.characters.distance(from: searchableTitle.startIndex, to: caseInsensitiveRange.lowerBound),
                 length: 1
             )
             
             workingHighlightedTitle.addAttributes( highlightAttributes, range: highlightRange )
             
-            lastMatchIndex = caseInsensitiveRange.startIndex
-            searchRange.startIndex = caseInsensitiveRange.endIndex
+            lastMatchIndex = caseInsensitiveRange.lowerBound
+            searchRange = caseInsensitiveRange.upperBound ..< searchableTitle.endIndex
         }
         
         status.highlightedTitle = NSAttributedString( attributedString: workingHighlightedTitle )
@@ -200,7 +200,7 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    private class func filter( status: OBWFilteringMenuItemFilterStatus, withRegularExpression filterArgument: FilterArgument ) -> Int {
+    fileprivate class func filter( _ status: OBWFilteringMenuItemFilterStatus, withRegularExpression filterArgument: FilterArgument ) -> Int {
         
         let bestScore = OBWFilteringMenuItemMatchCriteria.All.memberCount
         let worstScore = 0
@@ -214,13 +214,13 @@ class OBWFilteringMenuItemFilterStatus {
         let highlightAttributes = OBWFilteringMenuItemFilterStatus.highlightAttributes
         
         var matchScore = worstScore
-        let matchingOptions = NSMatchingOptions.ReportCompletion
-        let searchRange = NSRange( location: 0, length: searchableTitle.startIndex.distanceTo( searchableTitle.endIndex ) )
+        let matchingOptions = NSRegularExpression.MatchingOptions.reportCompletion
+        let searchRange = NSRange( location: 0, length: searchableTitle.characters.distance(from: searchableTitle.startIndex, to: searchableTitle.endIndex) )
         
-        regex.enumerateMatchesInString( searchableTitle, options: matchingOptions, range: searchRange) { ( result: NSTextCheckingResult?, flags: NSMatchingFlags, stop: UnsafeMutablePointer<ObjCBool> ) in
+        regex.enumerateMatches( in: searchableTitle, options: matchingOptions, range: searchRange) { ( result: NSTextCheckingResult?, flags: NSRegularExpression.MatchingFlags, stop: UnsafeMutablePointer<ObjCBool> ) in
             
-            guard !flags.contains( .InternalError ) else {
-                stop.memory = true
+            guard !flags.contains( .internalError ) else {
+                stop.pointee = true
                 return
             }
             
@@ -228,7 +228,7 @@ class OBWFilteringMenuItemFilterStatus {
             
             for rangeIndex in 0 ..< result.numberOfRanges {
                 
-                let resultRange = result.rangeAtIndex( rangeIndex )
+                let resultRange = result.rangeAt( rangeIndex )
                 guard resultRange.location != NSNotFound else { continue }
                 
                 matchScore = bestScore
@@ -246,13 +246,13 @@ class OBWFilteringMenuItemFilterStatus {
     // MARK: -
     
     /*==========================================================================*/
-    private struct OBWFilteringMenuItemMatchCriteria: OptionSetType {
+    fileprivate struct OBWFilteringMenuItemMatchCriteria: OptionSet {
         
         init( rawValue: UInt ) {
             self.rawValue = rawValue & 0x7
         }
         
-        private(set) var rawValue: UInt
+        fileprivate(set) var rawValue: UInt
         
         static let Basic            = OBWFilteringMenuItemMatchCriteria( rawValue: 1 << 0 )
         static let CaseSensitive    = OBWFilteringMenuItemMatchCriteria( rawValue: 1 << 1 )
