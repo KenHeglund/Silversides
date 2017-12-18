@@ -12,9 +12,7 @@ extension NSScreen {
     
     class func screenContainingLocation( _ locationInScreen: NSPoint ) -> NSScreen? {
         
-        guard let screenList = self.screens() else { return nil }
-        
-        for screen in screenList {
+        for screen in self.screens {
             
             if NSPointInRect( locationInScreen, screen.frame ) {
                 return screen

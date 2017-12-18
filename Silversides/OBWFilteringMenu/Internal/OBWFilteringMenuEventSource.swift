@@ -150,14 +150,14 @@ class OBWFilteringMenuEventSource: NSObject {
         self.eventTimer?.invalidate()
         self.eventTimer = nil
         
-        NSApplication.shared().discardEvents( matching: NSEventMask.applicationDefined, before: nil )
+        NSApplication.shared.discardEvents( matching: NSEvent.EventTypeMask.applicationDefined, before: nil )
     }
     
     
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuEventSource private
     
-    lazy fileprivate var currentApplication: NSRunningApplication = NSRunningApplication.current()
+    lazy fileprivate var currentApplication: NSRunningApplication = NSRunningApplication.current
     weak fileprivate var eventTimer: Timer? = nil
     
     fileprivate static var kvoContext = "OBWApplicationObservingContext"

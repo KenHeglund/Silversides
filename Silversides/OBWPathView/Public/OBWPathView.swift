@@ -61,15 +61,15 @@ open class OBWPathView: NSView {
         
         self.autoresizesSubviews = false
         
-        let options: NSTrackingAreaOptions = [ .mouseEnteredAndExited, .mouseMoved, .activeAlways, .inVisibleRect ]
+        let options: NSTrackingArea.Options = [ NSTrackingArea.Options.mouseEnteredAndExited, NSTrackingArea.Options.mouseMoved, NSTrackingArea.Options.activeAlways, NSTrackingArea.Options.inVisibleRect ]
         let trackingArea = NSTrackingArea( rect: self.bounds, options: options, owner: self, userInfo: nil )
         self.addTrackingArea( trackingArea )
         
         self.wantsLayer = true
         
         let notificationCenter = NotificationCenter.default
-        notificationCenter.addObserver( self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSNotification.Name.NSWindowDidBecomeMain, object: self.window )
-        notificationCenter.addObserver( self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSNotification.Name.NSWindowDidResignMain, object: self.window )
+        notificationCenter.addObserver( self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindow.didBecomeMainNotification, object: self.window )
+        notificationCenter.addObserver( self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindow.didResignMainNotification, object: self.window )
     }
     
     /*==========================================================================*/
@@ -155,15 +155,15 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    override open func accessibilityRole() -> String? {
-        return NSAccessibilityListRole
+    override open func accessibilityRole() -> NSAccessibilityRole? {
+        return NSAccessibilityRole.list
     }
     
     /*==========================================================================*/
     override open func accessibilityRoleDescription() -> String? {
         
         let descriptionFormat = NSLocalizedString( "path element %@", comment: "PathView accessibility role description format" )
-        guard let standardDescription = NSAccessibilityRoleDescription( NSAccessibilityListRole, nil ) else { return nil }
+        guard let standardDescription = NSAccessibilityRole.list.description(with: nil ) else { return nil }
         return String( format: descriptionFormat, standardDescription )
     }
     
@@ -198,7 +198,7 @@ open class OBWPathView: NSView {
     open weak var delegate: OBWPathViewDelegate? = nil
     
     /*==========================================================================*/
-    open dynamic var enabled = true {
+    @objc open dynamic var enabled = true {
         
         didSet {
             
@@ -355,7 +355,7 @@ open class OBWPathView: NSView {
     /*==========================================================================*/
     @objc fileprivate func windowBecameOrResignedMain( _ notification: Notification ) {
         self.updateLayerContents()
-        self.active = ( notification.name == NSNotification.Name.NSWindowDidBecomeMain )
+        self.active = ( notification.name == NSWindow.didBecomeMainNotification )
     }
     
     /*==========================================================================*/
@@ -383,7 +383,7 @@ open class OBWPathView: NSView {
         
         guard let window = self.window else { return false }
         
-        let locationInScreen = NSRect( origin: NSEvent.mouseLocation(), size: NSZeroSize )
+        let locationInScreen = NSRect( origin: NSEvent.mouseLocation, size: NSZeroSize )
         let locationInWindow = window.convertFromScreen( locationInScreen )
         let locationInView = self.convert( locationInWindow.origin, from: nil )
         
@@ -575,7 +575,7 @@ open class OBWPathView: NSView {
     /*==========================================================================*/
     fileprivate func adjustItemViewFrames( animate: Bool ) {
         
-        let shiftKey = NSEvent.modifierFlags().contains( .shift )
+        let shiftKey = NSEvent.modifierFlags.contains( NSEvent.ModifierFlags.shift )
         let animationDuration = ( animate ? ( shiftKey ? 2.5 : 0.1 ) : 0.0 )
         
         NSAnimationContext.runAnimationGroup({ ( context: NSAnimationContext ) in

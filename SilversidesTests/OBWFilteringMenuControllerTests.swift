@@ -36,7 +36,7 @@ class OBWFilteringMenuControllerTests: XCTestCase {
             
         }
         
-        let screenFrame = NSScreen.screens()!.first!.frame
+        let screenFrame = NSScreen.screens.first!.frame
         let locationInScreen = NSPoint(
             x: screenFrame.maxX - 20.0,
             y: screenFrame.minY + 100.0

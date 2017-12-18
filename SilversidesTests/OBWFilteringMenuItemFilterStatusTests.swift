@@ -79,10 +79,10 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         for index in 0 ..< highlightedTitle.length {
             
             if underlinedIndicies.contains( index ) {
-                XCTAssertNotNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNotNil( highlightedTitle.attribute( .underlineStyle, at: index, effectiveRange: nil ), "\(index)" )
             }
             else {
-                XCTAssertNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNil( highlightedTitle.attribute( .underlineStyle, at: index, effectiveRange: nil ), "\(index)" )
             }
         }
         
@@ -102,10 +102,10 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         for index in 0 ..< highlightedTitle.length {
             
             if underlinedIndicies.contains( index ) {
-                XCTAssertNotNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNotNil( highlightedTitle.attribute( .underlineStyle, at: index, effectiveRange: nil ), "\(index)" )
             }
             else {
-                XCTAssertNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNil( highlightedTitle.attribute( .underlineStyle, at: index, effectiveRange: nil ), "\(index)" )
             }
         }
         
@@ -118,7 +118,7 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         
         menuItem.attributedTitle = NSAttributedString(
             string: "sampleAttributedTitle",
-            attributes: [ NSForegroundColorAttributeName : NSColor.red ]
+            attributes: [ .foregroundColor : NSColor.red ]
         )
         
         let status = OBWFilteringMenuItemFilterStatus.filterStatus( menuItem, filterString: "g/t{2,}/" )
@@ -130,10 +130,10 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         for index in 0 ..< highlightedTitle.length {
             
             if underlinedIndicies.contains( index ) {
-                XCTAssertNotNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNotNil( highlightedTitle.attribute( .underlineStyle, at: index, effectiveRange: nil ), "\(index)" )
             }
             else {
-                XCTAssertNil( highlightedTitle.attribute( NSUnderlineStyleAttributeName, at: index, effectiveRange: nil ), "\(index)" )
+                XCTAssertNil( highlightedTitle.attribute( .underlineStyle, at: index, effectiveRange: nil ), "\(index)" )
             }
         }
         

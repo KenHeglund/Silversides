@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2555" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13771"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -657,6 +657,9 @@
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" topStrut="YES"/>
                         <rect key="contentRect" x="20" y="717" width="305" height="270"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <connections>
+                            <outlet property="delegate" destination="B8D-0N-5wS" id="sUZ-Fg-mr3"/>
+                        </connections>
                     </window>
                     <connections>
                         <segue destination="XfG-lQ-9wD" kind="relationship" relationship="window.shadowedContentViewController" id="cq2-FE-JQM"/>
@@ -742,11 +745,14 @@
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="CqX-Zl-ZLj" secondAttribute="trailing" constant="20" symbolic="YES" id="2zk-g2-mLl"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="boC-LE-shb" secondAttribute="trailing" constant="20" symbolic="YES" id="4KF-kN-zek"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="k1R-Ne-cgQ" secondAttribute="trailing" constant="20" symbolic="YES" id="4pA-oR-nL4"/>
                             <constraint firstItem="L3u-8D-ZXo" firstAttribute="leading" secondItem="boC-LE-shb" secondAttribute="leading" id="4x3-QJ-QLd"/>
                             <constraint firstItem="mWq-Jg-xnx" firstAttribute="leading" secondItem="k1R-Ne-cgQ" secondAttribute="leading" id="B5y-iV-hjG"/>
                             <constraint firstItem="mWq-Jg-xnx" firstAttribute="top" secondItem="CqX-Zl-ZLj" secondAttribute="bottom" constant="8" symbolic="YES" id="DMO-03-MRE"/>
                             <constraint firstItem="mWq-Jg-xnx" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="52" id="Eb7-As-wTS"/>
                             <constraint firstItem="FeE-rn-LYK" firstAttribute="top" secondItem="boC-LE-shb" secondAttribute="bottom" constant="11" id="FYv-VQ-XVW"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="7Da-Yz-ogs" secondAttribute="trailing" constant="20" symbolic="YES" id="NRc-lt-2at"/>
                             <constraint firstItem="CqX-Zl-ZLj" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="OWD-eK-mx4"/>
                             <constraint firstItem="k1R-Ne-cgQ" firstAttribute="top" secondItem="mWq-Jg-xnx" secondAttribute="bottom" constant="8" symbolic="YES" id="P6O-AA-HQt"/>
                             <constraint firstItem="k1R-Ne-cgQ" firstAttribute="leading" secondItem="7Da-Yz-ogs" secondAttribute="leading" id="Pjs-je-aBp"/>
@@ -759,6 +765,7 @@
                             <constraint firstItem="boC-LE-shb" firstAttribute="leading" secondItem="FeE-rn-LYK" secondAttribute="leading" id="iBX-dt-FrE"/>
                             <constraint firstItem="QA7-fv-S5T" firstAttribute="leading" secondItem="FeE-rn-LYK" secondAttribute="trailing" constant="8" symbolic="YES" id="lum-AB-R6c"/>
                             <constraint firstItem="CqX-Zl-ZLj" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="r10-U3-s5N"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="L3u-8D-ZXo" secondAttribute="trailing" constant="20" symbolic="YES" id="v1f-9O-8qD"/>
                             <constraint firstItem="7Da-Yz-ogs" firstAttribute="top" secondItem="k1R-Ne-cgQ" secondAttribute="bottom" constant="6" symbolic="YES" id="zSb-QK-LE7"/>
                         </constraints>
                     </view>

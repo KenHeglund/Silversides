@@ -34,7 +34,7 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         
         super.init( frame: frameRect )
         
-        self.autoresizingMask = [ .viewWidthSizable, .viewHeightSizable ]
+        self.autoresizingMask = [ NSView.AutoresizingMask.width, NSView.AutoresizingMask.height ]
         self.autoresizesSubviews = true
         
         self.material = .menu
@@ -116,7 +116,7 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         }
         
         maskImage.resizingMode = .stretch
-        maskImage.capInsets = EdgeInsets(
+        maskImage.capInsets = NSEdgeInsets(
             top: roundedCornerRadius + 1.0,
             left: roundedCornerRadius + 1.0,
             bottom: roundedCornerRadius + 1.0,

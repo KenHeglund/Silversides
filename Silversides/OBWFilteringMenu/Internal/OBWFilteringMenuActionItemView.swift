@@ -87,7 +87,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         self.addSubview( subviewArrowImageView )
         
-        NotificationCenter.default.addObserver( self, selector: #selector(OBWFilteringMenuActionItemView.highlightedItemDidChange(_:)), name: NSNotification.Name(rawValue: OBWFilteringMenu.highlightedItemDidChangeNotification), object: nil )
+        NotificationCenter.default.addObserver( self, selector: #selector(OBWFilteringMenuActionItemView.highlightedItemDidChange(_:)), name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: nil )
     }
     
     /*==========================================================================*/
@@ -97,7 +97,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     
     /*==========================================================================*/
     deinit {
-        NotificationCenter.default.removeObserver( self, name: NSNotification.Name(rawValue: OBWFilteringMenu.highlightedItemDidChangeNotification), object: nil )
+        NotificationCenter.default.removeObserver( self, name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: nil )
     }
     
     /*==========================================================================*/
@@ -163,10 +163,10 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             let localOrigin = self.bounds.origin
             let originInWindow = self.convert( localOrigin, to: nil )
             
-            NSGraphicsContext.current()?.patternPhase = originInWindow
+            NSGraphicsContext.current?.patternPhase = originInWindow
             
             NSColor.selectedMenuItemColor.setFill()
-            NSRectFill( self.bounds )
+            self.bounds.fill( )
         }
     }
     
@@ -250,15 +250,15 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    override func accessibilityRole() -> String? {
+    override func accessibilityRole() -> NSAccessibilityRole? {
         let itemHasSubmenu = ( self.menuItem.submenu != nil )
-        return ( itemHasSubmenu ? NSAccessibilityPopUpButtonRole : NSAccessibilityButtonRole )
+        return ( itemHasSubmenu ? NSAccessibilityRole.popUpButton : NSAccessibilityRole.button )
     }
     
     /*==========================================================================*/
     override func accessibilityRoleDescription() -> String? {
         guard let role = self.accessibilityRole() else { return nil }
-        return NSAccessibilityRoleDescription( role, nil )
+        return role.description(with: nil )
     }
     
     /*==========================================================================*/
@@ -318,7 +318,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     override func accessibilityPerformPress() -> Bool {
         let notificationCenter = NotificationCenter.default
         let userInfo = [ OBWFilteringMenuItemKey : self.menuItem ]
-        notificationCenter.post( name: Notification.Name(rawValue: OBWFilteringMenuAXDidOpenMenuItemNotification), object: self, userInfo: userInfo )
+        notificationCenter.post( name: OBWFilteringMenuAXDidOpenMenuItemNotification, object: self, userInfo: userInfo )
         return true
     }
     
@@ -383,8 +383,8 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     unowned fileprivate let subviewArrowImageView: NSImageView
     
     fileprivate static let subviewArrowFrame = NSRect( width: 9.0, height: 10.0 )
-    fileprivate static let interiorMargins = EdgeInsets( top: 0.0, left: 19.0, bottom: 0.0, right: 10.0 )
-    fileprivate static let imageMargins = EdgeInsets( top: 2.0, left: 2.0, bottom: 2.0, right: 2.0 )
+    fileprivate static let interiorMargins = NSEdgeInsets( top: 0.0, left: 19.0, bottom: 0.0, right: 10.0 )
+    fileprivate static let imageMargins = NSEdgeInsets( top: 2.0, left: 2.0, bottom: 2.0, right: 2.0 )
     fileprivate static let titleToSubmenuArrowSpacing: CGFloat = 37.0
     
     /*==========================================================================*/
@@ -398,7 +398,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             
             let attributedString = NSMutableAttributedString( attributedString: filterStatus.highlightedTitle )
             let range = NSRange( location: 0, length: attributedString.length )
-            attributedString.addAttribute( NSForegroundColorAttributeName, value: NSColor.white, range: range )
+            attributedString.addAttribute( NSAttributedStringKey.foregroundColor, value: NSColor.white, range: range )
             
             return attributedString
         }
@@ -449,20 +449,20 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             
             guard let itemTitle = menuItem.title else { return nil }
             
-            let fontAttribute = [ NSFontAttributeName : menuItem.font ]
+            let fontAttribute = [ NSAttributedStringKey.font : menuItem.font ]
             attributedTitle = NSMutableAttributedString( string: itemTitle, attributes: fontAttribute )
         }
         
         let range = NSRange( location: 0, length: attributedTitle.length )
         
-        let paragraphStyle = NSParagraphStyle.default().mutableCopy() as! NSMutableParagraphStyle
+        let paragraphStyle = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
         paragraphStyle.lineBreakMode = .byTruncatingTail
         
-        let paragraphAttribute = [ NSParagraphStyleAttributeName : paragraphStyle ]
+        let paragraphAttribute = [ NSAttributedStringKey.paragraphStyle : paragraphStyle ]
         attributedTitle.addAttributes( paragraphAttribute, range: range )
         
         if menuItem.isHighlighted {
-            let colorAttribute = [ NSForegroundColorAttributeName : NSColor.selectedMenuItemTextColor ]
+            let colorAttribute = [ NSAttributedStringKey.foregroundColor : NSColor.selectedMenuItemTextColor ]
             attributedTitle.addAttributes( colorAttribute, range: range )
         }
         

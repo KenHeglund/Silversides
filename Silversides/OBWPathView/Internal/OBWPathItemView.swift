@@ -13,7 +13,7 @@ extension NSColor {
     
     func colorByScaling( hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat ) -> NSColor {
         
-        guard let originalColor = self.usingColorSpaceName( NSDeviceRGBColorSpace ) else { return self }
+        guard let originalColor = self.usingColorSpaceName( NSColorSpaceName.deviceRGB ) else { return self }
         
         let pinColor = { ( value: CGFloat ) -> CGFloat in
             if value < 0.0 { return 0.0 }
@@ -61,7 +61,7 @@ class OBWPathItemView: NSView {
         self.addSubview( titleField )
         self.addSubview( dividerView )
         
-        self.autoresizingMask = NSAutoresizingMaskOptions()
+        self.autoresizingMask = NSView.AutoresizingMask()
         self.layerContentsRedrawPolicy = .duringViewResize
     }
     
@@ -173,15 +173,15 @@ class OBWPathItemView: NSView {
     }
     
     /*==========================================================================*/
-    override func accessibilityRole() -> String? {
-        return NSAccessibilityPopUpButtonRole
+    override func accessibilityRole() -> NSAccessibilityRole? {
+        return NSAccessibilityRole.popUpButton
     }
     
     /*==========================================================================*/
     override func accessibilityRoleDescription() -> String? {
         
         let descriptionFormat = NSLocalizedString( "path element %@", comment: "PathItemView accessibility role description" )
-        guard let standardDescription = NSAccessibilityRoleDescription( NSAccessibilityPopUpButtonRole, nil ) else { return nil }
+        guard let standardDescription = NSAccessibilityRole.popUpButton.description(with: nil ) else { return nil }
         return String( format: descriptionFormat, standardDescription )
     }
     
@@ -371,7 +371,7 @@ class OBWPathItemView: NSView {
     fileprivate let imageView: NSImageView = {
         
         let itemImageView = NSImageView( frame: NSZeroRect )
-        itemImageView.autoresizingMask = NSAutoresizingMaskOptions()
+        itemImageView.autoresizingMask = NSView.AutoresizingMask()
         itemImageView.isHidden = true
         itemImageView.cell?.setAccessibilityElement( false )
         
@@ -384,7 +384,7 @@ class OBWPathItemView: NSView {
         let titleField = NSTextField( frame: NSZeroRect )
         titleField.cell?.setAccessibilityElement( false )
         titleField.cell?.lineBreakMode = .byTruncatingTail
-        titleField.autoresizingMask = NSAutoresizingMaskOptions()
+        titleField.autoresizingMask = NSView.AutoresizingMask()
         titleField.isEditable = false
         titleField.isSelectable = false
         titleField.isBezeled = false
@@ -403,7 +403,7 @@ class OBWPathItemView: NSView {
         let dividerImageView = NSImageView( frame: frame )
         dividerImageView.cell?.setAccessibilityElement( false )
         dividerImageView.image = dividerImage
-        dividerImageView.autoresizingMask = .viewMaxXMargin
+        dividerImageView.autoresizingMask = NSView.AutoresizingMask.maxXMargin
         dividerImageView.isHidden = true
         
         return dividerImageView
@@ -413,30 +413,30 @@ class OBWPathItemView: NSView {
     fileprivate static let disabledViewAlpha: CGFloat = 0.5
     
     /*==========================================================================*/
-    fileprivate static let imageMargins: EdgeInsets = {
+    fileprivate static let imageMargins: NSEdgeInsets = {
         
         let minorVersion = ProcessInfo().operatingSystemVersion.minorVersion
         
         if minorVersion <= 10 {
-            return EdgeInsets( top: 3.0, left: 4.0, bottom: 3.0, right: 2.0 )
+            return NSEdgeInsets( top: 3.0, left: 4.0, bottom: 3.0, right: 2.0 )
         }
         else {
-            return EdgeInsets( top: 3.0, left: 5.0, bottom: 4.0, right: 2.0 )
+            return NSEdgeInsets( top: 3.0, left: 5.0, bottom: 4.0, right: 2.0 )
         }
     }()
     
-    fileprivate static let titleMargins = EdgeInsets( top: 4.0, left: 2.0, bottom: 4.0, right: 2.0 )
-    fileprivate static let dividerMargins = EdgeInsets( top: 0.0, left: 3.0, bottom: 0.0, right: 2.0 )
+    fileprivate static let titleMargins = NSEdgeInsets( top: 4.0, left: 2.0, bottom: 4.0, right: 2.0 )
+    fileprivate static let dividerMargins = NSEdgeInsets( top: 0.0, left: 3.0, bottom: 0.0, right: 2.0 )
     
     fileprivate static let minimumTitleWidthWithoutImage: CGFloat = 20.0
 
     /*==========================================================================*/
     fileprivate static var dividerImage: NSImage = {
         
-        let attributes: [String:AnyObject] = [
-            NSParagraphStyleAttributeName : NSParagraphStyle.default(),
-            NSFontAttributeName : NSFont.controlContentFont( ofSize: OBWPathItemView.titleFontSize + 6.0 ),
-            NSForegroundColorAttributeName : NSColor( deviceWhite: 0.55, alpha: 1.0 ),
+        let attributes: [NSAttributedStringKey:Any] = [
+            .paragraphStyle : NSParagraphStyle.default,
+            .font : NSFont.controlContentFont( ofSize: OBWPathItemView.titleFontSize + 6.0 ),
+            .foregroundColor : NSColor( deviceWhite: 0.55, alpha: 1.0 ),
         ]
         
         let string = "⟩" as NSString // \xE2\x9F\xA9
@@ -486,7 +486,7 @@ class OBWPathItemView: NSView {
         
         var displayFont = NSFont.controlContentFont( ofSize: OBWPathItemView.titleFontSize )
         
-        let sharedFontManager = NSFontManager.shared()
+        let sharedFontManager = NSFontManager.shared
         
         if style.contains( .italic ) {
             displayFont = sharedFontManager.convert( displayFont, toHaveTrait: .italicFontMask )
@@ -509,7 +509,7 @@ class OBWPathItemView: NSView {
         guard let pathItem = self.pathItem else { return }
         guard let pathView = self.superview as? OBWPathView else { return }
         
-        let paragraphStyle = NSParagraphStyle.default().mutableCopy() as! NSMutableParagraphStyle
+        let paragraphStyle = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
         paragraphStyle.lineBreakMode = .byTruncatingTail
         
         let displayFont = OBWPathItemView.titleFontForPathItemStyle( pathItem.style )
@@ -533,10 +533,10 @@ class OBWPathItemView: NSView {
             titleColor = NSColor.disabledControlTextColor
         }
         
-        let attributes: [String:AnyObject] = [
-            NSParagraphStyleAttributeName : paragraphStyle,
-            NSFontAttributeName : displayFont,
-            NSForegroundColorAttributeName : titleColor,
+        let attributes: [NSAttributedStringKey:Any] = [
+            .paragraphStyle : paragraphStyle,
+            .font : displayFont,
+            .foregroundColor : titleColor,
         ]
         
         self.titleField.attributedStringValue = NSAttributedString( string: title, attributes: attributes )

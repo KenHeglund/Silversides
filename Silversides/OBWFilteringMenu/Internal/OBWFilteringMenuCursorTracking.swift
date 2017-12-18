@@ -265,7 +265,7 @@ private class OBWFilteringMenuCursorTrackingDebugView: NSView {
         let bounds = self.bounds
         
         NSColor.clear.set()
-        NSRectFill( bounds )
+        bounds.fill( )
         
         guard let cursorTracking = self.cursorTracking else { return }
         
@@ -314,14 +314,14 @@ private class OBWFilteringMenuCursorTrackingDebugWindow: NSWindow {
     
     init() {
         
-        let screenFrame = NSScreen.screens()?.first?.frame ?? NSZeroRect
+        let screenFrame = NSScreen.screens.first?.frame ?? NSZeroRect
         
         let trackingView = OBWFilteringMenuCursorTrackingDebugView( frame: screenFrame )
         self.trackingView = trackingView
         
-        super.init( contentRect: screenFrame, styleMask: NSBorderlessWindowMask, backing: .buffered, defer: false )
+        super.init( contentRect: screenFrame, styleMask: .borderless, backing: .buffered, defer: false )
         
-        self.level = Int(CGWindowLevelForKey( .screenSaverWindow )) - 10
+        self.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey( .screenSaverWindow )) - 10)
         self.isOpaque = false
         self.backgroundColor = NSColor.clear
         self.hasShadow = false
