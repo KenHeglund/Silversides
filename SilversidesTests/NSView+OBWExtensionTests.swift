@@ -39,7 +39,7 @@ class NSView_OBWExtensionTests: XCTestCase {
     func testBoundsInScreen() {
         
         let windowContentFrame = NSRect( x: 200.0, y: 300.0, width: 400.0, height: 500.0 )
-        let window = NSWindow( contentRect: windowContentFrame, styleMask: NSBorderlessWindowMask, backing: .Buffered, defer: true )
+        let window = NSWindow( contentRect: windowContentFrame, styleMask: NSBorderlessWindowMask, backing: .buffered, defer: true )
         
         let viewFrame = NSRect( x: 40.0, y: 60.0, width: 35.0, height: 55.0 )
         let testView = NSView( frame: viewFrame )
@@ -73,5 +73,5 @@ class NSView_OBWExtensionTests: XCTestCase {
 /*==========================================================================*/
 
 private class FlippedView: NSView {
-    override var flipped: Bool { return true }
+    override var isFlipped: Bool { return true }
 }

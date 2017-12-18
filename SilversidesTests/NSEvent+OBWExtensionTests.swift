@@ -26,13 +26,13 @@ class NSEvent_OBWExtensionTests: XCTestCase {
     /*==========================================================================*/
     func testLocationInScreen() {
         
-        let timestamp = NSProcessInfo.processInfo().systemUptime
+        let timestamp = ProcessInfo().systemUptime
         
         var event: NSEvent!
         var locationInScreen: NSPoint?
         
-        event = NSEvent.otherEventWithType(
-            .ApplicationDefined,
+        event = NSEvent.otherEvent(
+            with: .applicationDefined,
             location: NSPoint( x: 100.0, y: 100.0 ),
             modifierFlags: [],
             timestamp: timestamp,
@@ -45,8 +45,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         XCTAssertNotNil( event )
         XCTAssertNil( event.obw_locationInScreen )
         
-        event = NSEvent.otherEventWithType(
-            .Periodic,
+        event = NSEvent.otherEvent(
+            with: .periodic,
             location: NSPoint( x: 100.0, y: 100.0 ),
             modifierFlags: [],
             timestamp: timestamp,
@@ -75,12 +75,12 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         let window = NSWindow(
             contentRect: windowContentFrame,
             styleMask: NSBorderlessWindowMask,
-            backing: .Buffered,
+            backing: .buffered,
             defer: true
         )
         
-        event = NSEvent.mouseEventWithType(
-            .OtherMouseDragged,
+        event = NSEvent.mouseEvent(
+            with: .otherMouseDragged,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -95,8 +95,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         locationInScreen = event.obw_locationInScreen
         XCTAssertEqual( locationInScreen, verificationPoint )
         
-        event = NSEvent.mouseEventWithType(
-            .OtherMouseUp,
+        event = NSEvent.mouseEvent(
+            with: .otherMouseUp,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -115,7 +115,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
     /*==========================================================================*/
     func testLocationInView() {
         
-        let timestamp = NSProcessInfo.processInfo().systemUptime
+        let timestamp = ProcessInfo().systemUptime
         
         var event: NSEvent!
         var locationInView: NSPoint?
@@ -132,7 +132,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         let window = NSWindow(
             contentRect: windowContentFrame,
             styleMask: NSBorderlessWindowMask,
-            backing: .Buffered,
+            backing: .buffered,
             defer: true
         )
         
@@ -146,8 +146,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         let testView = NSView( frame: viewFrame )
         testLocation = NSPoint( x: 50.0, y: 100.0 )
         
-        event = NSEvent.mouseEventWithType(
-            .OtherMouseDragged,
+        event = NSEvent.mouseEvent(
+            with: .otherMouseDragged,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -167,8 +167,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             y: testLocation.y - viewFrame.origin.y
         )
         
-        event = NSEvent.mouseEventWithType(
-            .OtherMouseDragged,
+        event = NSEvent.mouseEvent(
+            with: .otherMouseDragged,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -189,8 +189,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             y: testLocation.y - viewFrame.origin.y - windowContentFrame.origin.y
         )
         
-        event = NSEvent.mouseEventWithType(
-            .OtherMouseUp,
+        event = NSEvent.mouseEvent(
+            with: .otherMouseUp,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -205,8 +205,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         locationInView = event.obw_locationInView( testView )
         XCTAssertEqual( locationInView, verificationPoint )
         
-        event = NSEvent.otherEventWithType(
-            .ApplicationDefined,
+        event = NSEvent.otherEvent(
+            with: .applicationDefined,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -219,8 +219,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         XCTAssertNotNil( event )
         XCTAssertNil( event.obw_locationInView( testView ) )
         
-        event = NSEvent.otherEventWithType(
-            .Periodic,
+        event = NSEvent.otherEvent(
+            with: .periodic,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,

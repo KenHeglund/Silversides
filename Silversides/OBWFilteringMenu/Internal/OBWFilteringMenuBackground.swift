@@ -8,13 +8,13 @@ import Cocoa
 
 /*==========================================================================*/
 
-struct OBWFilteringMenuCorners: OptionSetType {
+struct OBWFilteringMenuCorners: OptionSet {
     
     init( rawValue: UInt ) {
         self.rawValue = rawValue & 0xF
     }
     
-    private(set) var rawValue: UInt
+    fileprivate(set) var rawValue: UInt
     
     static let TopLeft      = OBWFilteringMenuCorners( rawValue: 1 << 0 )
     static let TopRight     = OBWFilteringMenuCorners( rawValue: 1 << 1 )
@@ -34,11 +34,11 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         
         super.init( frame: frameRect )
         
-        self.autoresizingMask = [ .ViewWidthSizable, .ViewHeightSizable ]
+        self.autoresizingMask = [ .viewWidthSizable, .viewHeightSizable ]
         self.autoresizesSubviews = true
         
-        self.material = .Menu
-        self.state = .Active
+        self.material = .menu
+        self.state = .active
         
         self.updateMaskImage()
     }
@@ -65,7 +65,7 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
     static let roundedCornerRadius: CGFloat = 6.0
     static let squareCornerRadius: CGFloat = 0.0
     
-    private static var maskImageCache: [NSImage?] = (0...15).map { _ in return nil }
+    fileprivate static var maskImageCache: [NSImage?] = (0...15).map { _ in return nil }
     
     /*==========================================================================*/
     func updateMaskImage() {
@@ -83,7 +83,7 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
     }
     
     /*==========================================================================*/
-    private static func maskImage( roundedCorners: OBWFilteringMenuCorners ) -> NSImage {
+    fileprivate static func maskImage( _ roundedCorners: OBWFilteringMenuCorners ) -> NSImage {
         
         let roundedCornerRadius = OBWFilteringMenuBackground.roundedCornerRadius
         let squareCornerRadius = OBWFilteringMenuBackground.squareCornerRadius
@@ -104,19 +104,19 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         let topRightPoint = NSPoint( x: bounds.maxX - topRightRadius, y: bounds.maxY - topRightRadius )
         
         let path = NSBezierPath()
-        path.appendBezierPathWithArcWithCenter( bottomLeftPoint, radius: bottomLeftRadius, startAngle: -180.0, endAngle: -90.0 )
-        path.appendBezierPathWithArcWithCenter( bottomRightPoint, radius: bottomRightRadius, startAngle: -90.0, endAngle: 0.0 )
-        path.appendBezierPathWithArcWithCenter( topRightPoint, radius: topRightRadius, startAngle: 0.0, endAngle: 90.0 )
-        path.appendBezierPathWithArcWithCenter( topLeftPoint, radius: topLeftRadius, startAngle: 90.0, endAngle: 180.0 )
-        path.closePath()
+        path.appendArc( withCenter: bottomLeftPoint, radius: bottomLeftRadius, startAngle: -180.0, endAngle: -90.0 )
+        path.appendArc( withCenter: bottomRightPoint, radius: bottomRightRadius, startAngle: -90.0, endAngle: 0.0 )
+        path.appendArc( withCenter: topRightPoint, radius: topRightRadius, startAngle: 0.0, endAngle: 90.0 )
+        path.appendArc( withCenter: topLeftPoint, radius: topLeftRadius, startAngle: 90.0, endAngle: 180.0 )
+        path.close()
         
         let maskImage = NSImage( size: bounds.size )
         maskImage.withLockedFocus {
             path.fill()
         }
         
-        maskImage.resizingMode = .Stretch
-        maskImage.capInsets = NSEdgeInsets(
+        maskImage.resizingMode = .stretch
+        maskImage.capInsets = EdgeInsets(
             top: roundedCornerRadius + 1.0,
             left: roundedCornerRadius + 1.0,
             bottom: roundedCornerRadius + 1.0,

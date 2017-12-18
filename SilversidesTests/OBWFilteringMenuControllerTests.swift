@@ -69,7 +69,7 @@ class OBWFilteringMenuControllerTests: XCTestCase {
             if ( index % 7 ) == 6 {
                 
                 let alternateItem = OBWFilteringMenuItem( title: "alternate \(index)" )
-                alternateItem.keyEquivalentModifierMask = .Option
+                alternateItem.keyEquivalentModifierMask = .option
                 
                 try! menuItem.addAlternateItem( alternateItem )
                 

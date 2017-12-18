@@ -20,13 +20,13 @@ class SilversidesTests: XCTestCase {
         
         // Spin until the application's window loads.  This also allows time for the application to asynchronously display the initial path view contents.
         
-        let startDate = NSDate()
+        let startDate = Date()
         
         while true {
             
-            assert( NSDate().timeIntervalSinceDate( startDate ) < 2.0 )
+            assert( Date().timeIntervalSince( startDate ) < 2.0 )
             
-            NSRunLoop.currentRunLoop().runUntilDate( NSDate( timeIntervalSinceNow: 0.100 ) )
+            RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.100 ) )
             
             guard let window = NSApp.windows.first else { continue }
             guard let viewController = window.contentViewController as? ViewController else { continue }
@@ -55,11 +55,11 @@ class SilversidesTests: XCTestCase {
     func testThatTrimmingAnOpaqueImageReturnsTheOriginalImage() {
         
         let imageSize = NSSize( width: 10.0, height: 12.0 )
-        let drawnFrame = NSRect( size: imageSize )
+        let drawnFrame = NSRect( origin: NSPoint.zero, size: imageSize)
         
         let sourceImage = NSImage( size: imageSize )
         sourceImage.withLockedFocus { 
-            NSColor.blackColor().set()
+            NSColor.black.set()
             NSRectFill( drawnFrame )
         }
         
@@ -75,7 +75,7 @@ class SilversidesTests: XCTestCase {
         
         let sourceImage = NSImage( size: imageSize )
         sourceImage.withLockedFocus {
-            NSColor.blackColor().set()
+            NSColor.black.set()
             NSRectFill( drawnFrame )
         }
         
@@ -90,7 +90,7 @@ class SilversidesTests: XCTestCase {
         let window = NSApp.windows.first!
         let windowController = window.windowController!
         let viewController = windowController.contentViewController as! ViewController
-        let pathView = viewController.pathViewOutlet
+        let pathView = viewController.pathViewOutlet!
         
         XCTAssertThrowsError( try pathView.endPathItemUpdate() )
         
@@ -106,15 +106,15 @@ class SilversidesTests: XCTestCase {
         let window = NSApp.windows.first!
         let windowController = window.windowController!
         let viewController = windowController.contentViewController as! ViewController
-        let pathView = viewController.pathViewOutlet
+        let pathView = viewController.pathViewOutlet!
         
         pathView.setItems( [] )
         XCTAssertEqual( pathView.numberOfItems, 0 )
         
         let items: [OBWPathItem] = [
-            OBWPathItem( title: "first", image: nil, representedObject: nil, style: .Default, textColor: nil ),
-            OBWPathItem( title: "second", image: nil, representedObject: nil, style: .Default, textColor: nil ),
-            OBWPathItem( title: "third", image: nil, representedObject: nil, style: .Default, textColor: nil ),
+            OBWPathItem( title: "first", image: nil, representedObject: nil, style: .default, textColor: nil ),
+            OBWPathItem( title: "second", image: nil, representedObject: nil, style: .default, textColor: nil ),
+            OBWPathItem( title: "third", image: nil, representedObject: nil, style: .default, textColor: nil ),
         ]
         
         pathView.setItems( items )
@@ -133,12 +133,12 @@ class SilversidesTests: XCTestCase {
         let window = NSApp.windows.first!
         let windowController = window.windowController!
         let viewController = windowController.contentViewController as! ViewController
-        let pathView = viewController.pathViewOutlet
+        let pathView = viewController.pathViewOutlet!
         
         let items: [OBWPathItem] = [
-            OBWPathItem( title: "first", image: nil, representedObject: nil, style: .Default, textColor: nil ),
-            OBWPathItem( title: "second", image: nil, representedObject: nil, style: .Default, textColor: nil ),
-            OBWPathItem( title: "third", image: nil, representedObject: nil, style: .Default, textColor: nil ),
+            OBWPathItem( title: "first", image: nil, representedObject: nil, style: .default, textColor: nil ),
+            OBWPathItem( title: "second", image: nil, representedObject: nil, style: .default, textColor: nil ),
+            OBWPathItem( title: "third", image: nil, representedObject: nil, style: .default, textColor: nil ),
         ]
         
         pathView.setItems( items )
@@ -159,18 +159,18 @@ class SilversidesTests: XCTestCase {
         let window = NSApp.windows.first!
         let windowController = window.windowController!
         let viewController = windowController.contentViewController as! ViewController
-        let pathView = viewController.pathViewOutlet
+        let pathView = viewController.pathViewOutlet!
         
         let items: [OBWPathItem] = [
-            OBWPathItem( title: "first", image: nil, representedObject: nil, style: .Default, textColor: nil ),
-            OBWPathItem( title: "second", image: nil, representedObject: nil, style: .Default, textColor: nil ),
-            OBWPathItem( title: "third", image: nil, representedObject: nil, style: .Default, textColor: nil ),
+            OBWPathItem( title: "first", image: nil, representedObject: nil, style: .default, textColor: nil ),
+            OBWPathItem( title: "second", image: nil, representedObject: nil, style: .default, textColor: nil ),
+            OBWPathItem( title: "third", image: nil, representedObject: nil, style: .default, textColor: nil ),
         ]
         
         pathView.setItems( items )
         XCTAssertEqual( try pathView.item( atIndex: 1 ).title, items[1].title )
         
-        let newItem = OBWPathItem( title: "replacement", image: nil, representedObject: nil, style: .Default, textColor: nil )
+        let newItem = OBWPathItem( title: "replacement", image: nil, representedObject: nil, style: .default, textColor: nil )
         
         try! pathView.setItem( newItem, atIndex: 1 )
         XCTAssertEqual( try pathView.item( atIndex: 1 ).title, newItem.title )
@@ -183,7 +183,7 @@ class SilversidesTests: XCTestCase {
         let windowController = window.windowController!
         let viewController = windowController.contentViewController as! ViewController
         
-        let URL1 = NSURL.fileURLWithPath( "/Applications/Utilities/", isDirectory: true )
+        let URL1 = URL( fileURLWithPath: "/Applications/Utilities/", isDirectory: true )
         viewController.configurePathViewToShowURL( URL1 )
         
         #if INTERACTIVE_TESTS
@@ -191,7 +191,7 @@ class SilversidesTests: XCTestCase {
             self.waitforInterval( 3.0 )
         #endif // INTERACTIVE_TESTS
         
-        let URL2 = NSURL.fileURLWithPath( "/Library/Logs/", isDirectory: true )
+        let URL2 = URL( fileURLWithPath: "/Library/Logs/", isDirectory: true )
         viewController.configurePathViewToShowURL( URL2 )
         
         #if INTERACTIVE_TESTS
@@ -199,7 +199,7 @@ class SilversidesTests: XCTestCase {
             self.waitforInterval( 3.0 )
         #endif // INTERACTIVE_TESTS
         
-        let URL3 = NSURL.fileURLWithPath( "/System/Library/Extensions/AppleHIDKeyboard.kext", isDirectory: true )
+        let URL3 = URL( fileURLWithPath: "/System/Library/Extensions/AppleHIDKeyboard.kext", isDirectory: true )
         viewController.configurePathViewToShowURL( URL3 )
         
         #if INTERACTIVE_TESTS
@@ -209,20 +209,20 @@ class SilversidesTests: XCTestCase {
     }
     
     /*==========================================================================*/
-    private func waitforInterval( timeInterval: NSTimeInterval ) {
+    fileprivate func waitforInterval( _ timeInterval: TimeInterval ) {
         
         // The simple approach:
         //  NSRunLoop.currentRunLoop().runUntilDate( NSDate( timeIntervalSinceNow: timeInterval ) )
         // doesn't allow the UI to respond to mouse movements
         
-        let queue = dispatch_get_global_queue( QOS_CLASS_DEFAULT, 0 )
+        let queue = DispatchQueue.global( qos: DispatchQoS.QoSClass.default)
         
-        let expectation = self.expectationWithDescription( "waitForInterval(_:)" )
+        let expectation = self.expectation( description: "waitForInterval(_:)" )
         let delta = timeInterval * Double(NSEC_PER_SEC)
-        dispatch_after( dispatch_time( DISPATCH_TIME_NOW, Int64(delta) ), queue ) {
+        queue.asyncAfter( deadline: DispatchTime.now() + Double(Int64(delta)) / Double(NSEC_PER_SEC)) {
             expectation.fulfill()
         }
         
-        self.waitForExpectationsWithTimeout( timeInterval * 1.1, handler: nil )
+        self.waitForExpectations( timeout: timeInterval * 1.1, handler: nil )
     }
 }

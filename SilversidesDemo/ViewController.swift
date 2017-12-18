@@ -13,16 +13,16 @@ private class ItemInfo {
     
     enum ItemType {
         
-        case Volume
-        case File
-        case Tail
+        case volume
+        case file
+        case tail
     }
     
-    let URL: NSURL
+    let url: URL
     let type: ItemType
     
-    init( URL: NSURL, type: ItemType ) {
-        self.URL = URL
+    init( url: URL, type: ItemType ) {
+        self.url = url
         self.type = type
     }
 }
@@ -34,7 +34,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     
     @IBOutlet var pathViewOutlet: OBWPathView! = nil
     
-    private(set) var pathViewConfigured = false
+    fileprivate(set) var pathViewConfigured = false
     
     dynamic var pathViewEnabled = true {
         
@@ -52,13 +52,13 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
                 var pathItem = try! self.pathViewOutlet.item( atIndex: index )
                 var style = pathItem.style
                 
-                if style.contains( .Bold ) == self.displayBoldItemTitles { continue }
+                if style.contains( .bold ) == self.displayBoldItemTitles { continue }
                 
                 if self.displayBoldItemTitles {
-                    style = style.union( .Bold )
+                    style.insert( .bold )
                 }
                 else {
-                    style = style.subtract( .Bold )
+                    style.remove( .bold )
                 }
                 
                 pathItem.style = style
@@ -79,12 +79,12 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
                 var pathItem = try! self.pathViewOutlet.item( atIndex: index )
                 
                 let itemInfo = pathItem.representedObject as! ItemInfo
-                if itemInfo.type == .Tail {
+                if itemInfo.type == .tail {
                     continue
                 }
                 
                 if self.displayItemIcons {
-                    pathItem.image = NSWorkspace.sharedWorkspace().iconForFile( itemInfo.URL.path! )
+                    pathItem.image = NSWorkspace.shared().icon( forFile: itemInfo.url.path )
                 }
                 else {
                     pathItem.image = nil
@@ -112,8 +112,8 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
                 }
                 else {
                     
-                    let range = pathItem.title.rangeOfString( ViewController.titlePrefix )!
-                    pathItem.title = pathItem.title.stringByReplacingCharactersInRange( range, withString: "" )
+                    let range = pathItem.title.range( of: ViewController.titlePrefix )!
+                    pathItem.title = pathItem.title.replacingCharacters( in: range, with: "" )
                 }
                 
                 try! self.pathViewOutlet.setItem( pathItem, atIndex: index )
@@ -121,7 +121,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         }
     }
     
-    dynamic var volumeColor = NSColor.redColor() {
+    dynamic var volumeColor = NSColor.red {
         
         didSet {
             
@@ -144,7 +144,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         self.pathViewOutlet.delegate = self
         
         let homePath = NSHomeDirectory()
-        let homeURL = NSURL.fileURLWithPath( homePath )
+        let homeURL = URL( fileURLWithPath: homePath )
         self.configurePathViewToShowURL( homeURL )
     }
     
@@ -152,28 +152,28 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     // MARK: - OBWFilteringMenuDelegate implementation
     
     /*==========================================================================*/
-    func willBeginTrackingFilteringMenu( menu: OBWFilteringMenu ) {
+    func willBeginTrackingFilteringMenu( _ menu: OBWFilteringMenu ) {
         
         #if !USE_NSMENU
             guard menu.numberOfItems == 0 else { return }
             
             let parentPath = menu.title
-            guard NSFileManager.defaultManager().fileExistsAtPath( parentPath ) else { return }
+            guard FileManager.default.fileExists( atPath: parentPath ) else { return }
             
-            let parentURL = NSURL.fileURLWithPath( parentPath )
+            let parentURL = URL(fileURLWithPath: parentPath)
             
-            self.populateFilteringMenu( menu, withContentsAtURL: parentURL )
+            _ = self.populateFilteringMenu( menu, withContentsAtURL: parentURL )
         #endif // !USE_NSMENU
     }
     
     /*==========================================================================*/
-    func filteringMenu( menu: OBWFilteringMenu, accessibilityHelpForItem menuItem: OBWFilteringMenuItem ) -> String? {
+    func filteringMenu( _ menu: OBWFilteringMenu, accessibilityHelpForItem menuItem: OBWFilteringMenuItem ) -> String? {
         
         #if !USE_NSMENU
             let menuItemHasSubmenu = ( menuItem.submenu != nil )
             
-            let folderFormat = NSLocalizedString( "Click this button to interact with the %@ folder", comment: "Folder menu item help format" )
-            let fileFormat = NSLocalizedString( "Click this button to select %@", comment: "File menu item help format" )
+            let folderFormat = NSLocalizedString( "Click this button to interact with the %@ folder", comment: "Folder menu item help format" ) as NSString
+            let fileFormat = NSLocalizedString( "Click this button to select %@", comment: "File menu item help format" ) as NSString
             
             let helpString = NSString( format: ( menuItemHasSubmenu ? folderFormat : fileFormat ), menuItem.title ?? "" )
             
@@ -228,23 +228,23 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     // MARK: - OBWPathViewDelegate implementation
     
     /*==========================================================================*/
-    func pathView( pathView: OBWPathView, filteringMenuForItem pathItem: OBWPathItem, trigger: OBWPathItemTrigger ) -> OBWFilteringMenu? {
+    func pathView( _ pathView: OBWPathView, filteringMenuForItem pathItem: OBWPathItem, trigger: OBWPathItemTrigger ) -> OBWFilteringMenu? {
         
         #if !USE_NSMENU
             let itemInfo = pathItem.representedObject as! ItemInfo
-            let itemURL: NSURL?
+            let itemURL: URL?
             
             switch itemInfo.type {
-            case .File:
-                itemURL = itemInfo.URL.URLByDeletingLastPathComponent!
-            case .Tail:
-                itemURL = itemInfo.URL
-            case .Volume:
+            case .file:
+                itemURL = itemInfo.url.deletingLastPathComponent()
+            case .tail:
+                itemURL = itemInfo.url
+            case .volume:
                 itemURL = nil
             }
             
             let menu = OBWFilteringMenu( title: itemURL?.path ?? "" )
-            menu.font = NSFont.systemFontOfSize( 11.0 )
+            menu.font = NSFont.systemFont( ofSize: 11.0 )
             
             guard self.populateFilteringMenu( menu, withContentsAtURL: itemURL ) else { return nil }
             
@@ -255,7 +255,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     }
     
     /*==========================================================================*/
-    func pathView( pathView: OBWPathView, menuForItem pathItem: OBWPathItem, trigger: OBWPathItemTrigger ) -> NSMenu? {
+    func pathView( _ pathView: OBWPathView, menuForItem pathItem: OBWPathItem, trigger: OBWPathItemTrigger ) -> NSMenu? {
         
         #if USE_NSMENU
             let itemInfo = pathItem.representedObject as! ItemInfo
@@ -263,9 +263,9 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             
             switch itemInfo.type {
             case .File:
-                itemURL = itemInfo.URL.URLByDeletingLastPathComponent!
+                itemURL = itemInfo.url.URLByDeletingLastPathComponent!
             case .Tail:
-                itemURL = itemInfo.URL
+                itemURL = itemInfo.url
             case .Volume:
                 itemURL = nil
             }
@@ -282,26 +282,26 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     }
     
     /*==========================================================================*/
-    func pathViewAccessibilityDescription( pathView: OBWPathView ) -> String? {
+    func pathViewAccessibilityDescription( _ pathView: OBWPathView ) -> String? {
         
-        var URL: NSURL = NSURL.fileURLWithPath( "/" )
+        var url = URL( fileURLWithPath: "/" )
         
         for index in 0..<pathView.numberOfItems {
             
             let pathItem = try! pathView.item( atIndex: index )
-            URL = URL.URLByAppendingPathComponent( pathItem.title )!
+            url = url.appendingPathComponent( pathItem.title )
         }
         
-        return URL.path
+        return url.path
     }
     
     /*==========================================================================*/
-    func pathViewAccessibilityHelp( pathView: OBWPathView ) -> String? {
+    func pathViewAccessibilityHelp( _ pathView: OBWPathView ) -> String? {
         return NSLocalizedString( "This identifies the path to the current test item", comment: "Path View help" )
     }
     
     /*==========================================================================*/
-    func pathView( pathView: OBWPathView, accessibilityHelpForItem: OBWPathItem ) -> String? {
+    func pathView( _ pathView: OBWPathView, accessibilityHelpForItem: OBWPathItem ) -> String? {
         return NSLocalizedString( "This identifies an element in the path to the current test item", comment: "Path Item View help" )
     }
     
@@ -309,15 +309,15 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     // MARK: - ViewController implementation
     
     /*==========================================================================*/
-    func configurePathViewToShowURL( URL: NSURL ) {
+    func configurePathViewToShowURL( _ url: URL ) {
         
         self.pathViewOutlet.beginPathItemUpdate()
         
-        dispatch_async( dispatch_get_global_queue( QOS_CLASS_BACKGROUND, 0 ) ) {
+        DispatchQueue.global( qos: DispatchQoS.QoSClass.background).async {
             
-            let pathItems = self.pathItemsForURL( URL )
+            let pathItems = self.pathItemsForURL( url )
             
-            dispatch_async( dispatch_get_main_queue(), {
+            DispatchQueue.main.async(execute: {
                 self.pathViewOutlet.setItems( pathItems )
                 try! self.pathViewOutlet.endPathItemUpdate()
                 self.pathViewConfigured = true
@@ -327,46 +327,47 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     }
     
     /*==========================================================================*/
-    func pathItemsForURL( URL: NSURL ) -> [OBWPathItem] {
+    func pathItemsForURL( _ url: URL ) -> [OBWPathItem] {
         
         // Build array of parent URLs back to the volume URL
-        var parentURLArray: [NSURL] = []
-        var parentURL = URL
+        var parentURLArray: [URL] = []
+        var parentURL = url
         
         while !ViewController.isVolumeRootURL( parentURL ) {
             
             parentURLArray.append( parentURL )
             
-            guard let newParentURL = parentURL.URLByDeletingLastPathComponent else { break }
+            let newParentURL = parentURL.deletingLastPathComponent()
+            guard newParentURL != parentURL else { break }
             parentURL = newParentURL
             
         }
         
         // Volume path item
-        let volumeInfo = ItemInfo( URL: parentURL, type: .Volume )
+        let volumeInfo = ItemInfo( url: parentURL, type: .volume )
         var volumeItem = self.pathItemWithInfo( volumeInfo )
         volumeItem.textColor = self.volumeColor
         
         var pathItems = [volumeItem]
         
         // Center path items
-        for itemURL in parentURLArray.reverse() {
-            let itemInfo = ItemInfo( URL: itemURL, type: .File )
+        for itemURL in parentURLArray.reversed() {
+            let itemInfo = ItemInfo( url: itemURL, type: .file )
             pathItems.append( self.pathItemWithInfo( itemInfo ) )
         }
         
-        if !ViewController.isContainerURL( URL ) {
+        if !ViewController.isContainerURL( url ) {
             return pathItems
         }
         
-        guard let descendantURLs = ViewController.descendantURLsAtURL( URL ) else { return pathItems }
+        guard let descendantURLs = ViewController.descendantURLsAtURL( url ) else { return pathItems }
         
         // Add a tail path item when displaying a container URL
         let tailItem = OBWPathItem(
             title: ( descendantURLs.isEmpty ? "Empty Folder" : "No Selection" ),
             image: nil,
-            representedObject: ItemInfo( URL: URL, type: .Tail ),
-            style: [ .Italic, .NoTextShadow ],
+            representedObject: ItemInfo( url: url, type: .tail ),
+            style: [ .italic, .noTextShadow ],
             textColor: NSColor( deviceWhite: 0.0, alpha: 0.5 ),
             accessible: !descendantURLs.isEmpty
         )
@@ -377,15 +378,15 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     }
     
     /*==========================================================================*/
-    class func isVolumeRootURL( URL: NSURL ) -> Bool {
+    class func isVolumeRootURL( _ url: URL ) -> Bool {
         
-        guard let lastPathComponent = URL.lastPathComponent else { return false }
-        guard let relativePath = URL.relativePath else { return false }
+        let lastPathComponent = url.lastPathComponent
+        let relativePath = url.relativePath
         if lastPathComponent == relativePath {
             return true
         }
         
-        guard let shortenedPath = URL.URLByDeletingLastPathComponent?.path else { return false }
+        let shortenedPath = url.deletingLastPathComponent().path
         if shortenedPath == "/Volumes" {
             return true
         }
@@ -394,38 +395,43 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     }
     
     /*==========================================================================*/
-    class func isContainerURL( URL: NSURL ) -> Bool {
+    class func isContainerURL( _ url: URL ) -> Bool {
         
-        guard let resourceValues = try? URL.resourceValuesForKeys( [ NSURLIsDirectoryKey, NSURLIsPackageKey ] ) else { return false }
+        guard let resourceValues = try? (url as NSURL).resourceValues( forKeys: [ URLResourceKey.isDirectoryKey, URLResourceKey.isPackageKey ] ) else { return false }
         
-        guard let isDirectory = resourceValues[NSURLIsDirectoryKey] as? Bool else { return false }
-        guard let isPackage = resourceValues[NSURLIsPackageKey] as? Bool else { return false }
+        guard let isDirectory = resourceValues[URLResourceKey.isDirectoryKey] as? Bool else { return false }
+        guard let isPackage = resourceValues[URLResourceKey.isPackageKey] as? Bool else { return false }
         
         return isDirectory && !isPackage
     }
     
     /*==========================================================================*/
-    class func descendantURLsAtURL( URL: NSURL? ) -> [NSURL]? {
+    class func descendantURLsAtURL( _ url: URL? ) -> [URL]? {
         
-        let fileManager = NSFileManager.defaultManager()
+        let fileManager = FileManager.default
         
-        guard let parentURL = URL else {
-            return fileManager.mountedVolumeURLsIncludingResourceValuesForKeys( nil, options: .SkipHiddenVolumes )
+        guard let parentURL = url else {
+            return fileManager.mountedVolumeURLs( includingResourceValuesForKeys: nil, options: .skipHiddenVolumes )
         }
         
         guard ViewController.isContainerURL( parentURL ) else { return nil }
         
-        let directoryOptions: NSDirectoryEnumerationOptions = [
-            .SkipsSubdirectoryDescendants,
-            .SkipsPackageDescendants,
-            .SkipsHiddenFiles,
-            ]
+        let directoryOptions: FileManager.DirectoryEnumerationOptions = [
+            .skipsSubdirectoryDescendants,
+            .skipsPackageDescendants,
+            .skipsHiddenFiles,
+        ]
         
-        guard let enumerator = fileManager.enumeratorAtURL( parentURL, includingPropertiesForKeys: nil, options: directoryOptions, errorHandler: nil ) else { return nil }
+        guard let enumerator = fileManager.enumerator( at: parentURL, includingPropertiesForKeys: nil, options: directoryOptions, errorHandler: nil ) else { return nil }
         
-        let urlArray = enumerator.allObjects as? [NSURL]
+        let urlArray = enumerator.allObjects as? [URL]
         
-        return urlArray
+        let sortedArray = urlArray?.sorted(by: {
+            (firstURL: URL, secondURL: URL) -> Bool in
+            return firstURL.path.caseInsensitiveCompare(secondURL.path) == .orderedAscending
+        })
+        
+        return sortedArray
     }
     
     #if USE_NSMENU
@@ -458,22 +464,22 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     }
     
     /*==========================================================================*/
-    func updateMenuItem( menuItem: NSMenuItem, withURL URL: NSURL ) -> Bool {
+    func updateMenuItem( menuItem: NSMenuItem, withURL url: NSURL ) -> Bool {
         
-        let path = URL.path!
+        let path = url.path!
         let displayName = NSFileManager.defaultManager().displayNameAtPath( path )
         guard !displayName.isEmpty else { return false }
         
         menuItem.title = displayName
         menuItem.target = self
         menuItem.action = #selector(ViewController.selectURL(_:))
-        menuItem.representedObject = URL
+        menuItem.representedObject = url
         
         let icon = NSWorkspace.sharedWorkspace().iconForFile( path )
         icon.size = NSSize( width: 17.0, height: 17.0 )
         menuItem.image = icon
         
-        if !ViewController.isContainerURL( URL ) {
+        if !ViewController.isContainerURL( url ) {
             return true
         }
         
@@ -488,7 +494,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     
     #if !USE_NSMENU
     /*==========================================================================*/
-    func populateFilteringMenu( menu: OBWFilteringMenu, withContentsAtURL parentURL: NSURL? ) -> Bool {
+    func populateFilteringMenu( _ menu: OBWFilteringMenu, withContentsAtURL parentURL: URL? ) -> Bool {
         
         // TODO: When navigating via VoiceOver, insert an item at the top of the menu that allows the parent URL to be selected.  Without that item, a URL representing a folder cannot be selected.
         
@@ -496,9 +502,9 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         
         if !descendantURLs.isEmpty {
             
-            for URL in descendantURLs {
+            for url in descendantURLs {
                 
-                if let menuItem = self.filteringMenuItem( withURL: URL ) {
+                if let menuItem = self.filteringMenuItem( withURL: url as NSURL ) {
                     menu.addItem( menuItem )
                 }
             }
@@ -516,31 +522,31 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     }
     
     /*==========================================================================*/
-    func filteringMenuItem( withURL URL: NSURL ) -> OBWFilteringMenuItem? {
+    func filteringMenuItem( withURL url: NSURL ) -> OBWFilteringMenuItem? {
         
-        guard let path = URL.path else { return nil }
-        let displayName = NSFileManager.defaultManager().displayNameAtPath( path )
+        guard let path = url.path else { return nil }
+        let displayName = FileManager.default.displayName( atPath: path )
         guard !displayName.isEmpty else { return nil }
         
         let menuItem = OBWFilteringMenuItem( title: displayName )
-        menuItem.representedObject = URL
+        menuItem.representedObject = url
         menuItem.actionHandler = {
             [weak self] in
-            guard let URL = $0.representedObject as? NSURL else { return }
-            self?.configurePathViewToShowURL( URL )
+            guard let url = $0.representedObject as? NSURL else { return }
+            self?.configurePathViewToShowURL( url as URL )
         }
         
-        let icon = NSWorkspace.sharedWorkspace().iconForFile( path )
+        let icon = NSWorkspace.shared().icon( forFile: path )
         icon.size = NSSize( width: 17.0, height: 17.0 )
         menuItem.image = icon
         
-        if !ViewController.isContainerURL( URL ) {
+        if !ViewController.isContainerURL( url as URL ) {
             return menuItem
         }
         
         let submenu = OBWFilteringMenu( title: path )
         submenu.delegate = self
-        submenu.font = NSFont.systemFontOfSize( 11.0 )
+        submenu.font = NSFont.systemFont( ofSize: 11.0 )
         menuItem.submenu = submenu
         
         return menuItem
@@ -548,11 +554,11 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     #endif // !USE_NSMENU
     
     /*==========================================================================*/
-    @objc func selectURL( sender: AnyObject? ) {
+    @objc func selectURL( _ sender: AnyObject? ) {
         
         guard let menuItem = sender as? NSMenuItem else { return }
-        guard let URL = menuItem.representedObject as? NSURL else { return }
-        self.configurePathViewToShowURL( URL )
+        guard let url = menuItem.representedObject as? URL else { return }
+        self.configurePathViewToShowURL( url )
     }
     
     /*==========================================================================*/
@@ -560,13 +566,13 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     
     static let titlePrefix = "Title: "
     /*==========================================================================*/
-    private func pathItemWithInfo( info: ItemInfo ) -> OBWPathItem {
+    fileprivate func pathItemWithInfo( _ info: ItemInfo ) -> OBWPathItem {
         
-        let path = info.URL.path!
+        let path = info.url.path
         let prefix = ( self.displayItemTitlePrefixes ? ViewController.titlePrefix : "" )
-        let title = prefix + NSFileManager.defaultManager().displayNameAtPath( path )
-        let image: NSImage? = ( self.displayItemIcons ? NSWorkspace.sharedWorkspace().iconForFile( path ) : nil )
-        let style: OBWPathItemStyle = ( self.displayBoldItemTitles ? .Bold : .Default )
+        let title = prefix + FileManager.default.displayName( atPath: path )
+        let image: NSImage? = ( self.displayItemIcons ? NSWorkspace.shared().icon( forFile: path ) : nil )
+        let style: OBWPathItemStyle = ( self.displayBoldItemTitles ? .bold : .default )
         
         let pathItem = OBWPathItem(
             title: title,

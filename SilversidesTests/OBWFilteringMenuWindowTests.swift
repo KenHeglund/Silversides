@@ -37,7 +37,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         menu.addItem( OBWFilteringMenuItem( title: "B" ) )
         
         let longMenuItem = OBWFilteringMenuItem( title: "A menu item with a really long name" )
-        longMenuItem.keyEquivalentModifierMask = [ .Command ]
+        longMenuItem.keyEquivalentModifierMask = [ .command ]
         menu.addItem( longMenuItem )
         
         let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
@@ -54,10 +54,10 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         // Larger menu width, window gets wider
         // Larger menu height, window gets taller
         
-        let commandEvent = NSEvent.keyEventWithType( .FlagsChanged, location: NSZeroPoint, modifierFlags: [ .Command ], timestamp: NSProcessInfo.processInfo().systemUptime, windowNumber: 0, context: nil, characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: 0 )!
+        let commandEvent = NSEvent.keyEvent( with: .flagsChanged, location: NSZeroPoint, modifierFlags: [ .command ], timestamp: ProcessInfo().systemUptime, windowNumber: 0, context: nil, characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: 0 )!
         menuView.handleFlagsChangedEvent( commandEvent )
         
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         window.applyWindowGeometry( geometry )
         
         let largerWindowFrame = window.frame
@@ -68,10 +68,10 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         // Smaller menu width, window with remains unchanged
         // Smaller menu height, window height returns to inital height
         
-        let shiftEvent = NSEvent.keyEventWithType( .FlagsChanged, location: NSZeroPoint, modifierFlags: [ .Shift ], timestamp: NSProcessInfo.processInfo().systemUptime, windowNumber: 0, context: nil, characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: 0 )!
+        let shiftEvent = NSEvent.keyEvent( with: .flagsChanged, location: NSZeroPoint, modifierFlags: [ .shift ], timestamp: ProcessInfo().systemUptime, windowNumber: 0, context: nil, characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: 0 )!
         menuView.handleFlagsChangedEvent( shiftEvent )
         
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         window.applyWindowGeometry( geometry )
         
         let reducedWindowFrame = window.frame

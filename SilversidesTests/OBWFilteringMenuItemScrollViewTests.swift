@@ -52,35 +52,35 @@ class OBWFilteringMenuItemScrollViewTests: XCTestCase {
         let menuSize = scrollView.frame.size
         
         var topCenter = NSPoint( x: viewFrame.midX, y: viewFrame.maxY - 1.0 )
-        XCTAssertEqual( scrollView.menuPartAtLocation( topCenter ), OBWFilteringMenuPart.Item )
+        XCTAssertEqual( scrollView.menuPartAtLocation( topCenter ), OBWFilteringMenuPart.item )
         var bottomCenter = NSPoint( x: viewFrame.midX, y: viewFrame.minY + 1.0 )
-        XCTAssertEqual( scrollView.menuPartAtLocation( bottomCenter ), OBWFilteringMenuPart.Item )
+        XCTAssertEqual( scrollView.menuPartAtLocation( bottomCenter ), OBWFilteringMenuPart.item )
         
         let oldFrame = viewFrame
         viewFrame.size.height /= 2.0
         scrollView.setFrameSize( viewFrame.size )
-        scrollView.resizeSubviewsWithOldSize( oldFrame.size )
+        scrollView.resizeSubviews( withOldSize: oldFrame.size )
         
         scrollView.setMenuItemBoundsOriginY( 0.0 )
         
         topCenter = NSPoint( x: viewFrame.midX, y: viewFrame.maxY - 1.0 )
-        XCTAssertEqual( scrollView.menuPartAtLocation( topCenter ), OBWFilteringMenuPart.Up )
+        XCTAssertEqual( scrollView.menuPartAtLocation( topCenter ), OBWFilteringMenuPart.up )
         bottomCenter = NSPoint( x: viewFrame.midX, y: viewFrame.minY + 1.0 )
-        XCTAssertEqual( scrollView.menuPartAtLocation( bottomCenter ), OBWFilteringMenuPart.Item )
+        XCTAssertEqual( scrollView.menuPartAtLocation( bottomCenter ), OBWFilteringMenuPart.item )
         
         scrollView.setMenuItemBoundsOriginY( menuSize.height - viewFrame.size.height )
         
         topCenter = NSPoint( x: viewFrame.midX, y: viewFrame.maxY - 1.0 )
-        XCTAssertEqual( scrollView.menuPartAtLocation( topCenter ), OBWFilteringMenuPart.Item )
+        XCTAssertEqual( scrollView.menuPartAtLocation( topCenter ), OBWFilteringMenuPart.item )
         bottomCenter = NSPoint( x: viewFrame.midX, y: viewFrame.minY + 1.0 )
-        XCTAssertEqual( scrollView.menuPartAtLocation( bottomCenter ), OBWFilteringMenuPart.Down )
+        XCTAssertEqual( scrollView.menuPartAtLocation( bottomCenter ), OBWFilteringMenuPart.down )
         
         scrollView.setMenuItemBoundsOriginY( ( menuSize.height - viewFrame.size.height ) / 2.0 )
         
         topCenter = NSPoint( x: viewFrame.midX, y: viewFrame.maxY - 1.0 )
-        XCTAssertEqual( scrollView.menuPartAtLocation( topCenter ), OBWFilteringMenuPart.Up )
+        XCTAssertEqual( scrollView.menuPartAtLocation( topCenter ), OBWFilteringMenuPart.up )
         bottomCenter = NSPoint( x: viewFrame.midX, y: viewFrame.minY + 1.0 )
-        XCTAssertEqual( scrollView.menuPartAtLocation( bottomCenter ), OBWFilteringMenuPart.Down )
+        XCTAssertEqual( scrollView.menuPartAtLocation( bottomCenter ), OBWFilteringMenuPart.down )
     }
     
     /*==========================================================================*/
@@ -155,10 +155,10 @@ class OBWFilteringMenuItemScrollViewTests: XCTestCase {
         let scrollView = OBWFilteringMenuItemScrollView( menu: menu )
         let menuItemSize = scrollView.totalMenuItemSize
         
-        scrollView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/item 1/" ) )
+        _ = scrollView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/item 1/" ) )
         XCTAssertEqual( scrollView.totalMenuItemSize.height, menuItemSize.height / 2.0 )
         
-        scrollView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "" ) )
+        _ = scrollView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "" ) )
         XCTAssertEqual( scrollView.totalMenuItemSize.height, menuItemSize.height )
     }
     
@@ -173,9 +173,9 @@ class OBWFilteringMenuItemScrollViewTests: XCTestCase {
             OBWFilteringMenuItem( title: "E" ),
             ]
         
-        menuItems[1].keyEquivalentModifierMask = [ .Option ]
-        menuItems[2].keyEquivalentModifierMask = [ .Command, .Option ]
-        menuItems[3].keyEquivalentModifierMask = [ .Option ]
+        menuItems[1].keyEquivalentModifierMask = [ .option ]
+        menuItems[2].keyEquivalentModifierMask = [ .command, .option ]
+        menuItems[3].keyEquivalentModifierMask = [ .option ]
         
         let menu = OBWFilteringMenu( title: "menu" )
         menu.addItems( menuItems )
@@ -183,13 +183,13 @@ class OBWFilteringMenuItemScrollViewTests: XCTestCase {
         let scrollView = OBWFilteringMenuItemScrollView( menu: menu )
         let menuItemSize = scrollView.totalMenuItemSize
         
-        scrollView.applyModifierFlags( [ .Option ] )
+        _ = scrollView.applyModifierFlags( [ .option ] )
         XCTAssertEqual( scrollView.totalMenuItemSize.height, menuItemSize.height * 2.0 )
         
-        scrollView.applyModifierFlags( [ .Command ] )
+        _ = scrollView.applyModifierFlags( [ .command ] )
         XCTAssertEqual( scrollView.totalMenuItemSize.height, menuItemSize.height )
         
-        scrollView.applyModifierFlags( [ .Option, .Command ] )
+        _ = scrollView.applyModifierFlags( [ .option, .command ] )
         XCTAssertEqual( scrollView.totalMenuItemSize.height, menuItemSize.height * 1.5 )
     }
     

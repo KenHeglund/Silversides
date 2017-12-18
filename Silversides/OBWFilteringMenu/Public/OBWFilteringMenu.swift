@@ -14,21 +14,21 @@ public let OBWFilteringMenuDidBeginTrackingNotification = "OBWFilteringMenuDidBe
 public let OBWFilteringMenuWillEndTrackingNotification = "OBWFilteringMenuWillEndTrackingNotification"
 public let OBWFilteringMenuRootKey = "OBWFilteringMenuRootKey"
 
-public enum OBWFilteringMenuError: ErrorType {
-    case InvalidAlternateItem( message: String )
+public enum OBWFilteringMenuError: Error {
+    case invalidAlternateItem( message: String )
 }
 
 /*==========================================================================*/
 
 public protocol OBWFilteringMenuDelegate {
-    func willBeginTrackingFilteringMenu( menu: OBWFilteringMenu )
-    func filteringMenu( menu: OBWFilteringMenu, accessibilityHelpForItem: OBWFilteringMenuItem ) -> String?
+    func willBeginTrackingFilteringMenu( _ menu: OBWFilteringMenu )
+    func filteringMenu( _ menu: OBWFilteringMenu, accessibilityHelpForItem: OBWFilteringMenuItem ) -> String?
 }
 
 /*==========================================================================*/
 // MARK: -
 
-public class OBWFilteringMenu {
+open class OBWFilteringMenu {
     
     // MARK: - OBWFilteringMenu public
     
@@ -42,17 +42,17 @@ public class OBWFilteringMenu {
     
     // MARK: -
     
-    public var title: String
-    public var font: NSFont? = nil
-    public var representedObject: AnyObject? = nil
+    open var title: String
+    open var font: NSFont? = nil
+    open var representedObject: AnyObject? = nil
     
-    public var actionHandler: ( ( OBWFilteringMenuItem ) -> Void )? = nil
-    public var delegate: OBWFilteringMenuDelegate? = nil
+    open var actionHandler: ( ( OBWFilteringMenuItem ) -> Void )? = nil
+    open var delegate: OBWFilteringMenuDelegate? = nil
     
-    public private(set) var itemArray: [OBWFilteringMenuItem] = []
-    public var numberOfItems: Int { return self.itemArray.count }
+    open fileprivate(set) var itemArray: [OBWFilteringMenuItem] = []
+    open var numberOfItems: Int { return self.itemArray.count }
     
-    public internal(set) var highlightedItem: OBWFilteringMenuItem? = nil {
+    open internal(set) var highlightedItem: OBWFilteringMenuItem? = nil {
         
         didSet ( oldValue ) {
             
@@ -67,14 +67,14 @@ public class OBWFilteringMenu {
                 userInfo[OBWFilteringMenu.previousHighlightedItemKey] = previousItem
             }
             
-            NSNotificationCenter.defaultCenter().postNotificationName( OBWFilteringMenu.highlightedItemDidChangeNotification, object: self, userInfo: userInfo )
+            NotificationCenter.default.post( name: Notification.Name(rawValue: OBWFilteringMenu.highlightedItemDidChangeNotification), object: self, userInfo: userInfo )
         }
     }
     
     var description: String { return "OBWFilteringMenu: " + self.title }
     
     /*==========================================================================*/
-    public func popUpMenuPositioningItem( item: OBWFilteringMenuItem?, atLocation locationInView: NSPoint, inView view: NSView?, withEvent event: NSEvent?, highlightMenuItem: Bool? ) -> Bool {
+    open func popUpMenuPositioningItem( _ item: OBWFilteringMenuItem?, atLocation locationInView: NSPoint, inView view: NSView?, withEvent event: NSEvent?, highlightMenuItem: Bool? ) -> Bool {
         
         // A menu delegate is allowed to populate menu items at this point
         self.willBeginTracking()
@@ -83,7 +83,7 @@ public class OBWFilteringMenu {
         
         if let item = item {
             
-            if self.itemArray.contains({ $0 === item }) {
+            if self.itemArray.contains(where: { $0 === item }) {
                 menuItem = item
             }
         }
@@ -92,13 +92,13 @@ public class OBWFilteringMenu {
     }
     
     /*==========================================================================*/
-    public func addItem( item: OBWFilteringMenuItem ) {
+    open func addItem( _ item: OBWFilteringMenuItem ) {
         item.menu = self
         self.itemArray.append( item )
     }
     
     /*==========================================================================*/
-    public func addItems( items: [OBWFilteringMenuItem] ) {
+    open func addItems( _ items: [OBWFilteringMenuItem] ) {
         
         for item in items {
             self.addItem( item )
@@ -106,7 +106,7 @@ public class OBWFilteringMenu {
     }
     
     /*==========================================================================*/
-    public func removeAllItems() {
+    open func removeAllItems() {
         
         self.highlightedItem = nil
         
@@ -118,9 +118,9 @@ public class OBWFilteringMenu {
     }
     
     /*==========================================================================*/
-    public func itemWithTitle( title: String ) -> OBWFilteringMenuItem? {
+    open func itemWithTitle( _ title: String ) -> OBWFilteringMenuItem? {
         
-        if let index = self.itemArray.indexOf( { $0.title == title } ) {
+        if let index = self.itemArray.index( where: { $0.title == title } ) {
             return self.itemArray[index]
         }
         
@@ -130,13 +130,13 @@ public class OBWFilteringMenu {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenu internal
     
-    static let allowedModifierFlags: NSEventModifierFlags = [ .Shift, .Control, .Option, .Command ]
+    static let allowedModifierFlags: NSEventModifierFlags = [ .shift, .control, .option, .command ]
     
     static let highlightedItemDidChangeNotification = "OBWFilteringMenuHighlightedItemDidChangeNotification"
     static let currentHighlightedItemKey = "OBWFilteringMenuCurrentHighlightedItemKey"
     static let previousHighlightedItemKey = "OBWFilteringMenuPreviousHighlightedItemKey"
     
-    var displayFont: NSFont { return self.font ?? NSFont.menuFontOfSize( 0.0 ) }
+    var displayFont: NSFont { return self.font ?? NSFont.menuFont( ofSize: 0.0 ) }
     
     /*==========================================================================*/
     func willBeginTracking() {

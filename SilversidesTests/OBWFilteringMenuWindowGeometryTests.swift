@@ -155,10 +155,10 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         let geometry = OBWFilteringMenuWindowGeometry( window: window )
         XCTAssertFalse( geometry.frame.isEmpty )
         
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         XCTAssertFalse( geometry.frame.isEmpty )
         
-        geometry.updateGeometryToDisplayMenuLocation( NSZeroPoint, atScreenLocation: screenCenter, allowWindowToGrowUpward: true )
+        _ = geometry.updateGeometryToDisplayMenuLocation( NSZeroPoint, atScreenLocation: screenCenter, allowWindowToGrowUpward: true )
         XCTAssertFalse( geometry.frame.isEmpty )
     }
     
@@ -584,11 +584,11 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
             height: screenAreaSize.height
         )
         
-        let rightAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .Right )
-        XCTAssertEqual( rightAlignment, OBWFilteringMenuAlignment.Right )
+        let rightAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .right )
+        XCTAssertEqual( rightAlignment, OBWFilteringMenuAlignment.right )
         
-        let leftAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .Left )
-        XCTAssertEqual( leftAlignment, OBWFilteringMenuAlignment.Left )
+        let leftAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .left )
+        XCTAssertEqual( leftAlignment, OBWFilteringMenuAlignment.left )
     }
     
     /*==========================================================================*/
@@ -622,11 +622,11 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
             height: screenAreaSize.height
         )
         
-        let rightAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .Right )
-        XCTAssertEqual( rightAlignment, OBWFilteringMenuAlignment.Right )
+        let rightAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .right )
+        XCTAssertEqual( rightAlignment, OBWFilteringMenuAlignment.right )
         
-        let leftAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .Left )
-        XCTAssertEqual( leftAlignment, OBWFilteringMenuAlignment.Right )
+        let leftAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .left )
+        XCTAssertEqual( leftAlignment, OBWFilteringMenuAlignment.right )
     }
     
     /*==========================================================================*/
@@ -659,11 +659,11 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
             height: screenAreaSize.height
         )
         
-        let rightAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .Right )
-        XCTAssertEqual( rightAlignment, OBWFilteringMenuAlignment.Left )
+        let rightAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .right )
+        XCTAssertEqual( rightAlignment, OBWFilteringMenuAlignment.left )
         
-        let leftAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .Left )
-        XCTAssertEqual( leftAlignment, OBWFilteringMenuAlignment.Left )
+        let leftAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenArea, preferredAlignment: .left )
+        XCTAssertEqual( leftAlignment, OBWFilteringMenuAlignment.left )
     }
     
     /*==========================================================================*/
@@ -698,7 +698,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         let outerMenuMargins = window.menuView.outerMenuMargins
         
         let menuLocation = NSPoint( x: 0.0, y: geometry.initialBounds.midY )
-        geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenAnchor, preferredAlignment: .Right )
+        _ = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenAnchor, preferredAlignment: .right )
         
         var preResizeHeight: CGFloat = 0.0
         
@@ -709,7 +709,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.screenAnchor = screenAnchor
         
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-8]/" ) )
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         
         XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
         XCTAssertLessThan( screenAnchor.size.height, geometry.frame.size.height )
@@ -724,7 +724,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.screenAnchor = screenAnchor
         
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-7]/" ) )
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         
         XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
         XCTAssertLessThan( screenAnchor.size.height, geometry.frame.size.height )
@@ -738,7 +738,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.screenAnchor = screenAnchor
         
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-6]/" ) )
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         
         XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
         XCTAssertLessThan( screenAnchor.size.height, geometry.frame.size.height )
@@ -752,7 +752,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.screenAnchor = screenAnchor
         
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-5]/" ) )
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         
         XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
         XCTAssertLessThan( screenAnchor.size.height, geometry.frame.size.height )
@@ -766,7 +766,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.screenAnchor = screenAnchor
         
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-4]/" ) )
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         
         XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
         XCTAssertLessThan( screenAnchor.size.height, geometry.frame.size.height )
@@ -803,7 +803,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         )
         
         let menuLocation = NSPoint( x: 0.0, y: geometry.initialBounds.midY )
-        geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenAnchor, preferredAlignment: .Right )
+        _ = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: screenAnchor, preferredAlignment: .right )
         
         var preResizeHeight: CGFloat = 0.0
         
@@ -815,7 +815,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.screenAnchor = screenAnchor
         
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-8]/" ) )
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         
         XCTAssertGreaterThan( screenAnchor.size.height, geometry.frame.size.height )
         XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
@@ -829,7 +829,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.screenAnchor = screenAnchor
         
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-7]/" ) )
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         
         XCTAssertGreaterThan( screenAnchor.size.height, geometry.frame.size.height )
         XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
@@ -843,7 +843,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.screenAnchor = screenAnchor
         
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-6]/" ) )
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         
         XCTAssertGreaterThan( screenAnchor.size.height, geometry.frame.size.height )
         XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
@@ -857,7 +857,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.screenAnchor = screenAnchor
         
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-5]/" ) )
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         
         XCTAssertGreaterThan( screenAnchor.size.height, geometry.frame.size.height )
         XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
@@ -871,7 +871,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         window.screenAnchor = screenAnchor
         
         window.menuView.applyFilterResults( OBWFilteringMenuItemFilterStatus.filterStatus( menu, filterString: "g/[1-4]/" ) )
-        geometry.updateGeometryWithResizedMenu()
+        _ = geometry.updateGeometryWithResizedMenu()
         
         XCTAssertGreaterThan( screenAnchor.size.height, geometry.frame.size.height )
         XCTAssertLessThan( geometry.frame.size.height, preResizeHeight )
@@ -899,7 +899,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         let menuLocation = NSPoint( x: 0.0, y: geometry.initialBounds.maxY )
         let screenLocation = NSPoint( x: screenFrame.midX, y: screenFrame.minY )
-        geometry.updateGeometryToDisplayMenuLocation( menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false )
+        _ = geometry.updateGeometryToDisplayMenuLocation( menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false )
         
         // Test scrolling content up - window frame changes by visible content height change
         
@@ -914,7 +914,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         var preScrollFrame = geometry.frame
         
-        geometry.updateGeometryToDisplayMenuItemBounds( scrolledBounds )
+        _ = geometry.updateGeometryToDisplayMenuItemBounds( scrolledBounds )
         
         XCTAssertEqual( geometry.frame.size.height, preScrollFrame.size.height + scrollDistance )
         
@@ -931,7 +931,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         preScrollFrame = geometry.frame
         
-        geometry.updateGeometryToDisplayMenuItemBounds( scrolledBounds )
+        _ = geometry.updateGeometryToDisplayMenuItemBounds( scrolledBounds )
         
         XCTAssertEqual( geometry.frame.size.height, preScrollFrame.size.height )
     }

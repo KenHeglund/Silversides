@@ -420,13 +420,16 @@
 				TargetAttributes = {
 					BEC489BA1D4C173500CE7AB8 = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 0830;
 					};
 					BEC489C41D4C173500CE7AB8 = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 0830;
 						TestTargetID = BEC489E01D4C198100CE7AB8;
 					};
 					BEC489E01D4C198100CE7AB8 = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 0830;
 					};
 				};
 			};
@@ -682,6 +685,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILD_ROOT)/Debug/SilversidesDemo.app";
 			};
 			name = Debug;
@@ -701,6 +705,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.OBWControls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILD_ROOT)/Debug/SilversidesDemo.app";
 			};
 			name = Release;
@@ -715,6 +720,7 @@
 				OTHER_SWIFT_FLAGS = "-DxINTERACTIVE_TESTS";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.SilversidesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SilversidesDemo.app/Contents/MacOS/SilversidesDemo";
 			};
 			name = Debug;
@@ -728,6 +734,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.SilversidesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SilversidesDemo.app/Contents/MacOS/SilversidesDemo";
 			};
 			name = Release;
@@ -742,6 +749,7 @@
 				OTHER_SWIFT_FLAGS = "-DxUSE_NSMENU";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.SilversidesApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Debug;
 		};
@@ -755,6 +763,7 @@
 				OTHER_SWIFT_FLAGS = "-DxUSE_NSMENU";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.SilversidesApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
 		};
