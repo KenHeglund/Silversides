@@ -420,13 +420,18 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             .skipsSubdirectoryDescendants,
             .skipsPackageDescendants,
             .skipsHiddenFiles,
-            ]
+        ]
         
         guard let enumerator = fileManager.enumerator( at: parentURL, includingPropertiesForKeys: nil, options: directoryOptions, errorHandler: nil ) else { return nil }
         
         let urlArray = enumerator.allObjects as? [URL]
         
-        return urlArray
+        let sortedArray = urlArray?.sorted(by: {
+            (firstURL: URL, secondURL: URL) -> Bool in
+            return firstURL.path.caseInsensitiveCompare(secondURL.path) == .orderedAscending
+        })
+        
+        return sortedArray
     }
     
     #if USE_NSMENU
