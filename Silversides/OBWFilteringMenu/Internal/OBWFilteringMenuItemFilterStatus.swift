@@ -29,7 +29,7 @@ class OBWFilteringMenuItemFilterStatus {
             
             self.searchableTitle = title
             
-            let attributes = [ NSFontAttributeName : menuItem.font ]
+            let attributes = [ NSAttributedStringKey.font : menuItem.font ]
             self.highlightedTitle = NSAttributedString( string: title, attributes: attributes )
         }
         else {
@@ -139,10 +139,10 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    fileprivate static var highlightAttributes: [String:AnyObject] = [
-        NSBackgroundColorAttributeName : NSColor( deviceRed: 1.0, green: 1.0, blue: 0.0, alpha: 0.5 ),
-        NSUnderlineStyleAttributeName : 1 as AnyObject,
-        NSUnderlineColorAttributeName : NSColor( deviceRed: 0.65, green: 0.50, blue: 0.0, alpha: 0.75 ),
+    fileprivate static var highlightAttributes: [NSAttributedStringKey:Any] = [
+        .backgroundColor : NSColor( deviceRed: 1.0, green: 1.0, blue: 0.0, alpha: 0.5 ),
+        .underlineStyle : 1 as AnyObject,
+        .underlineColor : NSColor( deviceRed: 0.65, green: 0.50, blue: 0.0, alpha: 0.75 ),
     ]
     
     /*==========================================================================*/
@@ -162,11 +162,9 @@ class OBWFilteringMenuItemFilterStatus {
         var matchMask = OBWFilteringMenuItemMatchCriteria.All
         var lastMatchIndex: String.Index? = nil
         
-        for sourceIndex in filterString.characters.indices {
+        for index in filterString.indices {
             
-            guard !searchRange.isEmpty else { return worstScore }
-            
-            let filterSubstring = filterString.substring( with: sourceIndex ..< filterString.index(after: sourceIndex) )
+            let filterSubstring = String(filterString[index])
             
             guard let caseInsensitiveRange = searchableTitle.range( of: filterSubstring, options: .caseInsensitive, range: searchRange, locale: nil ) else { return worstScore }
             
@@ -184,7 +182,7 @@ class OBWFilteringMenuItemFilterStatus {
             }
             
             let highlightRange = NSRange(
-                location: searchableTitle.characters.distance(from: searchableTitle.startIndex, to: caseInsensitiveRange.lowerBound),
+                location: searchableTitle.distance(from: searchableTitle.startIndex, to: caseInsensitiveRange.lowerBound),
                 length: 1
             )
             
@@ -215,7 +213,7 @@ class OBWFilteringMenuItemFilterStatus {
         
         var matchScore = worstScore
         let matchingOptions = NSRegularExpression.MatchingOptions.reportCompletion
-        let searchRange = NSRange( location: 0, length: searchableTitle.characters.distance(from: searchableTitle.startIndex, to: searchableTitle.endIndex) )
+        let searchRange = NSRange( location: 0, length: searchableTitle.distance(from: searchableTitle.startIndex, to: searchableTitle.endIndex) )
         
         regex.enumerateMatches( in: searchableTitle, options: matchingOptions, range: searchRange) { ( result: NSTextCheckingResult?, flags: NSRegularExpression.MatchingFlags, stop: UnsafeMutablePointer<ObjCBool> ) in
             
@@ -228,7 +226,7 @@ class OBWFilteringMenuItemFilterStatus {
             
             for rangeIndex in 0 ..< result.numberOfRanges {
                 
-                let resultRange = result.rangeAt( rangeIndex )
+                let resultRange = result.range( at: rangeIndex )
                 guard resultRange.location != NSNotFound else { continue }
                 
                 matchScore = bestScore

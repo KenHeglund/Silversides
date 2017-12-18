@@ -15,7 +15,7 @@ private class OBWColorView: NSView {
     override func draw( _ dirtyRect: NSRect ) {
         guard let color = self.color else { return }
         color.set()
-        NSRectFillUsingOperation( dirtyRect, .sourceOver )
+        dirtyRect.fill(using: .sourceOver )
     }
 }
 
@@ -72,7 +72,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         upArrowView.frame = upArrowFrame
         upArrowView.imageScaling = .scaleProportionallyDown
         upArrowView.imageAlignment = .alignCenter
-        upArrowView.autoresizingMask = [ .viewMinYMargin, .viewMinXMargin, .viewMaxXMargin ]
+        upArrowView.autoresizingMask = [ NSView.AutoresizingMask.minYMargin, NSView.AutoresizingMask.minXMargin, NSView.AutoresizingMask.maxXMargin ]
         upArrowView.image = OBWFilteringMenuArrows.upArrow
         upArrowView.isHidden = true
         
@@ -85,12 +85,12 @@ class OBWFilteringMenuItemScrollView: NSView {
         downArrowView.frame = downArrowFrame
         downArrowView.imageScaling = .scaleProportionallyDown
         downArrowView.imageAlignment = .alignCenter
-        downArrowView.autoresizingMask = [ .viewMaxYMargin, .viewMinXMargin, .viewMaxXMargin ]
+        downArrowView.autoresizingMask = [ NSView.AutoresizingMask.maxYMargin, NSView.AutoresizingMask.minXMargin, NSView.AutoresizingMask.maxXMargin ]
         downArrowView.image = OBWFilteringMenuArrows.downArrow
         downArrowView.isHidden = true
         
         itemClipView.drawsBackground = false
-        itemClipView.autoresizingMask = [ .viewWidthSizable, .viewHeightSizable ]
+        itemClipView.autoresizingMask = [ NSView.AutoresizingMask.width, NSView.AutoresizingMask.height ]
         itemClipView.addSubview( itemParentView )
         
         self.setFrameSize( itemParentViewFrame.size )
@@ -98,7 +98,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         self.addSubview( upArrowView )
         self.addSubview( downArrowView )
         
-        self.autoresizingMask = [ .viewWidthSizable, .viewHeightSizable ]
+        self.autoresizingMask = [ NSView.AutoresizingMask.width, NSView.AutoresizingMask.height ]
         self.autoresizesSubviews = true
     }
     
@@ -384,7 +384,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    func applyModifierFlags( _ modifierFlags: NSEventModifierFlags ) -> Bool {
+    func applyModifierFlags( _ modifierFlags: NSEvent.ModifierFlags ) -> Bool {
         
         if modifierFlags == self.currentModifierFlags { return false }
         
@@ -408,7 +408,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     unowned fileprivate let upArrowView: NSImageView
     unowned fileprivate let downArrowView: NSImageView
     fileprivate var primaryItemViews: [OBWFilteringMenuItemView] = []
-    fileprivate var currentModifierFlags: NSEventModifierFlags = []
+    fileprivate var currentModifierFlags: NSEvent.ModifierFlags = []
     
     /*==========================================================================*/
     fileprivate func buildItemViews() {
@@ -435,7 +435,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     /*==========================================================================*/
-    fileprivate func repositionItemViews( modifierFlags: NSEventModifierFlags = [] ) -> Bool {
+    fileprivate func repositionItemViews( modifierFlags: NSEvent.ModifierFlags = [] ) -> Bool {
         
         let itemParentView = self.itemParentView
         let itemParentBounds = itemParentView.bounds
@@ -470,17 +470,17 @@ class OBWFilteringMenuItemScrollView: NSView {
                 primaryItemView.frame = itemViewFrame
                 
                 if primaryViewVisible {
-                    NSAccessibilityPostNotification( primaryItemView, NSAccessibilityMovedNotification )
+                    NSAccessibilityPostNotification( primaryItemView, NSAccessibilityNotificationName.moved )
                 }
             }
             
             if primaryViewVisible && primaryItemView.isHidden {
                 primaryItemView.isHidden = false
-                NSAccessibilityPostNotification( primaryItemView, NSAccessibilityCreatedNotification )
+                NSAccessibilityPostNotification( primaryItemView, NSAccessibilityNotificationName.created )
             }
             else if !primaryViewVisible && !primaryItemView.isHidden {
                 primaryItemView.isHidden = true
-                NSAccessibilityPostNotification( primaryItemView, NSAccessibilityUIElementDestroyedNotification )
+                NSAccessibilityPostNotification( primaryItemView, NSAccessibilityNotificationName.uiElementDestroyed )
             }
             
             var visibleItemView: OBWFilteringMenuItemView? = ( primaryViewVisible ? primaryItemView : nil )
@@ -512,17 +512,17 @@ class OBWFilteringMenuItemScrollView: NSView {
                     alternateItemView.frame = alternateItemViewFrame
                     
                     if alternateViewVisible {
-                        NSAccessibilityPostNotification( alternateItemView, NSAccessibilityMovedNotification )
+                        NSAccessibilityPostNotification( alternateItemView, NSAccessibilityNotificationName.moved )
                     }
                 }
                 
                 if alternateViewVisible && alternateItemView.isHidden {
                     alternateItemView.isHidden = false
-                    NSAccessibilityPostNotification( alternateItemView, NSAccessibilityCreatedNotification)
+                    NSAccessibilityPostNotification( alternateItemView, NSAccessibilityNotificationName.created)
                 }
                 else if !alternateViewVisible && !alternateItemView.isHidden {
                     alternateItemView.isHidden = true
-                    NSAccessibilityPostNotification( alternateItemView, NSAccessibilityUIElementDestroyedNotification )
+                    NSAccessibilityPostNotification( alternateItemView, NSAccessibilityNotificationName.uiElementDestroyed )
                 }
                 
                 if alternateViewVisible {

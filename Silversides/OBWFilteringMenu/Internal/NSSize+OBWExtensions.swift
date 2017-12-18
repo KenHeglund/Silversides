@@ -16,7 +16,7 @@ func max( _ firstSize: NSSize, _ secondSize: NSSize ) -> NSSize {
 }
 
 /*==========================================================================*/
-func +( lhs: NSSize, rhs: EdgeInsets ) -> NSSize {
+func +( lhs: NSSize, rhs: NSEdgeInsets ) -> NSSize {
     
     let size = lhs
     let insets = rhs
@@ -28,7 +28,7 @@ func +( lhs: NSSize, rhs: EdgeInsets ) -> NSSize {
 }
 
 /*==========================================================================*/
-func -( lhs: NSSize, rhs: EdgeInsets ) -> NSSize {
+func -( lhs: NSSize, rhs: NSEdgeInsets ) -> NSSize {
     
     let size = lhs
     let insets = rhs

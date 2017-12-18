@@ -60,7 +60,7 @@ class SilversidesTests: XCTestCase {
         let sourceImage = NSImage( size: imageSize )
         sourceImage.withLockedFocus { 
             NSColor.black.set()
-            NSRectFill( drawnFrame )
+            drawnFrame.fill()
         }
         
         let trimmedImage = sourceImage.imageByTrimmingTransparentEdges()
@@ -76,7 +76,7 @@ class SilversidesTests: XCTestCase {
         let sourceImage = NSImage( size: imageSize )
         sourceImage.withLockedFocus {
             NSColor.black.set()
-            NSRectFill( drawnFrame )
+            drawnFrame.fill()
         }
         
         let trimmedImage: NSImage! = sourceImage.imageByTrimmingTransparentEdges()

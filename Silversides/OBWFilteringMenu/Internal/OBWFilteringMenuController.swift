@@ -26,7 +26,7 @@ private let OBWFilteringMenuWindowKey = "OBWFilteringMenuWindowKey"
 private let OBWFilteringMenuScrollUpTimerKey = "OBWFilteringMenuScrollUpTimerKey"
 private let OBWFilteringMenuScrollDownTimerKey = "OBWFilteringMenuScrollDownTimerKey"
 
-let OBWFilteringMenuAXDidOpenMenuItemNotification = "OBWFilteringMenuAXDidOpenMenuItemNotification"
+let OBWFilteringMenuAXDidOpenMenuItemNotification = Notification.Name(rawValue: "OBWFilteringMenuAXDidOpenMenuItemNotification")
 let OBWFilteringMenuKey = "OBWFilteringMenuKey"
 let OBWFilteringMenuItemKey = "OBWFilteringMenuItemKey"
 
@@ -73,9 +73,9 @@ class OBWFilteringMenuController {
         self.menuWindowWithKeyboardFocus = rootMenuWindow
         
         let notificationCenter = NotificationCenter.default
-        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuController.axDidOpenMenuItem(_:)), name: NSNotification.Name(rawValue: OBWFilteringMenuAXDidOpenMenuItemNotification), object: nil )
-        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuController.menuViewTotalItemSizeDidChange(_:)), name: NSNotification.Name(rawValue: OBWFilteringMenuTotalItemSizeChangedNotification), object: nil )
-        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuController.externalMenuDidBeginTracking(_:)), name: NSNotification.Name.NSMenuDidBeginTracking, object: nil )
+        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuController.axDidOpenMenuItem(_:)), name: OBWFilteringMenuAXDidOpenMenuItemNotification, object: nil )
+        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuController.menuViewTotalItemSizeDidChange(_:)), name: OBWFilteringMenuTotalItemSizeChangedNotification, object: nil )
+        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuController.externalMenuDidBeginTracking(_:)), name: NSMenu.didBeginTrackingNotification, object: nil )
         notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuController.scrollTrackingBoundsChanged(_:)), name: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil )
     }
     
@@ -83,9 +83,9 @@ class OBWFilteringMenuController {
     deinit {
         
         let notificationCenter = NotificationCenter.default
-        notificationCenter.removeObserver( self, name: NSNotification.Name(rawValue: OBWFilteringMenuAXDidOpenMenuItemNotification), object: nil )
-        notificationCenter.removeObserver( self, name: NSNotification.Name(rawValue: OBWFilteringMenuTotalItemSizeChangedNotification), object: nil )
-        notificationCenter.removeObserver( self, name: NSNotification.Name.NSMenuDidBeginTracking, object: nil )
+        notificationCenter.removeObserver( self, name: OBWFilteringMenuAXDidOpenMenuItemNotification, object: nil )
+        notificationCenter.removeObserver( self, name: OBWFilteringMenuTotalItemSizeChangedNotification, object: nil )
+        notificationCenter.removeObserver( self, name: NSMenu.didBeginTrackingNotification, object: nil )
         notificationCenter.removeObserver( self, name: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil )
         
         OBWFilteringMenuCursorTracking.hideDebugWindow()
@@ -99,7 +99,7 @@ class OBWFilteringMenuController {
         
         guard let menu = menuItem.menu else { return false }
         
-        guard let screen = event?.obw_screen ?? view?.window?.screen ?? NSScreen.screens()?.first else { return false }
+        guard let screen = event?.obw_screen ?? view?.window?.screen ?? NSScreen.screens.first else { return false }
         
         let locationInScreen = view?.obw_convertPointToScreen( locationInView ) ?? locationInView
         
@@ -159,7 +159,7 @@ class OBWFilteringMenuController {
                 #endif
                 
                 let timeoutDate = Date( timeIntervalSinceNow: timeoutInterval )
-                guard let event = NSApp.nextEvent( matching: NSEventMask.any, until: timeoutDate, inMode: RunLoopMode.defaultRunLoopMode, dequeue: true ) else {
+                guard let event = NSApp.nextEvent( matching: NSEvent.EventTypeMask.any, until: timeoutDate, inMode: RunLoopMode.defaultRunLoopMode, dequeue: true ) else {
                     result = .cancel
                     return
                 }
@@ -225,7 +225,7 @@ class OBWFilteringMenuController {
                     
                 case .leftMouseUp:
                     
-                    if Date().timeIntervalSince( startDate ) < NSEvent.doubleClickInterval() {
+                    if Date().timeIntervalSince( startDate ) < NSEvent.doubleClickInterval {
                         break
                     }
                     
@@ -265,11 +265,11 @@ class OBWFilteringMenuController {
                 case .pressure:
                     break
                     
-                case NSEventType( rawValue: 21 )!:
+                case NSEvent.EventType( rawValue: 21 )!:
                     // This event type does not currently have a symbolic name, but occurs when Expose is activated or deactivated.  It also occurs when right-clicking outside of the current application.
                     result = .cancel
                     
-                case NSEventType( rawValue: 28 )!:
+                case NSEvent.EventType( rawValue: 28 )!:
                     //This is an event which appears to be related to screen zooming, but does not have a symbolic constant.
                     break
                     
@@ -285,7 +285,7 @@ class OBWFilteringMenuController {
             guard result == .continue else { break }
         }
         
-        NSApp.discardEvents( matching: NSEventMask.any, before: terminatingEvent )
+        NSApp.discardEvents( matching: NSEvent.EventTypeMask.any, before: terminatingEvent )
         
         self.scrollTimer?.invalidate()
         self.scrollTimer = nil
@@ -400,7 +400,7 @@ class OBWFilteringMenuController {
         
         guard !targetMenuWindow.accessibilityActive else { return .continue }
         
-        let locationInScreen = NSEvent.mouseLocation()
+        let locationInScreen = NSEvent.mouseLocation
         
         if let menuWindowWithKeyboardFocus = self.menuWindowWithKeyboardFocus {
             
@@ -436,8 +436,8 @@ class OBWFilteringMenuController {
         
         if topmostMenuWindow.accessibilityActive {
             
-            let modifierKeyMask: NSEventModifierFlags = [ .shift, .control, .option, .command ]
-            let voiceOverKeyMask: NSEventModifierFlags = [ .control, .option ]
+            let modifierKeyMask: NSEvent.ModifierFlags = [ NSEvent.ModifierFlags.shift, NSEvent.ModifierFlags.control, NSEvent.ModifierFlags.option, NSEvent.ModifierFlags.command ]
+            let voiceOverKeyMask: NSEvent.ModifierFlags = [ NSEvent.ModifierFlags.control, NSEvent.ModifierFlags.option ]
             
             let eventModifierFlags = event.modifierFlags
             let voiceOverKeysPressed = ( eventModifierFlags.intersection( modifierKeyMask ) == voiceOverKeyMask )
@@ -511,7 +511,7 @@ class OBWFilteringMenuController {
     /*==========================================================================*/
     fileprivate func updateCurrentMenuItem( _ event: NSEvent, continueCursorTracking: Bool ) {
         
-        let eventLocationInScreen = event.obw_locationInScreen ?? NSEvent.mouseLocation()
+        let eventLocationInScreen = event.obw_locationInScreen ?? NSEvent.mouseLocation
         
         let currentMenuWindow = self.menuWindowAtScreenLocation( eventLocationInScreen )
         let currentMenu = currentMenuWindow?.filteringMenu
@@ -881,7 +881,7 @@ class OBWFilteringMenuController {
         let itemViewBoundsInScreen = itemView.obw_boundsInScreen
         
         let sourceLine = NSRect(
-            x: NSEvent.mouseLocation().x,
+            x: NSEvent.mouseLocation.x,
             y: itemViewBoundsInScreen.origin.y,
             width: 0.0,
             height: itemViewBoundsInScreen.size.height
@@ -910,7 +910,7 @@ class OBWFilteringMenuController {
         let itemViewBoundsInScreen = itemView.obw_boundsInScreen
         
         let sourceLine = NSRect(
-            x: NSEvent.mouseLocation().x,
+            x: NSEvent.mouseLocation.x,
             y: itemViewBoundsInScreen.origin.y,
             width: 0.0,
             height: itemViewBoundsInScreen.size.height
@@ -941,7 +941,7 @@ class OBWFilteringMenuController {
         
         guard let pseudoEvent = NSEvent.mouseEvent(
             with: .mouseMoved,
-            location: NSEvent.mouseLocation(),
+            location: NSEvent.mouseLocation,
             modifierFlags: [],
             timestamp: ProcessInfo().systemUptime,
             windowNumber: 0,

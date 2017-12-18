@@ -29,7 +29,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens()!.first!
+        let screen = NSScreen.screens.first!
         let screenFrame = screen.frame
         
         let menu = OBWFilteringMenu()
@@ -85,7 +85,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens()!.first!
+        let screen = NSScreen.screens.first!
         let screenFrame = screen.frame
         
         let menu = OBWFilteringMenu()
@@ -135,7 +135,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
     /*==========================================================================*/
     func testMinimumWindowSize() {
         
-        let screen = NSScreen.screens()!.first!
+        let screen = NSScreen.screens.first!
         let menu = OBWFilteringMenu( title: "menu" )
         
         let window = OBWFilteringMenuWindow( menu: menu, screen: screen )

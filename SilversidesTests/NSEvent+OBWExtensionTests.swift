@@ -74,7 +74,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         
         let window = NSWindow(
             contentRect: windowContentFrame,
-            styleMask: NSBorderlessWindowMask,
+            styleMask: .borderless,
             backing: .buffered,
             defer: true
         )
@@ -131,7 +131,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         
         let window = NSWindow(
             contentRect: windowContentFrame,
-            styleMask: NSBorderlessWindowMask,
+            styleMask: .borderless,
             backing: .buffered,
             defer: true
         )

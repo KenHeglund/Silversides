@@ -36,14 +36,14 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     
     fileprivate(set) var pathViewConfigured = false
     
-    dynamic var pathViewEnabled = true {
+    @objc dynamic var pathViewEnabled = true {
         
         didSet {
             self.pathViewOutlet.enabled = self.pathViewEnabled
         }
     }
     
-    dynamic var displayBoldItemTitles = false {
+    @objc dynamic var displayBoldItemTitles = false {
         
         didSet {
             
@@ -68,7 +68,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         }
     }
     
-    dynamic var displayItemIcons = true {
+    @objc dynamic var displayItemIcons = true {
         
         didSet {
             
@@ -84,7 +84,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
                 }
                 
                 if self.displayItemIcons {
-                    pathItem.image = NSWorkspace.shared().icon( forFile: itemInfo.url.path )
+                    pathItem.image = NSWorkspace.shared.icon( forFile: itemInfo.url.path )
                 }
                 else {
                     pathItem.image = nil
@@ -97,7 +97,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         }
     }
     
-    dynamic var displayItemTitlePrefixes = false {
+    @objc dynamic var displayItemTitlePrefixes = false {
         
         didSet {
             
@@ -121,7 +121,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         }
     }
     
-    dynamic var volumeColor = NSColor.red {
+    @objc dynamic var volumeColor = NSColor.red {
         
         didSet {
             
@@ -536,7 +536,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             self?.configurePathViewToShowURL( url as URL )
         }
         
-        let icon = NSWorkspace.shared().icon( forFile: path )
+        let icon = NSWorkspace.shared.icon( forFile: path )
         icon.size = NSSize( width: 17.0, height: 17.0 )
         menuItem.image = icon
         
@@ -571,7 +571,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         let path = info.url.path
         let prefix = ( self.displayItemTitlePrefixes ? ViewController.titlePrefix : "" )
         let title = prefix + FileManager.default.displayName( atPath: path )
-        let image: NSImage? = ( self.displayItemIcons ? NSWorkspace.shared().icon( forFile: path ) : nil )
+        let image: NSImage? = ( self.displayItemIcons ? NSWorkspace.shared.icon( forFile: path ) : nil )
         let style: OBWPathItemStyle = ( self.displayBoldItemTitles ? .bold : .default )
         
         let pathItem = OBWPathItem(

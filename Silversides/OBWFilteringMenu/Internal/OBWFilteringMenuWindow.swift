@@ -47,10 +47,10 @@ class OBWFilteringMenuWindow: NSWindow {
         
         let contentFrame = NSRect( origin: windowOrigin, size: windowFrameSize )
         
-        super.init( contentRect: contentFrame, styleMask: NSBorderlessWindowMask, backing: .buffered, defer: false )
+        super.init( contentRect: contentFrame, styleMask: .borderless, backing: .buffered, defer: false )
         
         // NSPopUpMenuWindowLevel = 101. Expose widgets seem to appear at window level 100.  This window should be above everything except Expose, including the main menu which is at level 24.
-        self.level = Int(CGWindowLevelForKey( .popUpMenuWindow )) - 2
+        self.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey( .popUpMenuWindow )) - 2)
         
         self.isOpaque = false
         self.backgroundColor = NSColor.clear
@@ -61,7 +61,7 @@ class OBWFilteringMenuWindow: NSWindow {
         self.animationBehavior = .utilityWindow
         
         self.contentView = OBWFilteringMenuBackground( frame: contentFrame )
-        self.contentView!.autoresizingMask = [ .viewWidthSizable, .viewHeightSizable ]
+        self.contentView!.autoresizingMask = [ NSView.AutoresizingMask.width, NSView.AutoresizingMask.height ]
         self.contentView!.addSubview( menuView )
     }
     
@@ -95,15 +95,15 @@ class OBWFilteringMenuWindow: NSWindow {
     // MARK: - NSAccessibility implementation
     
     /*==========================================================================*/
-    override func accessibilitySubrole() -> String? {
+    override func accessibilitySubrole() -> NSAccessibilitySubrole? {
         self.accessibilityActive = true
-        return NSAccessibilityStandardWindowSubrole
+        return NSAccessibilitySubrole.standardWindow
     }
     
     /*==========================================================================*/
     override func accessibilityRoleDescription() -> String? {
         self.accessibilityActive = true
-        return NSAccessibilityRoleDescription( NSAccessibilityWindowRole, NSAccessibilityStandardWindowSubrole )
+        return NSAccessibilityRole.window.description(with: NSAccessibilitySubrole.standardWindow )
     }
     
     /*==========================================================================*/
@@ -116,7 +116,7 @@ class OBWFilteringMenuWindow: NSWindow {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuWindow implementation
     
-    static let interiorMargins = EdgeInsets( top: 4.0, left: 0.0, bottom: 4.0, right: 0.0 )
+    static let interiorMargins = NSEdgeInsets( top: 4.0, left: 0.0, bottom: 4.0, right: 0.0 )
     
     static let minimumFrameSize = NSSize(
         width: 80.0 + OBWFilteringMenuBackground.roundedCornerRadius * 2.0,
@@ -214,7 +214,7 @@ class OBWFilteringMenuWindow: NSWindow {
         
         self.scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
         
-        NotificationCenter.default.post( name: Notification.Name(rawValue: OBWFilteringMenuTotalItemSizeChangedNotification), object: self )
+        NotificationCenter.default.post( name: OBWFilteringMenuTotalItemSizeChangedNotification, object: self )
         
         return true
     }

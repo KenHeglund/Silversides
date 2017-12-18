@@ -18,7 +18,7 @@ class OBWFilteringMenuItemView: NSView {
         let placeholderFrame = NSRect( width: 10.0, height: 10.0 )
         super.init( frame: placeholderFrame )
         
-        self.autoresizingMask = .viewWidthSizable
+        self.autoresizingMask = NSView.AutoresizingMask.width
         
         var alternateViews: [String:OBWFilteringMenuItemView] = [:]
         
@@ -106,7 +106,7 @@ class OBWFilteringMenuSeparatorItemView: OBWFilteringMenuItemView {
         )
         
         NSColor( deviceWhite: 0.6, alpha: 1.0 ).set()
-        NSRectFill( drawRect )
+        drawRect.fill( )
     }
     
     /*==========================================================================*/

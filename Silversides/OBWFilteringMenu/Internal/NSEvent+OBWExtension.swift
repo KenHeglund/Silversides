@@ -13,10 +13,9 @@ extension NSEvent {
     /*==========================================================================*/
     var obw_screen: NSScreen? {
         
-        guard let screenList = NSScreen.screens() else { return nil }
         guard let locationInScreen = self.obw_locationInScreen else { return nil }
         
-        for screen in screenList {
+        for screen in NSScreen.screens {
             
             if NSPointInRect( locationInScreen, screen.frame ) {
                 return screen
@@ -73,9 +72,9 @@ extension NSEvent {
     }
     
     /*==========================================================================*/
-    fileprivate class func obw_isLocationPropertyValid( _ type: NSEventType ) -> Bool {
+    fileprivate class func obw_isLocationPropertyValid( _ type: NSEvent.EventType ) -> Bool {
         
-        let locationValidMask: NSEventMask = [
+        let locationValidMask: [NSEvent.EventType] = [
             .leftMouseDown,
             .leftMouseUp,
             .rightMouseDown,
@@ -90,6 +89,6 @@ extension NSEvent {
             .cursorUpdate
         ]
         
-        return locationValidMask.contains( NSEventMaskFromType( type ) )
+        return locationValidMask.contains( type )
     }
 }

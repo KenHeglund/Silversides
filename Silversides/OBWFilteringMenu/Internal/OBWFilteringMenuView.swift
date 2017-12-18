@@ -9,16 +9,16 @@ import Carbon.HIToolbox.Events
 
 /*==========================================================================*/
 
-let OBWFilteringMenuTotalItemSizeChangedNotification = "OBWFilteringMenuTotalItemSizeChangedNotification"
+let OBWFilteringMenuTotalItemSizeChangedNotification = Notification.Name(rawValue: "OBWFilteringMenuTotalItemSizeChangedNotification")
 let OBWFilteringMenuViewPreviousGeometryKey = "OBWFilteringMenuViewPreviousGeometryKey"
 
-private let OBWFilteringMenuAllowedModifiers: NSEventModifierFlags = [
-    .shift, .control, .option, .command
+private let OBWFilteringMenuAllowedModifiers: NSEvent.ModifierFlags = [
+    NSEvent.ModifierFlags.shift, NSEvent.ModifierFlags.control, NSEvent.ModifierFlags.option, NSEvent.ModifierFlags.command
 ]
 
 /*==========================================================================*/
 
-private func OBWStandardHeightForControlSize( _ controlSize: NSControlSize ) -> CGFloat {
+private func OBWStandardHeightForControlSize( _ controlSize: NSControl.ControlSize ) -> CGFloat {
     
     switch controlSize {
     case .mini:     return 15.0
@@ -58,7 +58,7 @@ class OBWFilteringMenuView: NSView {
         filterField.cell?.focusRingType = .none
         filterField.cell?.isScrollable = true
         (filterField.cell as? NSTextFieldCell)?.placeholderString = "Filter"
-        filterField.autoresizingMask = [ .viewWidthSizable, .viewMinYMargin ]
+        filterField.autoresizingMask = [ NSView.AutoresizingMask.width, NSView.AutoresizingMask.minYMargin ]
         filterField.isHidden = true
         self.filterField  = filterField
         
@@ -72,14 +72,14 @@ class OBWFilteringMenuView: NSView {
         
         super.init( frame: initialFrame )
         
-        self.autoresizingMask = .viewMinYMargin
+        self.autoresizingMask = NSView.AutoresizingMask.minYMargin
         self.autoresizesSubviews = true
         
         self.addSubview( filterField )
         self.setFrameSize( scrollView.frame.size )
         self.addSubview( scrollView )
         
-        NotificationCenter.default.addObserver( self, selector: #selector(OBWFilteringMenuView.textDidChange(_:)), name: NSNotification.Name.NSTextDidChange, object: nil )
+        NotificationCenter.default.addObserver( self, selector: #selector(OBWFilteringMenuView.textDidChange(_:)), name: NSText.didChangeNotification, object: nil )
     }
     
     /*==========================================================================*/
@@ -89,7 +89,7 @@ class OBWFilteringMenuView: NSView {
     
     /*==========================================================================*/
     deinit {
-        NotificationCenter.default.removeObserver( self, name: NSNotification.Name.NSTextDidChange, object: nil )
+        NotificationCenter.default.removeObserver( self, name: NSText.didChangeNotification, object: nil )
     }
     
     /*==========================================================================*/
@@ -114,7 +114,7 @@ class OBWFilteringMenuView: NSView {
             self.dispatchingCursorUpdateToFilterField = false
         }
         else {
-            NSCursor.arrow().set()
+            NSCursor.arrow.set()
         }
     }
     
@@ -138,13 +138,13 @@ class OBWFilteringMenuView: NSView {
     }
     
     /*==========================================================================*/
-    override func accessibilityRole() -> String? {
-        return NSAccessibilityListRole
+    override func accessibilityRole() -> NSAccessibilityRole? {
+        return NSAccessibilityRole.list
     }
     
     /*==========================================================================*/
     override func accessibilityRoleDescription() -> String? {
-        return NSAccessibilityRoleDescription( NSAccessibilityListRole, nil )
+        return NSAccessibilityRole.list.description(with: nil )
     }
     
     /*==========================================================================*/
@@ -221,7 +221,7 @@ class OBWFilteringMenuView: NSView {
             return
         }
         
-        NSAccessibilityPostNotification( currentEditor, NSAccessibilityFocusedUIElementChangedNotification )
+        NSAccessibilityPostNotification( currentEditor, NSAccessibilityNotificationName.focusedUIElementChanged )
         
         let filterString = filterField.stringValue
         let menuItemArray = self.filteringMenu.itemArray
@@ -248,13 +248,13 @@ class OBWFilteringMenuView: NSView {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuView implementation
     
-    static let filterMargins = EdgeInsets( top: 4.0, left: 20.0, bottom: 4.0, right: 20.0 )
+    static let filterMargins = NSEdgeInsets( top: 4.0, left: 20.0, bottom: 4.0, right: 20.0 )
     
     var totalMenuItemSize: NSSize { return self.scrollView.totalMenuItemSize }
     var menuItemBounds: NSRect { return self.scrollView.menuItemBounds }
     
     /*==========================================================================*/
-    var outerMenuMargins: EdgeInsets {
+    var outerMenuMargins: NSEdgeInsets {
         
         let filterField = self.filterField
         
@@ -262,7 +262,7 @@ class OBWFilteringMenuView: NSView {
         
         let filterAreaHeight = OBWFilteringMenuView.filterMargins.height + filterField.frame.size.height
         
-        return EdgeInsets( top: filterAreaHeight, left: 0.0, bottom: 0.0, right: 0.0 )
+        return NSEdgeInsets( top: filterAreaHeight, left: 0.0, bottom: 0.0, right: 0.0 )
     }
     
     /*==========================================================================*/
@@ -327,7 +327,7 @@ class OBWFilteringMenuView: NSView {
         let filterField = self.filterField
         var currentEditor = filterField.currentEditor()
         
-        if event.modifierFlags.contains( .command ) {
+        if event.modifierFlags.contains( NSEvent.ModifierFlags.command ) {
             
             if currentEditor != nil {
                 NSApp.sendEvent( event )
@@ -547,7 +547,7 @@ class OBWFilteringMenuView: NSView {
             currentEditor.selectAll( nil )
         }
         else {
-            let selectionRange = NSRange( location: currentEditor.string?.utf8.count ?? 0, length: 0 )
+            let selectionRange = NSRange( location: currentEditor.string.utf8.count, length: 0 )
             currentEditor.selectedRange = selectionRange
         }
     }

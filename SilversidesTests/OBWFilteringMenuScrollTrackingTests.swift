@@ -28,7 +28,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens()!.first!
+        let screen = NSScreen.screens.first!
         let screenFrame = screen.frame
         
         var notificationCount = 0
@@ -79,7 +79,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens()!.first!
+        let screen = NSScreen.screens.first!
         let screenFrame = screen.frame
         
         var notificationBounds = NSZeroRect
@@ -128,7 +128,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens()!.first!
+        let screen = NSScreen.screens.first!
         let screenFrame = screen.frame
         
         var notificationBounds = NSZeroRect
@@ -177,7 +177,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens()!.first!
+        let screen = NSScreen.screens.first!
         let screenFrame = screen.frame
         
         var notificationBounds = NSZeroRect
@@ -226,7 +226,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens()!.first!
+        let screen = NSScreen.screens.first!
         let screenFrame = screen.frame
         
         var notificationBounds = NSZeroRect

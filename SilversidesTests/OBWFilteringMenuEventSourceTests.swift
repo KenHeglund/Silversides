@@ -28,7 +28,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         
         // These tests may fail if the user is switching foreground applications while the test is running, or conceivably if Finder.app is not running.
         
-        let eventMask = NSEventMask.applicationDefined
+        let eventMask = NSEvent.EventTypeMask.applicationDefined
         let eventWaitTime: TimeInterval = 0.050
         let threadSleepTime: TimeInterval = 0.100
         var event: NSEvent?
@@ -112,7 +112,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         
         eventSource.startPeriodicApplicationEventsAfterDelay( 0.20, withPeriod: 0.05 )
         
-        let mask = NSEventMask.applicationDefined
+        let mask = NSEvent.EventTypeMask.applicationDefined
         
         let cocoaEvent1 = NSApp.nextEvent( matching: mask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
         let eventInterval1 = Date.timeIntervalSinceReferenceDate
@@ -124,13 +124,13 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         let eventInterval3 = Date.timeIntervalSinceReferenceDate
         
         XCTAssertNotNil( cocoaEvent1 )
-        XCTAssertEqualWithAccuracy( startInterval + 0.20, eventInterval1, accuracy: 0.005 )
+        XCTAssertEqual( startInterval + 0.20, eventInterval1, accuracy: 0.005 )
         
         XCTAssertNotNil( cocoaEvent2 )
-        XCTAssertEqualWithAccuracy( startInterval + 0.25, eventInterval2, accuracy: 0.005 )
+        XCTAssertEqual( startInterval + 0.25, eventInterval2, accuracy: 0.005 )
         
         XCTAssertNotNil( cocoaEvent3 )
-        XCTAssertEqualWithAccuracy( startInterval + 0.30, eventInterval3, accuracy: 0.005 )
+        XCTAssertEqual( startInterval + 0.30, eventInterval3, accuracy: 0.005 )
         
         eventSource.stopPeriodicApplicationEvents()
         

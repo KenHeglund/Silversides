@@ -67,7 +67,7 @@ open class OBWFilteringMenu {
                 userInfo[OBWFilteringMenu.previousHighlightedItemKey] = previousItem
             }
             
-            NotificationCenter.default.post( name: Notification.Name(rawValue: OBWFilteringMenu.highlightedItemDidChangeNotification), object: self, userInfo: userInfo )
+            NotificationCenter.default.post( name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: self, userInfo: userInfo )
         }
     }
     
@@ -130,9 +130,9 @@ open class OBWFilteringMenu {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenu internal
     
-    static let allowedModifierFlags: NSEventModifierFlags = [ .shift, .control, .option, .command ]
+    static let allowedModifierFlags: NSEvent.ModifierFlags = [ NSEvent.ModifierFlags.shift, NSEvent.ModifierFlags.control, NSEvent.ModifierFlags.option, NSEvent.ModifierFlags.command ]
     
-    static let highlightedItemDidChangeNotification = "OBWFilteringMenuHighlightedItemDidChangeNotification"
+    static let highlightedItemDidChangeNotification = Notification.Name(rawValue: "OBWFilteringMenuHighlightedItemDidChangeNotification")
     static let currentHighlightedItemKey = "OBWFilteringMenuCurrentHighlightedItemKey"
     static let previousHighlightedItemKey = "OBWFilteringMenuPreviousHighlightedItemKey"
     

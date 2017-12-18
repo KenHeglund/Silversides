@@ -258,7 +258,7 @@ class OBWFilteringMenuWindowGeometry {
     var initialBounds: NSRect
     var finalBounds: NSRect
     
-    static let screenMargins = EdgeInsets( top: 6.0, left: 6.0, bottom: 6.0, right: 6.0 )
+    static let screenMargins = NSEdgeInsets( top: 6.0, left: 6.0, bottom: 6.0, right: 6.0 )
     
     /*==========================================================================*/
     fileprivate func constrainGeometryToScreen( allowWindowToGrowUpward: Bool ) {

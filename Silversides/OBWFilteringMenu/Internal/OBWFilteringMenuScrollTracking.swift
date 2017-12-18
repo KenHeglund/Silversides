@@ -47,7 +47,7 @@ class OBWFilteringMenuScrollTracking {
         
         let window = NSWindow(
             contentRect: windowContentFrame,
-            styleMask: NSBorderlessWindowMask,
+            styleMask: .borderless,
             backing: .buffered,
             defer: true
         )
@@ -78,14 +78,14 @@ class OBWFilteringMenuScrollTracking {
         
         let notificationCenter = NotificationCenter.default
         
-        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuScrollTracking.smallScrollViewBoundsChanged(_:)), name: NSNotification.Name.NSViewBoundsDidChange, object: smallScrollView.contentView )
-        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuScrollTracking.largeScrollViewBoundsChanged(_:)), name: NSNotification.Name.NSViewBoundsDidChange, object: largeScrollView.contentView )
+        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuScrollTracking.smallScrollViewBoundsChanged(_:)), name: NSView.boundsDidChangeNotification, object: smallScrollView.contentView )
+        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuScrollTracking.largeScrollViewBoundsChanged(_:)), name: NSView.boundsDidChangeNotification, object: largeScrollView.contentView )
     }
     
     /*==========================================================================*/
     deinit {
         let notificationCenter = NotificationCenter.default
-        notificationCenter.removeObserver( self, name: NSNotification.Name.NSViewBoundsDidChange, object: nil )
+        notificationCenter.removeObserver( self, name: NSView.boundsDidChangeNotification, object: nil )
         self.smallScrollView.contentView.postsBoundsChangedNotifications = false
         self.largeScrollView.contentView.postsBoundsChangedNotifications = false
     }

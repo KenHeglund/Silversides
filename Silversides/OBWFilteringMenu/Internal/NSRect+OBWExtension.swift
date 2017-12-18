@@ -8,7 +8,7 @@ import Cocoa
 
 /*==========================================================================*/
 // Insets an NSRect by NSEdgeInsets.
-func +( lhs: NSRect, rhs: EdgeInsets ) -> NSRect {
+func +( lhs: NSRect, rhs: NSEdgeInsets ) -> NSRect {
     
     var rect = lhs
     let insets = rhs
@@ -36,7 +36,7 @@ func +( lhs: NSRect, rhs: EdgeInsets ) -> NSRect {
 
 /*==========================================================================*/
 // Expands an NSRect by NSEdgeInsets
-func -( lhs: NSRect, rhs: EdgeInsets ) -> NSRect {
+func -( lhs: NSRect, rhs: NSEdgeInsets ) -> NSRect {
     
     var rect = lhs
     let insets = rhs

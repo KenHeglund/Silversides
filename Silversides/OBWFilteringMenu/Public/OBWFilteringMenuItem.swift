@@ -22,7 +22,7 @@ open class OBWFilteringMenuItem {
     @NSCopying open var attributedTitle: NSAttributedString? = nil
     open var image: NSImage? = nil
     open var submenu: OBWFilteringMenu? = nil
-    open var keyEquivalentModifierMask: NSEventModifierFlags = []
+    open var keyEquivalentModifierMask: NSEvent.ModifierFlags = []
     
     open var enabled = true
     open var representedObject: AnyObject? = nil
@@ -83,7 +83,7 @@ open class OBWFilteringMenuItem {
     }
     
     /*==========================================================================*/
-    open func visibleItemForModifierFlags( _ modifierFlags: NSEventModifierFlags ) -> OBWFilteringMenuItem? {
+    open func visibleItemForModifierFlags( _ modifierFlags: NSEvent.ModifierFlags ) -> OBWFilteringMenuItem? {
         
         if modifierFlags == self.keyEquivalentModifierMask {
             return self
@@ -126,7 +126,7 @@ open class OBWFilteringMenuItem {
     // MARK: - OBWFilteringMenuItem private
     
     /*==========================================================================*/
-    class func dictionaryKeyWithModifierMask( _ modifierMask: NSEventModifierFlags ) -> String {
+    class func dictionaryKeyWithModifierMask( _ modifierMask: NSEvent.ModifierFlags ) -> String {
         return String( format: "%lu", modifierMask.rawValue )
     }
 }
