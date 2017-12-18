@@ -51,12 +51,13 @@ class OBWFilteringMenuView: NSView {
             height: OBWStandardHeightForControlSize( filterFieldSize )
         )
         
-        let filterField = NSSearchField( frame: filterFrame )
+        let filterField = NSTextField( frame: filterFrame )
         filterField.font = menuFont
         filterField.cell?.controlSize = filterFieldSize
+        filterField.bezelStyle = .roundedBezel
         filterField.cell?.focusRingType = .none
         filterField.cell?.isScrollable = true
-        (filterField.cell as? NSSearchFieldCell)?.searchButtonCell = nil
+        (filterField.cell as? NSTextFieldCell)?.placeholderString = "Filter"
         filterField.autoresizingMask = [ .viewWidthSizable, .viewMinYMargin ]
         filterField.isHidden = true
         self.filterField  = filterField
@@ -527,7 +528,7 @@ class OBWFilteringMenuView: NSView {
     // MARK: - OBWFilteringMenuView private
     
     unowned fileprivate let filteringMenu: OBWFilteringMenu
-    unowned fileprivate let filterField: NSSearchField
+    unowned fileprivate let filterField: NSTextField
     unowned fileprivate let scrollView: OBWFilteringMenuItemScrollView
     fileprivate var lastFilterEventNumber: Int = 0
     fileprivate var dispatchingCursorUpdateToFilterField = false
