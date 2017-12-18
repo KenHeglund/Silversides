@@ -94,6 +94,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BE09C1D51FE7FA5100EC5E6E /* OBWPathView.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OBWPathView.png; sourceTree = "<group>"; };
+		BE09C1D61FE7FA5100EC5E6E /* OBWFilteringMenu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OBWFilteringMenu.png; sourceTree = "<group>"; };
+		BE09C1D71FE7FA5100EC5E6E /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
+		BE09C1D81FE7FA5100EC5E6E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BE29533E1D7A2CC000EA47AB /* OBWFilteringMenuBackgroundTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuBackgroundTests.swift; sourceTree = "<group>"; };
 		BE44C8D11DA19822009517A5 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		BE44C8D41DA3F47E009517A5 /* OBWFilteringMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuController.swift; sourceTree = "<group>"; };
@@ -180,6 +184,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BE09C1D41FE7FA5100EC5E6E /* README.assets */ = {
+			isa = PBXGroup;
+			children = (
+				BE09C1D51FE7FA5100EC5E6E /* OBWPathView.png */,
+				BE09C1D61FE7FA5100EC5E6E /* OBWFilteringMenu.png */,
+			);
+			path = README.assets;
+			sourceTree = "<group>";
+		};
 		BE44C8D31DA19837009517A5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -191,6 +204,9 @@
 		BEC489B11D4C173500CE7AB8 = {
 			isa = PBXGroup;
 			children = (
+				BE09C1D71FE7FA5100EC5E6E /* LICENSE.md */,
+				BE09C1D41FE7FA5100EC5E6E /* README.assets */,
+				BE09C1D81FE7FA5100EC5E6E /* README.md */,
 				BEC489BD1D4C173500CE7AB8 /* Silversides */,
 				BEC489C91D4C173500CE7AB8 /* SilversidesTests */,
 				BEC489E21D4C198100CE7AB8 /* SilversidesDemo */,
