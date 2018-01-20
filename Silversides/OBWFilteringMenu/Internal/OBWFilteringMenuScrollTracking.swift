@@ -207,14 +207,6 @@ class OBWFilteringMenuScrollTracking {
         let smallScrollBoundsSize = self.smallScrollView.contentView.bounds.size
         let finalBoundsSize = self.finalVisibleBounds.size
         
-        #if PRINT_SCROLL_EVENTS
-            let dataRef = CGEventCreateData( kCFAllocatorDefault, event.CGEvent )!
-            let eventData = dataRef as NSData
-            let eventString = eventData.base64EncodedStringWithOptions( [] )
-            Swift.print( "scroll delta: \(scrollingDeltaY)" )
-            Swift.print( "let encodedEvent = \"\(eventString)\"" )
-        #endif // PRINT_SCROLL_EVENTS
-        
         if smallScrollBoundsSize.height == self.totalMenuItemSize.height {
             // don't bounce when the entire menu is visible
         }
