@@ -314,8 +314,6 @@ class OBWFilteringMenuScrollTracking {
         
         guard !self.adjustingBounds else { return }
         
-        self.adjustingBounds = true
-        
         let smallScrollView = self.smallScrollView
         let largeScrollView = self.largeScrollView
         let largeDocumentBounds = largeScrollView.documentView!.bounds
@@ -346,7 +344,7 @@ class OBWFilteringMenuScrollTracking {
                 height: min( finalBounds.size.height, finalBounds.size.height - ( largeDocumentBounds.size.height - menuSize.height ) + largeMenuItemBounds.origin.y )
             )
         }
-        
+
         let scrollFrameSize = NSScrollView.frameSize(
             forContentSize: smallMenuItemBounds.size,
             horizontalScrollerClass: nil,
@@ -356,10 +354,16 @@ class OBWFilteringMenuScrollTracking {
             scrollerStyle: .overlay
         )
         
+        guard scrollFrameSize.height >= smallScrollView.frame.size.height else {
+            return
+        }
+        
+        self.adjustingBounds = true
+        
         if scrollFrameSize != smallScrollView.frame.size {
             smallScrollView.setFrameSize( scrollFrameSize )
         }
-        
+
         smallScrollView.contentView.scroll( to: smallMenuItemBounds.origin )
         smallScrollView.reflectScrolledClipView( smallScrollView.contentView )
         
