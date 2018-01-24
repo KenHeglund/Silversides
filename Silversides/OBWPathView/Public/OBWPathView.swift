@@ -45,7 +45,7 @@ private enum OBWPathViewCompression: Int {
 open class OBWPathView: NSView {
     
     /*==========================================================================*/
-    override init( frame frameRect: NSRect ) {
+    public override init( frame frameRect: NSRect ) {
         super.init( frame: frameRect )
         self.commonInitialization()
     }
