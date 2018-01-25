@@ -67,6 +67,12 @@ open class OBWPathView: NSView {
         
         self.wantsLayer = true
         
+        if let layer = self.layer {
+            layer.backgroundColor = CGColor( gray: 1.0, alpha: 1.0 )
+            layer.borderColor = CGColor( gray: 0.55, alpha: 1.0 )
+            layer.borderWidth = 1.0
+        }
+        
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver( self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindow.didBecomeMainNotification, object: self.window )
         notificationCenter.addObserver( self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindow.didResignMainNotification, object: self.window )
@@ -124,14 +130,6 @@ open class OBWPathView: NSView {
     
     /*==========================================================================*/
     // MARK: - NSView overrides
-    
-    /*==========================================================================*/
-    override open var wantsUpdateLayer: Bool { return true }
-    
-    /*==========================================================================*/
-    override open func updateLayer() {
-        self.updateLayerContents()
-    }
     
     /*==========================================================================*/
     override open func resize( withOldSuperviewSize oldSize: NSSize ) {
@@ -354,18 +352,8 @@ open class OBWPathView: NSView {
     
     /*==========================================================================*/
     @objc fileprivate func windowBecameOrResignedMain( _ notification: Notification ) {
-        self.updateLayerContents()
+        self.needsDisplay = true
         self.active = ( notification.name == NSWindow.didBecomeMainNotification )
-    }
-    
-    /*==========================================================================*/
-    fileprivate func updateLayerContents() {
-        
-        guard let layer = self.layer else { return }
-        
-        layer.backgroundColor = CGColor( gray: 1.0, alpha: 1.0 )
-        layer.borderColor = CGColor( gray: 0.55, alpha: 1.0 )
-        layer.borderWidth = 1.0
     }
     
     /*==========================================================================*/
