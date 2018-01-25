@@ -378,17 +378,17 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuActionItemView private
     
-    unowned fileprivate let itemTitleField: NSTextField
-    unowned fileprivate let itemImageView: NSImageView
-    unowned fileprivate let subviewArrowImageView: NSImageView
+    unowned private let itemTitleField: NSTextField
+    unowned private let itemImageView: NSImageView
+    unowned private let subviewArrowImageView: NSImageView
     
-    fileprivate static let subviewArrowFrame = NSRect( width: 9.0, height: 10.0 )
-    fileprivate static let interiorMargins = NSEdgeInsets( top: 0.0, left: 19.0, bottom: 0.0, right: 10.0 )
-    fileprivate static let imageMargins = NSEdgeInsets( top: 2.0, left: 2.0, bottom: 2.0, right: 2.0 )
-    fileprivate static let titleToSubmenuArrowSpacing: CGFloat = 37.0
+    private static let subviewArrowFrame = NSRect( width: 9.0, height: 10.0 )
+    private static let interiorMargins = NSEdgeInsets( top: 0.0, left: 19.0, bottom: 0.0, right: 10.0 )
+    private static let imageMargins = NSEdgeInsets( top: 2.0, left: 2.0, bottom: 2.0, right: 2.0 )
+    private static let titleToSubmenuArrowSpacing: CGFloat = 37.0
     
     /*==========================================================================*/
-    fileprivate var attributedStringValue: NSAttributedString {
+    private var attributedStringValue: NSAttributedString {
         
         if let filterStatus = self.filterStatus {
             
@@ -411,7 +411,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    fileprivate class func preferredViewSizeForTitleOfMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSSize {
+    private class func preferredViewSizeForTitleOfMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSSize {
         
         let titleSize = OBWFilteringMenuActionItemView.titleSizeForMenuItem( menuItem )
         
@@ -433,12 +433,12 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    fileprivate class func titleSizeForMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSSize {
+    private class func titleSizeForMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSSize {
         return OBWFilteringMenuActionItemView.attributedTitleForMenuItem( menuItem )?.size() ?? NSZeroSize
     }
     
     /*==========================================================================*/
-    fileprivate class func attributedTitleForMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSAttributedString? {
+    private class func attributedTitleForMenuItem( _ menuItem: OBWFilteringMenuItem ) -> NSAttributedString? {
         
         let attributedTitle: NSMutableAttributedString
         
@@ -470,7 +470,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    @objc fileprivate func highlightedItemDidChange( _ notification: Notification ) {
+    @objc private func highlightedItemDidChange( _ notification: Notification ) {
         
         guard let userInfo = notification.userInfo else { return }
         

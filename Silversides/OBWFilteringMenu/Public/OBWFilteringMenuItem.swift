@@ -117,8 +117,8 @@ open class OBWFilteringMenuItem {
     
     weak var menu: OBWFilteringMenu? = nil
     var canHighlight: Bool { return !self.isSeparatorItem }
-    fileprivate(set) var alternates: [String:OBWFilteringMenuItem] = [:]
-    fileprivate(set) var isAlternate: Bool = false
+    private(set) var alternates: [String:OBWFilteringMenuItem] = [:]
+    private(set) var isAlternate: Bool = false
     
     var font: NSFont { return self.menu?.displayFont ?? NSFont.menuFont( ofSize: 0.0 ) }
     

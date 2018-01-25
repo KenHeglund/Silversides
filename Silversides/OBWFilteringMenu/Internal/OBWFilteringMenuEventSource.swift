@@ -46,7 +46,7 @@ class OBWFilteringMenuEventSource: NSObject {
     }
     
     /*==========================================================================*/
-    fileprivate func updateObservation( _ previousMask: OBWApplicationEventSubtype ) {
+    private func updateObservation( _ previousMask: OBWApplicationEventSubtype ) {
         
         let activeMask: OBWApplicationEventSubtype = [ .ApplicationDidBecomeActive, .ApplicationDidResignActive ]
         let wasObservingActive = !previousMask.intersection( activeMask ).isEmpty
@@ -157,13 +157,13 @@ class OBWFilteringMenuEventSource: NSObject {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuEventSource private
     
-    lazy fileprivate var currentApplication: NSRunningApplication = NSRunningApplication.current
-    weak fileprivate var eventTimer: Timer? = nil
+    lazy private var currentApplication: NSRunningApplication = NSRunningApplication.current
+    weak private var eventTimer: Timer? = nil
     
-    fileprivate static var kvoContext = "OBWApplicationObservingContext"
+    private static var kvoContext = "OBWApplicationObservingContext"
     
     /*==========================================================================*/
-    @objc fileprivate func periodicApplicationEventTimerDidFire( _ timer: Timer ) {
+    @objc private func periodicApplicationEventTimerDidFire( _ timer: Timer ) {
         
         guard self.eventMask.contains( .Periodic ) else { return }
         

@@ -46,7 +46,7 @@ class OBWFilteringMenuBackgroundTests: XCTestCase {
     }
     
     /*==========================================================================*/
-    fileprivate func roundedCornersForBackground( _ view: OBWFilteringMenuBackground ) -> OBWFilteringMenuCorners {
+    private func roundedCornersForBackground( _ view: OBWFilteringMenuBackground ) -> OBWFilteringMenuCorners {
         
         guard let image = view.maskImage else { return [] }
         let imageFrame = NSRect( size: image.size )

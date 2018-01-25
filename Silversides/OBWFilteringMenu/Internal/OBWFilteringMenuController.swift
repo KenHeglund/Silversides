@@ -35,7 +35,7 @@ let OBWFilteringMenuItemKey = "OBWFilteringMenuItemKey"
 class OBWFilteringMenuController {
     
     /*==========================================================================*/
-    fileprivate init?( menuItem: OBWFilteringMenuItem, atLocation locationInScreen: NSPoint, inScreen screen: NSScreen, highlighted: Bool? ) {
+    private init?( menuItem: OBWFilteringMenuItem, atLocation locationInScreen: NSPoint, inScreen screen: NSScreen, highlighted: Bool? ) {
         
         guard let rootMenu = menuItem.menu else { return nil }
         
@@ -118,17 +118,17 @@ class OBWFilteringMenuController {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuController private
     
-    fileprivate let eventSource = OBWFilteringMenuEventSource()
+    private let eventSource = OBWFilteringMenuEventSource()
     
     // These were all determined experimentally by "feel"
-    fileprivate static let scrollAccelerationFactor = 1.1
-    fileprivate static let scrollInterval = 0.050
-    fileprivate static let periodicEventInterval = 0.025
+    private static let scrollAccelerationFactor = 1.1
+    private static let scrollInterval = 0.050
+    private static let periodicEventInterval = 0.025
     
     // MARK: - Run Loop
     
     /*==========================================================================*/
-    fileprivate func runEventLoop() -> Bool {
+    private func runEventLoop() -> Bool {
         
         guard let rootMenuWindow = self.menuWindowArray.first else { return false }
         
@@ -298,7 +298,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func handleKeyboardEvent( _ event: NSEvent ) -> OBWFilteringMenuEventResult {
+    private func handleKeyboardEvent( _ event: NSEvent ) -> OBWFilteringMenuEventResult {
         
         let keyCode = Int(event.keyCode)
         
@@ -390,7 +390,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func handleFlagsChangedEvent( _ event: NSEvent ) -> OBWFilteringMenuEventResult {
+    private func handleFlagsChangedEvent( _ event: NSEvent ) -> OBWFilteringMenuEventResult {
         
         self.scrollTimer?.fireDate = Date.distantFuture
         
@@ -430,7 +430,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func handleMouseMovedEvent( _ event: NSEvent ) {
+    private func handleMouseMovedEvent( _ event: NSEvent ) {
         
         guard let topmostMenuWindow = self.menuWindowArray.last else { return }
         
@@ -473,7 +473,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func handleApplicationEvent( _ event: NSEvent ) -> OBWFilteringMenuEventResult {
+    private func handleApplicationEvent( _ event: NSEvent ) -> OBWFilteringMenuEventResult {
         
         switch event.subtype.rawValue {
             
@@ -499,17 +499,17 @@ class OBWFilteringMenuController {
     
     // MARK: - Menu
     
-    fileprivate let rootMenu: OBWFilteringMenu
+    private let rootMenu: OBWFilteringMenu
     
     /*==========================================================================*/
     var topmostMenu: OBWFilteringMenu? {
         return self.menuWindowArray.last?.filteringMenu
     }
     
-    weak fileprivate var lastHitMenuItem: OBWFilteringMenuItem? = nil
+    weak private var lastHitMenuItem: OBWFilteringMenuItem? = nil
     
     /*==========================================================================*/
-    fileprivate func updateCurrentMenuItem( _ event: NSEvent, continueCursorTracking: Bool ) {
+    private func updateCurrentMenuItem( _ event: NSEvent, continueCursorTracking: Bool ) {
         
         let eventLocationInScreen = event.obw_locationInScreen ?? NSEvent.mouseLocation
         
@@ -603,11 +603,11 @@ class OBWFilteringMenuController {
         }
     }
     
-    fileprivate var delayedSubmenuGeneration = 0
-    fileprivate weak var delayedSubmenuParent: OBWFilteringMenuItem? = nil
+    private var delayedSubmenuGeneration = 0
+    private weak var delayedSubmenuParent: OBWFilteringMenuItem? = nil
     
     /*==========================================================================*/
-    fileprivate func delayedShowSubmenu( ofMenuItem menuItem: OBWFilteringMenuItem? ) {
+    private func delayedShowSubmenu( ofMenuItem menuItem: OBWFilteringMenuItem? ) {
         
         guard menuItem !== self.delayedSubmenuParent else { return }
         
@@ -632,7 +632,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func showSubmenu( ofMenuItem menuItem: OBWFilteringMenuItem, highlightFirstVisibleItem: Bool ) {
+    private func showSubmenu( ofMenuItem menuItem: OBWFilteringMenuItem, highlightFirstVisibleItem: Bool ) {
         
         guard let newMenu = menuItem.submenu else { return }
         
@@ -669,7 +669,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func performActionForItem( _ menuItem: OBWFilteringMenuItem ) {
+    private func performActionForItem( _ menuItem: OBWFilteringMenuItem ) {
         
         guard let menu = menuItem.menu else { return }
         guard let menuWindow = self.menuWindowForMenu( menu ) else { return }
@@ -703,11 +703,11 @@ class OBWFilteringMenuController {
     
     // MARK: - Menu Windows
     
-    fileprivate var menuWindowArray: [OBWFilteringMenuWindow] = []
-    weak fileprivate var menuWindowWithKeyboardFocus: OBWFilteringMenuWindow? = nil
+    private var menuWindowArray: [OBWFilteringMenuWindow] = []
+    weak private var menuWindowWithKeyboardFocus: OBWFilteringMenuWindow? = nil
     
     /*==========================================================================*/
-    fileprivate func makeTopmostMenuWindow( _ topmostMenuWindow: OBWFilteringMenuWindow?, withFade fade: Bool ) {
+    private func makeTopmostMenuWindow( _ topmostMenuWindow: OBWFilteringMenuWindow?, withFade fade: Bool ) {
         
         if topmostMenuWindow === self.menuWindowArray.last {
             return
@@ -752,7 +752,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func menuWindowForMenu( _ menu: OBWFilteringMenu ) -> OBWFilteringMenuWindow? {
+    private func menuWindowForMenu( _ menu: OBWFilteringMenu ) -> OBWFilteringMenuWindow? {
         
         for window in self.menuWindowArray.reversed() {
             
@@ -765,7 +765,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func menuWindowAtScreenLocation( _ screenLocation: NSPoint ) -> OBWFilteringMenuWindow? {
+    private func menuWindowAtScreenLocation( _ screenLocation: NSPoint ) -> OBWFilteringMenuWindow? {
         
         for window in self.menuWindowArray.reversed() {
             
@@ -778,7 +778,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func menuWindowBefore( menuWindow anchorWindow: OBWFilteringMenuWindow ) -> OBWFilteringMenuWindow? {
+    private func menuWindowBefore( menuWindow anchorWindow: OBWFilteringMenuWindow ) -> OBWFilteringMenuWindow? {
         
         var window: OBWFilteringMenuWindow? = nil
         
@@ -795,7 +795,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func isMenuWindow( _ firstWindow: OBWFilteringMenuWindow, afterMenuWindow secondWindow: OBWFilteringMenuWindow ) -> Bool {
+    private func isMenuWindow( _ firstWindow: OBWFilteringMenuWindow, afterMenuWindow secondWindow: OBWFilteringMenuWindow ) -> Bool {
         
         guard let firstIndex = self.menuWindowArray.index( of: firstWindow ) else { return false }
         guard let secondIndex = self.menuWindowArray.index( of: secondWindow ) else { return false }
@@ -804,7 +804,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func removeTopmostMenuWindow( withFade fade: Bool ) {
+    private func removeTopmostMenuWindow( withFade fade: Bool ) {
         
         guard let topmostMenuWindow = self.menuWindowArray.last else { return }
         guard let newTopMostMenuWindow = self.menuWindowBefore( menuWindow: topmostMenuWindow ) else { return }
@@ -812,7 +812,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func updateMenuCorners() {
+    private func updateMenuCorners() {
         
         guard let firstWindow = self.menuWindowArray.last else { return }
         
@@ -837,7 +837,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func updateRoundedCornersBetween( leftWindow: OBWFilteringMenuWindow, rightWindow: OBWFilteringMenuWindow ) {
+    private func updateRoundedCornersBetween( leftWindow: OBWFilteringMenuWindow, rightWindow: OBWFilteringMenuWindow ) {
         
         if leftWindow.frame.maxY > rightWindow.frame.maxY {
             leftWindow.roundedCorners.insert( .TopRight )
@@ -870,10 +870,10 @@ class OBWFilteringMenuController {
     
     // MARK: - Cursor Tracking
     
-    fileprivate var cursorTracking: OBWFilteringMenuCursorTracking? = nil
+    private var cursorTracking: OBWFilteringMenuCursorTracking? = nil
     
     /*==========================================================================*/
-    fileprivate func beginCursorTracking( _ menuItem: OBWFilteringMenuItem ) {
+    private func beginCursorTracking( _ menuItem: OBWFilteringMenuItem ) {
         
         guard let menu = menuItem.menu else { return }
         guard let window = self.menuWindowForMenu( menu ) else { return }
@@ -898,7 +898,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func updateCursorTracking() {
+    private func updateCursorTracking() {
         
         guard let cursorTracking = self.cursorTracking else { return }
         
@@ -920,7 +920,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    fileprivate func endCursorTracking() {
+    private func endCursorTracking() {
         
         if self.cursorTracking == nil { return }
         
@@ -929,7 +929,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    @objc fileprivate func scrollTrackingBoundsChanged( _ notification: Notification ) {
+    @objc private func scrollTrackingBoundsChanged( _ notification: Notification ) {
         
         let scrollTracking = notification.object as! OBWFilteringMenuScrollTracking
         let boundsValue = notification.userInfo?[OBWFilteringMenuScrollTrackingBoundsValueKey] as! NSValue
@@ -957,11 +957,11 @@ class OBWFilteringMenuController {
     
     // MARK: - Scrolling
     
-    weak fileprivate var scrollTimer: Timer? = nil
-    fileprivate var scrollStartInterval: TimeInterval = 0.0
+    weak private var scrollTimer: Timer? = nil
+    private var scrollStartInterval: TimeInterval = 0.0
     
     /*==========================================================================*/
-    fileprivate func setupAutoscroll( directionKey: String ) {
+    private func setupAutoscroll( directionKey: String ) {
         
         if
             let userInfo = self.scrollTimer?.userInfo as? [String:Any],
@@ -996,7 +996,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    @objc fileprivate func scrollTimerDidFire( _ timer: Timer ) {
+    @objc private func scrollTimerDidFire( _ timer: Timer ) {
         
         guard let userInfo = timer.userInfo as? [String:Any] else { return }
         guard let scrolledWindow = userInfo[OBWFilteringMenuWindowKey] as? OBWFilteringMenuWindow else { return }
@@ -1031,7 +1031,7 @@ class OBWFilteringMenuController {
     // MARK: - External Notifications
     
     /*==========================================================================*/
-    @objc fileprivate func axDidOpenMenuItem( _ notification: Notification ) {
+    @objc private func axDidOpenMenuItem( _ notification: Notification ) {
         
         guard let userInfo = notification.userInfo else { return }
         guard let menuItem = userInfo[OBWFilteringMenuItemKey] as? OBWFilteringMenuItem else { return }
@@ -1063,12 +1063,12 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    @objc fileprivate func menuViewTotalItemSizeDidChange( _ notification: Notification ) {
+    @objc private func menuViewTotalItemSizeDidChange( _ notification: Notification ) {
         self.updateMenuCorners()
     }
     
     /*==========================================================================*/
-    @objc fileprivate func externalMenuDidBeginTracking( _ notification: Notification ) {
+    @objc private func externalMenuDidBeginTracking( _ notification: Notification ) {
         self.makeTopmostMenuWindow( nil, withFade: true )
     }
 }

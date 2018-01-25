@@ -49,7 +49,7 @@ open class OBWFilteringMenu {
     open var actionHandler: ( ( OBWFilteringMenuItem ) -> Void )? = nil
     open var delegate: OBWFilteringMenuDelegate? = nil
     
-    open fileprivate(set) var itemArray: [OBWFilteringMenuItem] = []
+    open private(set) var itemArray: [OBWFilteringMenuItem] = []
     open var numberOfItems: Int { return self.itemArray.count }
     
     open internal(set) var highlightedItem: OBWFilteringMenuItem? = nil {

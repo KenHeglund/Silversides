@@ -527,14 +527,14 @@ class OBWFilteringMenuView: NSView {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuView private
     
-    unowned fileprivate let filteringMenu: OBWFilteringMenu
-    unowned fileprivate let filterField: NSTextField
-    unowned fileprivate let scrollView: OBWFilteringMenuItemScrollView
-    fileprivate var lastFilterEventNumber: Int = 0
-    fileprivate var dispatchingCursorUpdateToFilterField = false
+    unowned private let filteringMenu: OBWFilteringMenu
+    unowned private let filterField: NSTextField
+    unowned private let scrollView: OBWFilteringMenuItemScrollView
+    private var lastFilterEventNumber: Int = 0
+    private var dispatchingCursorUpdateToFilterField = false
     
     /*==========================================================================*/
-    fileprivate func moveKeyboardFocusToFilterFieldAndSelectAll( _ selectAll: Bool ) {
+    private func moveKeyboardFocusToFilterFieldAndSelectAll( _ selectAll: Bool ) {
         
         self.filteringMenu.highlightedItem = nil
         

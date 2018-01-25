@@ -72,7 +72,7 @@ extension NSEvent {
     }
     
     /*==========================================================================*/
-    fileprivate class func obw_isLocationPropertyValid( _ type: NSEvent.EventType ) -> Bool {
+    private class func obw_isLocationPropertyValid( _ type: NSEvent.EventType ) -> Bool {
         
         let locationValidMask: [NSEvent.EventType] = [
             .leftMouseDown,

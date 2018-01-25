@@ -57,7 +57,7 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    fileprivate func commonInitialization() {
+    private func commonInitialization() {
         
         self.autoresizesSubviews = false
         
@@ -333,7 +333,7 @@ open class OBWPathView: NSView {
     /*==========================================================================*/
     // MARK: - OBWPathView private
     
-    fileprivate(set) var active = false {
+    private(set) var active = false {
         
         didSet {
             
@@ -345,19 +345,19 @@ open class OBWPathView: NSView {
         }
     }
     
-    fileprivate var itemViews: [OBWPathItemView] = []
-    fileprivate var pathItemUpdateDepth = 0
+    private var itemViews: [OBWPathItemView] = []
+    private var pathItemUpdateDepth = 0
     
-    fileprivate var terminatedViews: [OBWPathItemView]? = nil
+    private var terminatedViews: [OBWPathItemView]? = nil
     
     /*==========================================================================*/
-    @objc fileprivate func windowBecameOrResignedMain( _ notification: Notification ) {
+    @objc private func windowBecameOrResignedMain( _ notification: Notification ) {
         self.needsDisplay = true
         self.active = ( notification.name == NSWindow.didBecomeMainNotification )
     }
     
     /*==========================================================================*/
-    fileprivate func updateItemDividerVisibility() {
+    private func updateItemDividerVisibility() {
         
         guard let lastItemView = self.itemViews.last else { return }
         
@@ -367,7 +367,7 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    fileprivate func updatePreferredWidthRequirements() -> Bool {
+    private func updatePreferredWidthRequirements() -> Bool {
         
         guard let window = self.window else { return false }
         
@@ -380,7 +380,7 @@ open class OBWPathView: NSView {
 
     
     /*==========================================================================*/
-    fileprivate func updatePreferredWidthRequirementsForCursorLocation( _ locationInView: NSPoint ) -> Bool {
+    private func updatePreferredWidthRequirementsForCursorLocation( _ locationInView: NSPoint ) -> Bool {
         
         let cursorIsInParent = NSPointInRect( locationInView, self.bounds )
         
@@ -421,7 +421,7 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    fileprivate func updateCurrentItemViewWidths() {
+    private func updateCurrentItemViewWidths() {
         
         var itemViews = self.itemViews
         
@@ -505,7 +505,7 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    fileprivate func compress( itemViews: [OBWPathItemView], by compression: CGFloat ) -> CGFloat {
+    private func compress( itemViews: [OBWPathItemView], by compression: CGFloat ) -> CGFloat {
         
         var compressibleItemViews: [OBWPathItemView] = []
         var totalWidthItemsCanCompress: CGFloat = 0.0
@@ -561,7 +561,7 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    fileprivate func adjustItemViewFrames( animate: Bool ) {
+    private func adjustItemViewFrames( animate: Bool ) {
         
         let shiftKey = NSEvent.modifierFlags.contains( NSEvent.ModifierFlags.shift )
         let animationDuration = ( animate ? ( shiftKey ? 2.5 : 0.1 ) : 0.0 )

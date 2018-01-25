@@ -87,16 +87,16 @@ class OBWFilteringMenuCursorTracking {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuCursorTracking private
     
-    fileprivate static let trackingInterval = 0.10
-    fileprivate static let minimumSpeed = 10.0
+    private static let trackingInterval = 0.10
+    private static let minimumSpeed = 10.0
     
-    fileprivate let destinationArea: NSRect
+    private let destinationArea: NSRect
     
-    fileprivate var applyLimits = false
+    private var applyLimits = false
     
-    fileprivate var lastMouseTimestamp: TimeInterval? = nil
+    private var lastMouseTimestamp: TimeInterval? = nil
     
-    fileprivate let cursorWaypoints: [OBWFilteringMenuCursorTrackingWaypoint] =
+    private let cursorWaypoints: [OBWFilteringMenuCursorTrackingWaypoint] =
         (1...20).map({ _ in OBWFilteringMenuCursorTrackingWaypoint() })
     
     
@@ -107,7 +107,7 @@ class OBWFilteringMenuCursorTracking {
     fileprivate var minimumDrawX: CGFloat = 0.0
     fileprivate var maximumDrawX: CGFloat = 0.0
     
-    fileprivate static let debugWindow: OBWFilteringMenuCursorTrackingDebugWindow? = {
+    private static let debugWindow: OBWFilteringMenuCursorTrackingDebugWindow? = {
         #if DEBUG_CURSOR_TRACKING
             return OBWFilteringMenuCursorTrackingDebugWindow()
         #else
@@ -117,7 +117,7 @@ class OBWFilteringMenuCursorTracking {
 
     
     /*==========================================================================*/
-    fileprivate func recalculateLimits() {
+    private func recalculateLimits() {
         
         let sourceLine = self.sourceLine
         let destinationArea = self.destinationArea
@@ -195,7 +195,7 @@ class OBWFilteringMenuCursorTracking {
     }
     
     /*==========================================================================*/
-    fileprivate func resetWaypoints() {
+    private func resetWaypoints() {
         
         for waypoint in self.cursorWaypoints {
             waypoint.timestamp = nil
@@ -203,7 +203,7 @@ class OBWFilteringMenuCursorTracking {
     }
     
     /*==========================================================================*/
-    fileprivate func isCursorMovingFastEnough( _ timestamp: TimeInterval, locationInScreen: NSPoint ) -> Bool {
+    private func isCursorMovingFastEnough( _ timestamp: TimeInterval, locationInScreen: NSPoint ) -> Bool {
         
         let waypoints = self.cursorWaypoints
         var oldestIndex = waypoints.startIndex

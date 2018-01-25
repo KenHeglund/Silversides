@@ -252,7 +252,7 @@ class OBWFilteringMenuWindowGeometry {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuWindowGeometry private
     
-    unowned fileprivate let window: OBWFilteringMenuWindow
+    unowned private let window: OBWFilteringMenuWindow
     var frame: NSRect
     var totalMenuItemSize: NSSize
     var initialBounds: NSRect
@@ -261,7 +261,7 @@ class OBWFilteringMenuWindowGeometry {
     static let screenMargins = NSEdgeInsets( top: 6.0, left: 6.0, bottom: 6.0, right: 6.0 )
     
     /*==========================================================================*/
-    fileprivate func constrainGeometryToScreen( allowWindowToGrowUpward: Bool ) {
+    private func constrainGeometryToScreen( allowWindowToGrowUpward: Bool ) {
         
         guard let screen = self.window.screen else { return }
         let menuView = window.menuView
@@ -346,7 +346,7 @@ class OBWFilteringMenuWindowGeometry {
     }
     
     /*==========================================================================*/
-    fileprivate class func constrainFrame( _ frame: NSRect, toAnchorRect anchor: NSRect ) -> NSRect {
+    private class func constrainFrame( _ frame: NSRect, toAnchorRect anchor: NSRect ) -> NSRect {
         
         let anchorBottom = anchor.origin.y
         let anchorTop = anchor.origin.y + anchor.size.height

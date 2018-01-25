@@ -250,22 +250,22 @@ class OBWFilteringMenuScrollTracking {
     /*==========================================================================*/
     // MARK: - OBWFilteringScrollTracking private
     
-    fileprivate static let scrollViewWidth: CGFloat = 10.0
+    private static let scrollViewWidth: CGFloat = 10.0
     
-    fileprivate let window: NSWindow
-    unowned fileprivate let smallScrollView: NSScrollView
-    unowned fileprivate let largeScrollView: NSScrollView
+    private let window: NSWindow
+    unowned private let smallScrollView: NSScrollView
+    unowned private let largeScrollView: NSScrollView
     
-    fileprivate var totalMenuItemSize = NSZeroSize
-    fileprivate var initialVisibleBounds = NSZeroRect
-    fileprivate var finalVisibleBounds = NSZeroRect
+    private var totalMenuItemSize = NSZeroSize
+    private var initialVisibleBounds = NSZeroRect
+    private var finalVisibleBounds = NSZeroRect
     
-    fileprivate var action: ScrollTrackingAction = .scrolling
-    fileprivate var clipMode: ScrollTrackingClipMode = .none
-    fileprivate var adjustingBounds = false
+    private var action: ScrollTrackingAction = .scrolling
+    private var clipMode: ScrollTrackingClipMode = .none
+    private var adjustingBounds = false
     
     /*==========================================================================*/
-    @objc fileprivate func smallScrollViewBoundsChanged( _ notification: Notification ) {
+    @objc private func smallScrollViewBoundsChanged( _ notification: Notification ) {
         
         guard !self.adjustingBounds else { return }
         
@@ -310,7 +310,7 @@ class OBWFilteringMenuScrollTracking {
     }
     
     /*==========================================================================*/
-    @objc fileprivate func largeScrollViewBoundsChanged( _ notification: Notification ) {
+    @objc private func largeScrollViewBoundsChanged( _ notification: Notification ) {
         
         guard !self.adjustingBounds else { return }
         

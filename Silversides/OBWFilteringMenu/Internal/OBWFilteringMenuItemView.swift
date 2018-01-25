@@ -40,8 +40,8 @@ class OBWFilteringMenuItemView: NSView {
     // MARK: - OBWFilteringMenuItemView implementation
     
     let menuItem: OBWFilteringMenuItem
-    fileprivate(set) var alternateViews: [String:OBWFilteringMenuItemView]? = nil
-    fileprivate(set) var filterStatus: OBWFilteringMenuItemFilterStatus? = nil
+    private(set) var alternateViews: [String:OBWFilteringMenuItemView]? = nil
+    private(set) var filterStatus: OBWFilteringMenuItemFilterStatus? = nil
     
     /*==========================================================================*/
     var preferredSize: NSSize {

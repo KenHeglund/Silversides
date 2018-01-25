@@ -209,7 +209,7 @@ class SilversidesTests: XCTestCase {
     }
     
     /*==========================================================================*/
-    fileprivate func waitforInterval( _ timeInterval: TimeInterval ) {
+    private func waitforInterval( _ timeInterval: TimeInterval ) {
         
         // The simple approach:
         //  NSRunLoop.currentRunLoop().runUntilDate( NSDate( timeIntervalSinceNow: timeInterval ) )

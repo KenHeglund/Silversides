@@ -269,7 +269,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
     }
     
     /*==========================================================================*/
-    fileprivate let scrollContentUpEvent: NSEvent = {
+    private let scrollContentUpEvent: NSEvent = {
         
         // Recorded from the trackpad
         let encodedContentUpEvent = "AAAAAgABQDUAAAADAAFANgAAAAAAAUA3AAAAFgACwDhEdkAARI6gAAACwDlByAAAQjgAAAABADpFSWCOAACUVgABQDsAAAEAAAFAMwAAI70AAUA0AAHH4wABQJIAAAAAAAFAagAAAGMAAUBrAAAEsAABQAv////8AAFADAAAAAAAAUANAAAAAAABQFgAAAABAAFAiQAAAAEAAUBd//szIAABQF4AAAAAAAFAXwAAAAAAAUBg////0AABQGEAAAADAAFAYgAAAAAAAUB7AAAAAAABQGMAAAACAAFAZAAAAAA="
@@ -278,7 +278,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
     }()
     
     /*==========================================================================*/
-    fileprivate let scrollContentDownEvent: NSEvent = {
+    private let scrollContentDownEvent: NSEvent = {
         
         // Recorded from the trackpad
         let encodedContentDownEvent = "AAAAAgABQDUAAAADAAFANgAAAAAAAUA3AAAAFgACwDhEeEAARI0AAAACwDlCBAAAQgAAAAABADpKU4eYAACUdQABQDsAAAEAAAFAMwAAI+MAAUA0AAHg5wABQJIAAAAAAAFAagAAAGIAAUBrAAAEsAABQAsAAAA1AAFADP////8AAUANAAAAAAABQFgAAAABAAFAiQAAAAEAAUBdADVnPAABQF7//xmWAAFAXwAAAAAAAUBgAAACFgABQGH////4AAFAYgAAAAAAAUB7AAAAAAABQGMAAAACAAFAZAAAAAE="
@@ -287,7 +287,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
     }()
     
     /*==========================================================================*/
-    fileprivate class func eventWithString( base64EncodedString encodedString: String ) -> NSEvent {
+    private class func eventWithString( base64EncodedString encodedString: String ) -> NSEvent {
         
         let scrollEventData = Data( base64Encoded: encodedString, options: [] )!
         let event = CGEvent( withDataAllocator: kCFAllocatorDefault, data: scrollEventData as CFData )!

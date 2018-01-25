@@ -51,7 +51,7 @@ class OBWPathItemView: NSView {
     }
     
     /*==========================================================================*/
-    fileprivate func commonInitialization() {
+    private func commonInitialization() {
         
         self.currentWidth = self.bounds.size.width
         self.idleWidth = self.currentWidth
@@ -227,8 +227,8 @@ class OBWPathItemView: NSView {
     var currentWidth: CGFloat = 0.0
     var idleWidth: CGFloat = 0.0
     
-    fileprivate(set) var preferredWidth: CGFloat = 0.0
-    fileprivate(set) var minimumWidth: CGFloat = 20.0
+    private(set) var preferredWidth: CGFloat = 0.0
+    private(set) var minimumWidth: CGFloat = 20.0
     
     /*==========================================================================*/
     var pathItem: OBWPathItem? = nil {
@@ -364,11 +364,11 @@ class OBWPathItemView: NSView {
     /*==========================================================================*/
     // MARK: - OBWPathItemView internal
     
-    fileprivate static let offscreenTextField = NSTextField( frame: NSZeroRect )
-    fileprivate var active: Bool = true
+    private static let offscreenTextField = NSTextField( frame: NSZeroRect )
+    private var active: Bool = true
     
     /*==========================================================================*/
-    fileprivate let imageView: NSImageView = {
+    private let imageView: NSImageView = {
         
         let itemImageView = NSImageView( frame: NSZeroRect )
         itemImageView.autoresizingMask = NSView.AutoresizingMask()
@@ -379,7 +379,7 @@ class OBWPathItemView: NSView {
     }()
     
     /*==========================================================================*/
-    fileprivate let titleField: NSTextField = {
+    private let titleField: NSTextField = {
         
         let titleField = NSTextField( frame: NSZeroRect )
         titleField.cell?.setAccessibilityElement( false )
@@ -394,7 +394,7 @@ class OBWPathItemView: NSView {
     }()
     
     /*==========================================================================*/
-    fileprivate let dividerView: NSImageView = {
+    private let dividerView: NSImageView = {
         
         let dividerImage = OBWPathItemView.dividerImage
         
@@ -409,11 +409,11 @@ class OBWPathItemView: NSView {
         return dividerImageView
     }()
     
-    fileprivate static let titleFontSize: CGFloat = 11.0
-    fileprivate static let disabledViewAlpha: CGFloat = 0.5
+    private static let titleFontSize: CGFloat = 11.0
+    private static let disabledViewAlpha: CGFloat = 0.5
     
     /*==========================================================================*/
-    fileprivate static let imageMargins: NSEdgeInsets = {
+    private static let imageMargins: NSEdgeInsets = {
         
         let minorVersion = ProcessInfo().operatingSystemVersion.minorVersion
         
@@ -425,13 +425,13 @@ class OBWPathItemView: NSView {
         }
     }()
     
-    fileprivate static let titleMargins = NSEdgeInsets( top: 4.0, left: 2.0, bottom: 4.0, right: 2.0 )
-    fileprivate static let dividerMargins = NSEdgeInsets( top: 0.0, left: 3.0, bottom: 0.0, right: 2.0 )
+    private static let titleMargins = NSEdgeInsets( top: 4.0, left: 2.0, bottom: 4.0, right: 2.0 )
+    private static let dividerMargins = NSEdgeInsets( top: 0.0, left: 3.0, bottom: 0.0, right: 2.0 )
     
-    fileprivate static let minimumTitleWidthWithoutImage: CGFloat = 20.0
+    private static let minimumTitleWidthWithoutImage: CGFloat = 20.0
 
     /*==========================================================================*/
-    fileprivate static var dividerImage: NSImage = {
+    private static var dividerImage: NSImage = {
         
         let attributes: [NSAttributedStringKey:Any] = [
             .paragraphStyle : NSParagraphStyle.default,
@@ -482,7 +482,7 @@ class OBWPathItemView: NSView {
     }()
     
     /*==========================================================================*/
-    fileprivate class func titleFontForPathItemStyle( _ style: OBWPathItemStyle ) -> NSFont {
+    private class func titleFontForPathItemStyle( _ style: OBWPathItemStyle ) -> NSFont {
         
         var displayFont = NSFont.controlContentFont( ofSize: OBWPathItemView.titleFontSize )
         
@@ -499,7 +499,7 @@ class OBWPathItemView: NSView {
     }
     
     /*==========================================================================*/
-    fileprivate func updateTitleFieldContents() {
+    private func updateTitleFieldContents() {
         
         guard let title = self.pathItem?.title else {
             self.titleField.stringValue = ""
@@ -543,7 +543,7 @@ class OBWPathItemView: NSView {
     }
     
     /*==========================================================================*/
-    fileprivate func recalculateWidths() -> Bool {
+    private func recalculateWidths() -> Bool {
         
         var titleMargins = OBWPathItemView.titleMargins
         var titleMinimumWidth = OBWPathItemView.minimumTitleWidthWithoutImage

@@ -34,7 +34,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     
     @IBOutlet var pathViewOutlet: OBWPathView! = nil
     
-    fileprivate(set) var pathViewConfigured = false
+    private(set) var pathViewConfigured = false
     
     @objc dynamic var pathViewEnabled = true {
         

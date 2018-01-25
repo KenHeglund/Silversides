@@ -96,11 +96,11 @@ class OBWFilteringMenuArrows {
     // MARK: - OBWFilteringMenuArrows private
     
     // The long side of each triangle is inset by 1.0 point to deliberately create a partially transparent edge when the image is scaled to the display size.
-    fileprivate static let longSideInset: CGFloat = 1.0
-    fileprivate static let arrowShortSideLength: CGFloat = 87.0
-    fileprivate static let arrowLongSideLength: CGFloat = 100.0
+    private static let longSideInset: CGFloat = 1.0
+    private static let arrowShortSideLength: CGFloat = 87.0
+    private static let arrowLongSideLength: CGFloat = 100.0
     
-    fileprivate static let rightArrowPath: NSBezierPath = {
+    private static let rightArrowPath: NSBezierPath = {
         
         let flatSideInset = OBWFilteringMenuArrows.longSideInset
         

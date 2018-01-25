@@ -14,7 +14,7 @@ struct OBWFilteringMenuCorners: OptionSet {
         self.rawValue = rawValue & 0xF
     }
     
-    fileprivate(set) var rawValue: UInt
+    private(set) var rawValue: UInt
     
     static let TopLeft      = OBWFilteringMenuCorners( rawValue: 1 << 0 )
     static let TopRight     = OBWFilteringMenuCorners( rawValue: 1 << 1 )
@@ -65,7 +65,7 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
     static let roundedCornerRadius: CGFloat = 6.0
     static let squareCornerRadius: CGFloat = 0.0
     
-    fileprivate static var maskImageCache: [NSImage?] = (0...15).map { _ in return nil }
+    private static var maskImageCache: [NSImage?] = (0...15).map { _ in return nil }
     
     /*==========================================================================*/
     func updateMaskImage() {
@@ -83,7 +83,7 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
     }
     
     /*==========================================================================*/
-    fileprivate static func maskImage( _ roundedCorners: OBWFilteringMenuCorners ) -> NSImage {
+    private static func maskImage( _ roundedCorners: OBWFilteringMenuCorners ) -> NSImage {
         
         let roundedCornerRadius = OBWFilteringMenuBackground.roundedCornerRadius
         let squareCornerRadius = OBWFilteringMenuBackground.squareCornerRadius

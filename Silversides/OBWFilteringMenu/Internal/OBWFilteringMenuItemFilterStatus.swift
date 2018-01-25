@@ -17,7 +17,7 @@ extension NSRegularExpression: FilterArgument {}
 class OBWFilteringMenuItemFilterStatus {
     
     /*==========================================================================*/
-    fileprivate init( menuItem: OBWFilteringMenuItem ) {
+    private init( menuItem: OBWFilteringMenuItem ) {
         
         self.menuItem = menuItem
         
@@ -99,17 +99,17 @@ class OBWFilteringMenuItemFilterStatus {
     // MARK: - OBWFilteringMenuItemFilterStatus internal
     
     let menuItem: OBWFilteringMenuItem
-    fileprivate(set) var highlightedTitle: NSAttributedString
-    fileprivate(set) var matchScore = OBWFilteringMenuItemMatchCriteria.All.memberCount
-    fileprivate(set) var alternateStatus: [String:OBWFilteringMenuItemFilterStatus]? = nil
+    private(set) var highlightedTitle: NSAttributedString
+    private(set) var matchScore = OBWFilteringMenuItemMatchCriteria.All.memberCount
+    private(set) var alternateStatus: [String:OBWFilteringMenuItemFilterStatus]? = nil
     
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuItemFilterStatus private
     
-    fileprivate let searchableTitle: String
+    private let searchableTitle: String
     
     /*==========================================================================*/
-    fileprivate class func regexPatternFromString( _ filterString: String ) -> NSRegularExpression? {
+    private class func regexPatternFromString( _ filterString: String ) -> NSRegularExpression? {
         
         var pattern = filterString
         
@@ -128,7 +128,7 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    fileprivate func addAlternateStatus( _ status: OBWFilteringMenuItemFilterStatus, withKey key: String ) {
+    private func addAlternateStatus( _ status: OBWFilteringMenuItemFilterStatus, withKey key: String ) {
         
         if self.alternateStatus == nil {
             self.alternateStatus = [key:status]
@@ -139,14 +139,14 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    fileprivate static var highlightAttributes: [NSAttributedStringKey:Any] = [
+    private static var highlightAttributes: [NSAttributedStringKey:Any] = [
         .backgroundColor : NSColor( deviceRed: 1.0, green: 1.0, blue: 0.0, alpha: 0.5 ),
         .underlineStyle : 1 as AnyObject,
         .underlineColor : NSColor( deviceRed: 0.65, green: 0.50, blue: 0.0, alpha: 0.75 ),
     ]
     
     /*==========================================================================*/
-    fileprivate class func filter( _ status: OBWFilteringMenuItemFilterStatus, withString filterArgument: FilterArgument ) -> Int {
+    private class func filter( _ status: OBWFilteringMenuItemFilterStatus, withString filterArgument: FilterArgument ) -> Int {
         
         let worstScore = 0
         
@@ -198,7 +198,7 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    fileprivate class func filter( _ status: OBWFilteringMenuItemFilterStatus, withRegularExpression filterArgument: FilterArgument ) -> Int {
+    private class func filter( _ status: OBWFilteringMenuItemFilterStatus, withRegularExpression filterArgument: FilterArgument ) -> Int {
         
         let bestScore = OBWFilteringMenuItemMatchCriteria.All.memberCount
         let worstScore = 0
@@ -244,13 +244,13 @@ class OBWFilteringMenuItemFilterStatus {
     // MARK: -
     
     /*==========================================================================*/
-    fileprivate struct OBWFilteringMenuItemMatchCriteria: OptionSet {
+    private struct OBWFilteringMenuItemMatchCriteria: OptionSet {
         
         init( rawValue: UInt ) {
             self.rawValue = rawValue & 0x7
         }
         
-        fileprivate(set) var rawValue: UInt
+        private(set) var rawValue: UInt
         
         static let Basic            = OBWFilteringMenuItemMatchCriteria( rawValue: 1 << 0 )
         static let CaseSensitive    = OBWFilteringMenuItemMatchCriteria( rawValue: 1 << 1 )
