@@ -742,6 +742,50 @@
                                     <binding destination="XfG-lQ-9wD" name="value" keyPath="pathViewEnabled" id="TQ9-FQ-K5R"/>
                                 </connections>
                             </button>
+                            <colorWell translatesAutoresizingMaskIntoConstraints="NO" id="cr8-OQ-0Xj">
+                                <rect key="frame" x="159" y="73" width="44" height="23"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="44" id="RUo-jN-81S"/>
+                                    <constraint firstAttribute="height" constant="23" id="b0n-Qe-AkS"/>
+                                </constraints>
+                                <color key="color" red="0.05813049898" green="0.055541899059999997" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <connections>
+                                    <binding destination="XfG-lQ-9wD" name="enabled" keyPath="drawBackgroundColor" id="fJb-MX-8dK"/>
+                                    <binding destination="XfG-lQ-9wD" name="value" keyPath="backgroundColor" id="LtF-Xe-DYT"/>
+                                </connections>
+                            </colorWell>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="OLc-EM-PBT">
+                                <rect key="frame" x="18" y="76" width="135" height="18"/>
+                                <buttonCell key="cell" type="check" title="Background Color:" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Hdg-3x-Auk">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="XfG-lQ-9wD" name="value" keyPath="drawBackgroundColor" id="zOo-X1-NEw"/>
+                                </connections>
+                            </button>
+                            <colorWell translatesAutoresizingMaskIntoConstraints="NO" id="2zs-Fu-bJl">
+                                <rect key="frame" x="127" y="42" width="44" height="23"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="23" id="B3Q-7A-ieg"/>
+                                    <constraint firstAttribute="width" constant="44" id="VKM-gz-O73"/>
+                                </constraints>
+                                <color key="color" red="0.05813049898" green="0.055541899059999997" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <connections>
+                                    <binding destination="XfG-lQ-9wD" name="enabled" keyPath="drawBorder" id="i0T-Zh-cC1"/>
+                                    <binding destination="XfG-lQ-9wD" name="value" keyPath="borderColor" id="qLV-dB-Tr0"/>
+                                </connections>
+                            </colorWell>
+                            <button translatesAutoresizingMaskIntoConstraints="NO" id="m7B-2O-9vv">
+                                <rect key="frame" x="18" y="45" width="103" height="18"/>
+                                <buttonCell key="cell" type="check" title="Border Color:" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="9mh-Md-ekq">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <binding destination="XfG-lQ-9wD" name="value" keyPath="drawBorder" id="FVK-t3-74I"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="CqX-Zl-ZLj" secondAttribute="trailing" constant="20" symbolic="YES" id="2zk-g2-mLl"/>
@@ -756,17 +800,25 @@
                             <constraint firstItem="CqX-Zl-ZLj" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="20" symbolic="YES" id="OWD-eK-mx4"/>
                             <constraint firstItem="k1R-Ne-cgQ" firstAttribute="top" secondItem="mWq-Jg-xnx" secondAttribute="bottom" constant="8" symbolic="YES" id="P6O-AA-HQt"/>
                             <constraint firstItem="k1R-Ne-cgQ" firstAttribute="leading" secondItem="7Da-Yz-ogs" secondAttribute="leading" id="Pjs-je-aBp"/>
+                            <constraint firstItem="2zs-Fu-bJl" firstAttribute="leading" secondItem="m7B-2O-9vv" secondAttribute="trailing" constant="8" id="Tus-VV-tOp"/>
                             <constraint firstItem="L3u-8D-ZXo" firstAttribute="top" secondItem="7Da-Yz-ogs" secondAttribute="bottom" constant="6" symbolic="YES" id="Umk-mz-jg9"/>
+                            <constraint firstItem="m7B-2O-9vv" firstAttribute="leading" secondItem="boC-LE-shb" secondAttribute="leading" id="VK0-WJ-Vn8"/>
+                            <constraint firstItem="cr8-OQ-0Xj" firstAttribute="centerY" secondItem="OLc-EM-PBT" secondAttribute="centerY" id="Z8u-zq-Emr"/>
                             <constraint firstItem="CqX-Zl-ZLj" firstAttribute="leading" secondItem="mWq-Jg-xnx" secondAttribute="leading" id="ag2-Fo-hLm"/>
                             <constraint firstItem="FeE-rn-LYK" firstAttribute="centerY" secondItem="QA7-fv-S5T" secondAttribute="centerY" id="eeG-rK-6Fp"/>
+                            <constraint firstItem="cr8-OQ-0Xj" firstAttribute="top" secondItem="QA7-fv-S5T" secondAttribute="bottom" constant="8" id="euH-mt-l6w"/>
                             <constraint firstItem="CqX-Zl-ZLj" firstAttribute="trailing" secondItem="mWq-Jg-xnx" secondAttribute="trailing" id="fsW-TA-GXO"/>
                             <constraint firstItem="boC-LE-shb" firstAttribute="top" secondItem="L3u-8D-ZXo" secondAttribute="bottom" constant="6" symbolic="YES" id="g2B-DH-Ej1"/>
                             <constraint firstItem="7Da-Yz-ogs" firstAttribute="leading" secondItem="L3u-8D-ZXo" secondAttribute="leading" id="ga1-FW-Xmo"/>
+                            <constraint firstItem="2zs-Fu-bJl" firstAttribute="centerY" secondItem="m7B-2O-9vv" secondAttribute="centerY" id="i9j-IC-Ffr"/>
                             <constraint firstItem="boC-LE-shb" firstAttribute="leading" secondItem="FeE-rn-LYK" secondAttribute="leading" id="iBX-dt-FrE"/>
                             <constraint firstItem="QA7-fv-S5T" firstAttribute="leading" secondItem="FeE-rn-LYK" secondAttribute="trailing" constant="8" symbolic="YES" id="lum-AB-R6c"/>
+                            <constraint firstItem="OLc-EM-PBT" firstAttribute="leading" secondItem="boC-LE-shb" secondAttribute="leading" id="oKD-3V-hRf"/>
                             <constraint firstItem="CqX-Zl-ZLj" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="20" symbolic="YES" id="r10-U3-s5N"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="L3u-8D-ZXo" secondAttribute="trailing" constant="20" symbolic="YES" id="v1f-9O-8qD"/>
+                            <constraint firstItem="cr8-OQ-0Xj" firstAttribute="leading" secondItem="OLc-EM-PBT" secondAttribute="trailing" constant="8" id="vhG-If-LKi"/>
                             <constraint firstItem="7Da-Yz-ogs" firstAttribute="top" secondItem="k1R-Ne-cgQ" secondAttribute="bottom" constant="6" symbolic="YES" id="zSb-QK-LE7"/>
+                            <constraint firstItem="2zs-Fu-bJl" firstAttribute="top" secondItem="cr8-OQ-0Xj" secondAttribute="bottom" constant="8" id="zq1-ac-GoE"/>
                         </constraints>
                     </view>
                     <connections>
@@ -776,7 +828,7 @@
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
                 <userDefaultsController representsSharedInstance="YES" id="Y4i-pz-dXd"/>
             </objects>
-            <point key="canvasLocation" x="-22" y="655"/>
+            <point key="canvasLocation" x="-13" y="688"/>
         </scene>
     </scenes>
 </document>

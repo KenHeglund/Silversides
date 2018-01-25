@@ -134,6 +134,34 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         }
     }
     
+    @objc dynamic var drawBackgroundColor = true {
+        
+        didSet {
+            self.updatePathViewLayer()
+        }
+    }
+    
+    @objc dynamic var backgroundColor = NSColor.white {
+        
+        didSet {
+            self.updatePathViewLayer()
+        }
+    }
+    
+    @objc dynamic var drawBorder = true {
+        
+        didSet {
+            self.updatePathViewLayer()
+        }
+    }
+    
+    @objc dynamic var borderColor = NSColor.init(white: 0.55, alpha: 1.0) {
+        
+        didSet {
+            self.updatePathViewLayer()
+        }
+    }
+    
     /*==========================================================================*/
     override func viewDidLoad() {
         
@@ -146,6 +174,8 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         let homePath = NSHomeDirectory()
         let homeURL = URL( fileURLWithPath: homePath )
         self.configurePathViewToShowURL( homeURL )
+        
+        NSColorPanel.shared.showsAlpha = true
     }
     
     /*==========================================================================*/
@@ -565,8 +595,9 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     // MARK: - ViewController internal
     
     static let titlePrefix = "Title: "
+    
     /*==========================================================================*/
-    fileprivate func pathItemWithInfo( _ info: ItemInfo ) -> OBWPathItem {
+    private func pathItemWithInfo( _ info: ItemInfo ) -> OBWPathItem {
         
         let path = info.url.path
         let prefix = ( self.displayItemTitlePrefixes ? ViewController.titlePrefix : "" )
@@ -585,4 +616,31 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         return pathItem
     }
     
+    /*==========================================================================*/
+    private func updatePathViewLayer() {
+        
+        guard
+            let pathView = self.pathViewOutlet,
+            let layer = pathView.layer
+        else {
+            return
+            
+        }
+        
+        if self.drawBackgroundColor {
+            layer.backgroundColor = self.backgroundColor.cgColor
+        }
+        else {
+            layer.backgroundColor = nil
+        }
+        
+        if self.drawBorder {
+            layer.borderWidth = 1.0
+            layer.borderColor = self.borderColor.cgColor
+        }
+        else {
+            layer.borderColor = nil
+            layer.borderWidth = 0.0
+        }
+    }
 }
