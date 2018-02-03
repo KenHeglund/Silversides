@@ -272,10 +272,13 @@ class OBWPathItemView: NSView {
     /*==========================================================================*/
     func displayItemMenu( _ menuTrigger: OBWPathItemTrigger ) {
         
-        guard let pathView = self.superview as? OBWPathView else { return }
-        
-        guard let hitPathItem = self.pathItem else { return }
-        guard let delegate = pathView.delegate else { return }
+        guard
+            let pathView = self.superview as? OBWPathView,
+            let hitPathItem = self.pathItem,
+            let delegate = pathView.delegate
+        else {
+            return
+        }
         
         // OBWFilteringMenu
         if let filteringMenu = delegate.pathView( pathView, filteringMenuForItem: hitPathItem, trigger: menuTrigger ) {
