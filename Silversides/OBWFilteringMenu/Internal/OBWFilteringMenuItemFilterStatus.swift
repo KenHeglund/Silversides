@@ -139,12 +139,30 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    private static var highlightAttributes: [NSAttributedStringKey:Any] = [
-        .backgroundColor : NSColor( deviceRed: 1.0, green: 1.0, blue: 0.0, alpha: 0.5 ),
-        .underlineStyle : 1 as AnyObject,
-        .underlineColor : NSColor( deviceRed: 0.65, green: 0.50, blue: 0.0, alpha: 0.75 ),
-    ]
-    
+    private class func highlightAttributes() -> [NSAttributedStringKey:Any] {
+        
+        var backgroundColor = NSColor( red: 1.0, green: 1.0, blue: 0.0, alpha: 0.5 )
+        var underlineColor = NSColor( red: 0.65, green: 0.50, blue: 0.0, alpha: 0.75 )
+        
+        if #available(macOS 10.14, *) {
+            
+            let knownAppearances: [NSAppearance.Name] = [.aqua, .darkAqua]
+            
+            if NSApp.effectiveAppearance.bestMatch(from: knownAppearances) == .darkAqua {
+                backgroundColor = NSColor( red: 1.0, green: 1.0, blue: 0.0, alpha: 0.25 )
+                underlineColor = NSColor( red: 0.85, green: 0.70, blue: 0.0, alpha: 0.75 )
+            }
+        }
+        
+        let highlightAttributes: [NSAttributedStringKey:Any] = [
+            .backgroundColor : backgroundColor,
+            .underlineColor : underlineColor,
+            .underlineStyle : 1 as AnyObject,
+        ]
+        
+        return highlightAttributes
+    }
+
     /*==========================================================================*/
     private class func filter( _ status: OBWFilteringMenuItemFilterStatus, withString filterArgument: FilterArgument ) -> Int {
         
@@ -156,8 +174,8 @@ class OBWFilteringMenuItemFilterStatus {
         
         let searchableTitle = status.searchableTitle
         let workingHighlightedTitle = NSMutableAttributedString( attributedString: status.highlightedTitle )
-        let highlightAttributes = OBWFilteringMenuItemFilterStatus.highlightAttributes
-        
+        let highlightAttributes = OBWFilteringMenuItemFilterStatus.highlightAttributes()
+
         var searchRange = searchableTitle.startIndex ..< searchableTitle.endIndex
         var matchMask = OBWFilteringMenuItemMatchCriteria.All
         var lastMatchIndex: String.Index? = nil
@@ -209,7 +227,7 @@ class OBWFilteringMenuItemFilterStatus {
         
         let searchableTitle = status.searchableTitle
         let workingHighlightedTitle = NSMutableAttributedString( attributedString: status.highlightedTitle )
-        let highlightAttributes = OBWFilteringMenuItemFilterStatus.highlightAttributes
+        let highlightAttributes = OBWFilteringMenuItemFilterStatus.highlightAttributes()
         
         var matchScore = worstScore
         let matchingOptions = NSRegularExpression.MatchingOptions.reportCompletion

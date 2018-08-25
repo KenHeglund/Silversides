@@ -68,8 +68,8 @@ open class OBWPathView: NSView {
         self.wantsLayer = true
         
         if let layer = self.layer {
-            layer.backgroundColor = CGColor( gray: 1.0, alpha: 1.0 )
-            layer.borderColor = CGColor( gray: 0.55, alpha: 1.0 )
+            layer.backgroundColor = NSColor.textBackgroundColor.cgColor
+            layer.borderColor = NSColor.tertiaryLabelColor.cgColor
             layer.borderWidth = 1.0
         }
         

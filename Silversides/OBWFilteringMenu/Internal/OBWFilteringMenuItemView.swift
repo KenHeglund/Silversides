@@ -105,7 +105,7 @@ class OBWFilteringMenuSeparatorItemView: OBWFilteringMenuItemView {
             height: 1.0
         )
         
-        NSColor( deviceWhite: 0.6, alpha: 1.0 ).set()
+        NSColor.tertiaryLabelColor.set()
         drawRect.fill( )
     }
     

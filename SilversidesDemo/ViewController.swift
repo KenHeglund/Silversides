@@ -9,6 +9,10 @@ import OBWControls
 
 /*==========================================================================*/
 
+private var ViewController_KVOContext = "KVOContext"
+
+/*==========================================================================*/
+
 private class ItemInfo {
     
     enum ItemType {
@@ -35,6 +39,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     @IBOutlet var pathViewOutlet: OBWPathView! = nil
     
     private(set) var pathViewConfigured = false
+    private var kvoRegistered = false
     
     @objc dynamic var pathViewEnabled = true {
         
@@ -121,7 +126,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         }
     }
     
-    @objc dynamic var volumeColor = NSColor.red {
+    @objc dynamic var volumeColor = NSColor.systemRed {
         
         didSet {
             
@@ -141,7 +146,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         }
     }
     
-    @objc dynamic var backgroundColor = NSColor.white {
+    @objc dynamic var backgroundColor = NSColor.textBackgroundColor {
         
         didSet {
             self.updatePathViewLayer()
@@ -155,12 +160,58 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         }
     }
     
-    @objc dynamic var borderColor = NSColor.init(white: 0.55, alpha: 1.0) {
+    @objc dynamic var borderColor = NSColor.tertiaryLabelColor {
         
         didSet {
             self.updatePathViewLayer()
         }
     }
+    
+    /*==========================================================================*/
+    override init(nibName nibNameOrNil: NSNib.Name?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        self.commonInitialization()
+    }
+    
+    /*==========================================================================*/
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        self.commonInitialization()
+    }
+    
+    /*==========================================================================*/
+    private func commonInitialization() {
+        NSApp.addObserver(self, forKeyPath: #keyPath(NSApplication.effectiveAppearance), options: [], context: &ViewController_KVOContext)
+        self.kvoRegistered = true
+    }
+    
+    /*==========================================================================*/
+    deinit {
+        
+        if self.kvoRegistered {
+            NSApp.removeObserver(self, forKeyPath: #keyPath(NSApplication.effectiveAppearance), context: &ViewController_KVOContext)
+        }
+    }
+    
+    /*==========================================================================*/
+    // MARK: - NSKeyValueObserving overrides
+    
+    /*==========================================================================*/
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        
+        if context != &ViewController_KVOContext {
+            return super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
+        }
+        
+        if keyPath == #keyPath(NSApplication.effectiveAppearance) {
+            DispatchQueue.main.async {
+                self.updatePathViewLayer()
+            }
+        }
+    }
+    
+    /*==========================================================================*/
+    // MARK: - NSView overrides
     
     /*==========================================================================*/
     override func viewDidLoad() {
@@ -170,6 +221,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         // Do any additional setup after loading the view.
         
         self.pathViewOutlet.delegate = self
+        self.updatePathViewLayer()
         
         let homePath = NSHomeDirectory()
         let homeURL = URL( fileURLWithPath: homePath )
@@ -398,7 +450,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             image: nil,
             representedObject: ItemInfo( url: url, type: .tail ),
             style: [ .italic, .noTextShadow ],
-            textColor: NSColor( deviceWhite: 0.0, alpha: 0.5 ),
+            textColor: NSColor.disabledControlTextColor,
             accessible: !descendantURLs.isEmpty
         )
         
@@ -625,6 +677,12 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         else {
             return
             
+        }
+        
+        let previousAppearance = NSAppearance.current
+        NSAppearance.current = pathView.effectiveAppearance
+        defer {
+            NSAppearance.current = previousAppearance
         }
         
         if self.drawBackgroundColor {

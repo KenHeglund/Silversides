@@ -15,24 +15,27 @@ class OBWFilteringMenuArrows {
     /*==========================================================================*/
     static let upArrow: NSImage = {
         
-        let flatSideInset = OBWFilteringMenuArrows.longSideInset
-        
         let frame = NSRect(
             width: OBWFilteringMenuArrows.arrowLongSideLength,
             height: OBWFilteringMenuArrows.arrowShortSideLength
         )
         
-        let path = NSBezierPath()
-        path.move( to: NSPoint( x: frame.size.width, y: flatSideInset ) )
-        path.line( to: NSPoint( x: frame.size.width / 2.0, y: frame.size.height ) )
-        path.line( to: NSPoint( x: 0.0, y: flatSideInset ) )
-        path.close()
-        
-        let image = NSImage( size: frame.size )
-        image.withLockedFocus {
-            NSColor( deviceWhite: 0.25, alpha: 1.0 ).set()
+        let image = NSImage(size: frame.size, flipped: false, drawingHandler: {
+            _ in
+            
+            let flatSideInset = OBWFilteringMenuArrows.longSideInset
+            
+            let path = NSBezierPath()
+            path.move( to: NSPoint( x: frame.size.width, y: flatSideInset ) )
+            path.line( to: NSPoint( x: frame.size.width / 2.0, y: frame.size.height ) )
+            path.line( to: NSPoint( x: 0.0, y: flatSideInset ) )
+            path.close()
+            
+            NSColor.secondaryLabelColor.set()
             path.fill()
-        }
+            
+            return true
+        })
         
         return image
     }()
@@ -40,54 +43,63 @@ class OBWFilteringMenuArrows {
     /*==========================================================================*/
     static let downArrow: NSImage = {
         
-        let flatSideInset = OBWFilteringMenuArrows.longSideInset
-        
         let frame = NSRect(
             width: OBWFilteringMenuArrows.arrowLongSideLength,
             height: OBWFilteringMenuArrows.arrowShortSideLength
         )
         
-        let path = NSBezierPath()
-        path.move( to: NSPoint( x: 0.0, y: frame.size.height - flatSideInset ) )
-        path.line( to: NSPoint( x: frame.size.width / 2.0, y: 0.0 ) )
-        path.line( to: NSPoint( x: frame.size.width, y: frame.size.height - flatSideInset ) )
-        path.close()
-        
-        let image = NSImage( size: frame.size )
-        image.withLockedFocus {
-            NSColor( deviceWhite: 0.25, alpha: 1.0 ).set()
+        let image = NSImage(size: frame.size, flipped: false, drawingHandler: {
+            _ in
+            
+            let flatSideInset = OBWFilteringMenuArrows.longSideInset
+            
+            let path = NSBezierPath()
+            path.move( to: NSPoint( x: 0.0, y: frame.size.height - flatSideInset ) )
+            path.line( to: NSPoint( x: frame.size.width / 2.0, y: 0.0 ) )
+            path.line( to: NSPoint( x: frame.size.width, y: frame.size.height - flatSideInset ) )
+            path.close()
+            
+            NSColor.secondaryLabelColor.set()
             path.fill()
-        }
+            
+            return true
+        })
         
         return image
     }()
     
     /*==========================================================================*/
-    static let whiteRightArrow: NSImage = {
+    static let selectedRightArrow: NSImage = {
         
         let path = OBWFilteringMenuArrows.rightArrowPath
-        
         let imageSize = NSIntegralRect( path.bounds ).size
-        let image = NSImage( size: imageSize )
-        image.withLockedFocus {
-            NSColor( deviceWhite: 1.0, alpha: 1.0 ).set()
+        
+        let image = NSImage(size: imageSize, flipped: false, drawingHandler: {
+            _ in
+            
+            NSColor.selectedMenuItemTextColor.set()
             path.fill()
-        }
+            
+            return true
+        })
         
         return image
     }()
     
     /*==========================================================================*/
-    static let blackRightArrow: NSImage = {
+    static let unselectedRightArrow: NSImage = {
         
         let path = OBWFilteringMenuArrows.rightArrowPath
-        
         let imageSize = NSIntegralRect( path.bounds ).size
-        let image = NSImage( size: imageSize )
-        image.withLockedFocus {
-            NSColor( deviceWhite: 0.25, alpha: 1.0 ).set()
+        
+        let image = NSImage(size: imageSize, flipped: false, drawingHandler: {
+            _ in
+            
+            NSColor.labelColor.set()
             path.fill()
-        }
+            
+            return true
+        })
         
         return image
     }()

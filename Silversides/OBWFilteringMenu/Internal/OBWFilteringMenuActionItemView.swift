@@ -64,7 +64,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             itemTitleField.drawsBackground = false
         #endif
         itemTitleField.cell?.lineBreakMode = .byClipping
-        itemTitleField.textColor = NSColor.black
+        itemTitleField.textColor = NSColor.labelColor
         itemTitleField.alphaValue = ( menuItem.enabled ? 1.0 : 0.35 )
         itemTitleField.attributedStringValue = self.attributedStringValue
         
@@ -80,7 +80,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         self.addSubview( itemImageView )
         
         subviewArrowImageView.cell = OBWImageCell()
-        subviewArrowImageView.image = OBWFilteringMenuArrows.blackRightArrow
+        subviewArrowImageView.image = OBWFilteringMenuArrows.unselectedRightArrow
         subviewArrowImageView.imageFrameStyle = .none
         subviewArrowImageView.isEditable = false
         subviewArrowImageView.isHidden = ( menuItem.submenu == nil )
@@ -165,7 +165,12 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             
             NSGraphicsContext.current?.patternPhase = originInWindow
             
-            NSColor.selectedMenuItemColor.setFill()
+            if #available(macOS 10.14, *) {
+                NSColor.selectedContentBackgroundColor.setFill()
+            }
+            else {
+                NSColor.selectedMenuItemColor.setFill()
+            }
             self.bounds.fill( )
         }
     }
@@ -398,7 +403,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             
             let attributedString = NSMutableAttributedString( attributedString: filterStatus.highlightedTitle )
             let range = NSRange( location: 0, length: attributedString.length )
-            attributedString.addAttribute( NSAttributedStringKey.foregroundColor, value: NSColor.white, range: range )
+            attributedString.addAttribute( NSAttributedStringKey.foregroundColor, value: NSColor.selectedMenuItemTextColor, range: range )
             
             return attributedString
         }
@@ -480,10 +485,10 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let menuItem = self.menuItem
         
         if menuItem === oldItem {
-            self.subviewArrowImageView.image = OBWFilteringMenuArrows.blackRightArrow
+            self.subviewArrowImageView.image = OBWFilteringMenuArrows.unselectedRightArrow
         }
         else if menuItem === newItem {
-            self.subviewArrowImageView.image = OBWFilteringMenuArrows.whiteRightArrow
+            self.subviewArrowImageView.image = OBWFilteringMenuArrows.selectedRightArrow
         }
         else {
             return
