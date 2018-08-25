@@ -59,7 +59,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         itemTitleField.isBezeled = false
         #if DEBUG_MENU_TINTING
             itemTitleField.drawsBackground = true
-            itemTitleField.backgroundColor = NSColor( deviceRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.15 )
+            itemTitleField.backgroundColor = NSColor( red: 1.0, green: 0.0, blue: 0.0, alpha: 0.15 )
         #else
             itemTitleField.drawsBackground = false
         #endif
@@ -152,7 +152,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     override func draw( _ dirtyRect: NSRect ) {
         
         #if DEBUG_MENU_TINTING
-            NSColor( deviceRed: 0.0, green: 1.0, blue: 0.0, alpha: 0.1 ).set()
+            NSColor( red: 0.0, green: 1.0, blue: 0.0, alpha: 0.1 ).set()
             NSRectFill( self.bounds )
         #endif
         

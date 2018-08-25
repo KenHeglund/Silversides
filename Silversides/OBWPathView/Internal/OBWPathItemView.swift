@@ -13,7 +13,7 @@ extension NSColor {
     
     func colorByScaling( hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat ) -> NSColor {
         
-        guard let originalColor = self.usingColorSpaceName( NSColorSpaceName.deviceRGB ) else { return self }
+        guard let originalColor = self.usingColorSpaceName( NSColorSpaceName.calibratedRGB ) else { return self }
         
         let pinColor = { ( value: CGFloat ) -> CGFloat in
             if value < 0.0 { return 0.0 }
@@ -26,7 +26,7 @@ extension NSColor {
         let adjustedBrightness = pinColor( originalColor.brightnessComponent * brightness )
         let adjustedAlpha = pinColor( originalColor.alphaComponent * alpha )
         
-        let adjustedColor = NSColor( deviceHue: adjustedHue, saturation: adjustedSaturation, brightness: adjustedBrightness, alpha: adjustedAlpha )
+        let adjustedColor = NSColor( hue: adjustedHue, saturation: adjustedSaturation, brightness: adjustedBrightness, alpha: adjustedAlpha )
         
         return ( adjustedColor.usingColorSpaceName( self.colorSpaceName ) ?? self )
     }
@@ -439,7 +439,7 @@ class OBWPathItemView: NSView {
         let attributes: [NSAttributedStringKey:Any] = [
             .paragraphStyle : NSParagraphStyle.default,
             .font : NSFont.controlContentFont( ofSize: OBWPathItemView.titleFontSize + 6.0 ),
-            .foregroundColor : NSColor( deviceWhite: 0.55, alpha: 1.0 ),
+            .foregroundColor : NSColor( white: 0.55, alpha: 1.0 ),
         ]
         
         let string = "⟩" as NSString // \xE2\x9F\xA9

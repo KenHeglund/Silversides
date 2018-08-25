@@ -37,7 +37,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         let itemParentView: NSView
         #if DEBUG_MENU_TINTING
             let colorParentView = OBWColorView( frame: NSZeroRect )
-            colorParentView.color = NSColor( deviceRed: 0.0, green: 0.0, blue: 0.0, alpha: 0.1 )
+            colorParentView.color = NSColor( red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1 )
             itemParentView = colorParentView
         #else
             itemParentView = NSView( frame: NSZeroRect )

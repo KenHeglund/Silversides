@@ -289,7 +289,7 @@ private class OBWFilteringMenuCursorTrackingDebugView: NSView {
             y: ( cursorTracking.bottomSlope * cursorTracking.maximumDrawX ) + cursorTracking.bottomOffset
         )
         
-        NSColor( deviceRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.15 ).set()
+        NSColor.systemRed.withAlphaComponent(0.15).set()
         
         let path = NSBezierPath()
         path.move( to: topRight )
@@ -299,7 +299,7 @@ private class OBWFilteringMenuCursorTrackingDebugView: NSView {
         path.close()
         path.fill()
         
-        NSColor( deviceRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.5 ).set()
+        NSColor.systemRed.withAlphaComponent(0.5).set()
         path.stroke()
     }
     
