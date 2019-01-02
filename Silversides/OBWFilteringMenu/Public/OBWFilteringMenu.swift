@@ -28,7 +28,7 @@ public protocol OBWFilteringMenuDelegate {
 /*==========================================================================*/
 // MARK: -
 
-open class OBWFilteringMenu {
+public class OBWFilteringMenu {
     
     // MARK: - OBWFilteringMenu public
     
@@ -42,17 +42,17 @@ open class OBWFilteringMenu {
     
     // MARK: -
     
-    open var title: String
-    open var font: NSFont? = nil
-    open var representedObject: AnyObject? = nil
+    public var title: String
+    public var font: NSFont? = nil
+    public var representedObject: AnyObject? = nil
     
-    open var actionHandler: ( ( OBWFilteringMenuItem ) -> Void )? = nil
-    open var delegate: OBWFilteringMenuDelegate? = nil
+    public var actionHandler: ( ( OBWFilteringMenuItem ) -> Void )? = nil
+    public var delegate: OBWFilteringMenuDelegate? = nil
     
-    open private(set) var itemArray: [OBWFilteringMenuItem] = []
-    open var numberOfItems: Int { return self.itemArray.count }
+    public private(set) var itemArray: [OBWFilteringMenuItem] = []
+    public var numberOfItems: Int { return self.itemArray.count }
     
-    open internal(set) var highlightedItem: OBWFilteringMenuItem? = nil {
+    public internal(set) var highlightedItem: OBWFilteringMenuItem? = nil {
         
         didSet ( oldValue ) {
             
@@ -74,7 +74,7 @@ open class OBWFilteringMenu {
     var description: String { return "OBWFilteringMenu: " + self.title }
     
     /*==========================================================================*/
-    open func popUpMenuPositioningItem( _ item: OBWFilteringMenuItem?, atLocation locationInView: NSPoint, inView view: NSView?, withEvent event: NSEvent?, highlightMenuItem: Bool? ) -> Bool {
+    public func popUpMenuPositioningItem( _ item: OBWFilteringMenuItem?, atLocation locationInView: NSPoint, inView view: NSView?, withEvent event: NSEvent?, highlightMenuItem: Bool? ) -> Bool {
         
         // A menu delegate is allowed to populate menu items at this point
         self.willBeginTracking()
@@ -92,13 +92,13 @@ open class OBWFilteringMenu {
     }
     
     /*==========================================================================*/
-    open func addItem( _ item: OBWFilteringMenuItem ) {
+    public func addItem( _ item: OBWFilteringMenuItem ) {
         item.menu = self
         self.itemArray.append( item )
     }
     
     /*==========================================================================*/
-    open func addItems( _ items: [OBWFilteringMenuItem] ) {
+    public func addItems( _ items: [OBWFilteringMenuItem] ) {
         
         for item in items {
             self.addItem( item )
@@ -106,7 +106,7 @@ open class OBWFilteringMenu {
     }
     
     /*==========================================================================*/
-    open func removeAllItems() {
+    public func removeAllItems() {
         
         self.highlightedItem = nil
         
@@ -118,7 +118,7 @@ open class OBWFilteringMenu {
     }
     
     /*==========================================================================*/
-    open func itemWithTitle( _ title: String ) -> OBWFilteringMenuItem? {
+    public func itemWithTitle( _ title: String ) -> OBWFilteringMenuItem? {
         
         if let index = self.itemArray.index( where: { $0.title == title } ) {
             return self.itemArray[index]

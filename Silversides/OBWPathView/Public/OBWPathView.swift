@@ -42,7 +42,7 @@ private enum OBWPathViewCompression: Int {
 /*==========================================================================*/
 // MARK: -
 
-open class OBWPathView: NSView {
+public class OBWPathView: NSView {
     
     /*==========================================================================*/
     public override init( frame frameRect: NSRect ) {
@@ -90,12 +90,12 @@ open class OBWPathView: NSView {
     // MARK: - NSResponder overrides
     
     /*==========================================================================*/
-    override open func mouseEntered( with theEvent: NSEvent ) {
+    override public func mouseEntered( with theEvent: NSEvent ) {
         self.mouseMoved( with: theEvent )
     }
     
     /*==========================================================================*/
-    override open func mouseExited( with theEvent: NSEvent ) {
+    override public func mouseExited( with theEvent: NSEvent ) {
         
         guard self.pathItemUpdateDepth == 0 else { return }
         
@@ -116,7 +116,7 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    override open func mouseMoved( with theEvent: NSEvent ) {
+    override public func mouseMoved( with theEvent: NSEvent ) {
         
         guard self.pathItemUpdateDepth == 0 else { return }
         
@@ -132,14 +132,14 @@ open class OBWPathView: NSView {
     // MARK: - NSView overrides
     
     /*==========================================================================*/
-    override open func resize( withOldSuperviewSize oldSize: NSSize ) {
+    override public func resize( withOldSuperviewSize oldSize: NSSize ) {
         super.resize( withOldSuperviewSize: oldSize )
         self.updateCurrentItemViewWidths()
         self.adjustItemViewFrames( animate: false )
     }
     
     /*==========================================================================*/
-    override open func viewDidMoveToWindow() {
+    override public func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
         self.active = self.window?.isMainWindow ?? false
     }
@@ -148,17 +148,17 @@ open class OBWPathView: NSView {
     // MARK: - NSAccessibility implementation
     
     /*==========================================================================*/
-    override open func isAccessibilityElement() -> Bool {
+    override public func isAccessibilityElement() -> Bool {
         return true
     }
     
     /*==========================================================================*/
-    override open func accessibilityRole() -> NSAccessibility.Role? {
+    override public func accessibilityRole() -> NSAccessibility.Role? {
         return NSAccessibility.Role.list
     }
     
     /*==========================================================================*/
-    override open func accessibilityRoleDescription() -> String? {
+    override public func accessibilityRoleDescription() -> String? {
         
         let descriptionFormat = NSLocalizedString( "path element %@", comment: "PathView accessibility role description format" )
         guard let standardDescription = NSAccessibility.Role.list.description(with: nil ) else { return nil }
@@ -166,37 +166,37 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    override open func accessibilityValueDescription() -> String? {
+    override public func accessibilityValueDescription() -> String? {
         return self.delegate?.pathViewAccessibilityDescription( self ) ?? "Empty Path"
     }
     
     /*==========================================================================*/
-    override open func accessibilityChildren() -> [Any]? {
+    override public func accessibilityChildren() -> [Any]? {
         return NSAccessibility.unignoredChildren( from: self.itemViews )
     }
     
     /*==========================================================================*/
-    override open func isAccessibilityEnabled() -> Bool {
+    override public func isAccessibilityEnabled() -> Bool {
         return self.enabled
     }
     
     /*==========================================================================*/
-    override open func accessibilityOrientation() -> NSAccessibilityOrientation {
+    override public func accessibilityOrientation() -> NSAccessibilityOrientation {
         return .horizontal
     }
     
     /*==========================================================================*/
-    override open func accessibilityHelp() -> String? {
+    override public func accessibilityHelp() -> String? {
         return self.delegate?.pathViewAccessibilityHelp( self )
     }
     
     /*==========================================================================*/
     // MARK: - OBWPathView public
     
-    open weak var delegate: OBWPathViewDelegate? = nil
+    public weak var delegate: OBWPathViewDelegate? = nil
     
     /*==========================================================================*/
-    @objc open dynamic var enabled = true {
+    @objc public dynamic var enabled = true {
         
         didSet {
             
@@ -207,12 +207,12 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    open var numberOfItems: Int {
+    public var numberOfItems: Int {
         return self.itemViews.count
     }
     
     /*==========================================================================*/
-    open func setItems( _ pathItems: [OBWPathItem] ) {
+    public func setItems( _ pathItems: [OBWPathItem] ) {
         
         self.pathItemUpdate { 
             
@@ -225,7 +225,7 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    open func item( atIndex index: Int ) throws -> OBWPathItem {
+    public func item( atIndex index: Int ) throws -> OBWPathItem {
         
         let endIndex = self.itemViews.endIndex
         
@@ -237,7 +237,7 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    open func setItem( _ item: OBWPathItem, atIndex index: Int ) throws {
+    public func setItem( _ item: OBWPathItem, atIndex index: Int ) throws {
         
         let endIndex = self.itemViews.endIndex
         
@@ -283,7 +283,7 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    open func removeItemsFromIndex( _ index: Int ) throws {
+    public func removeItemsFromIndex( _ index: Int ) throws {
         
         let endIndex = self.itemViews.endIndex
         
@@ -302,12 +302,12 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    open func beginPathItemUpdate() {
+    public func beginPathItemUpdate() {
         self.pathItemUpdateDepth += 1
     }
     
     /*==========================================================================*/
-    open func endPathItemUpdate() throws {
+    public func endPathItemUpdate() throws {
         
         if self.pathItemUpdateDepth <= 0 {
             throw OBWPathViewError.imbalancedEndPathItemUpdate
@@ -324,7 +324,7 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    open func pathItemUpdate( withHandler handler: () -> Void ) {
+    public func pathItemUpdate( withHandler handler: () -> Void ) {
         self.beginPathItemUpdate()
         handler()
         try! self.endPathItemUpdate()

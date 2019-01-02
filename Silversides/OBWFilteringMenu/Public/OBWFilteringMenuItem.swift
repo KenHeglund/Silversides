@@ -8,7 +8,7 @@ import Cocoa
 
 /*==========================================================================*/
 
-open class OBWFilteringMenuItem {
+public class OBWFilteringMenuItem {
     
     // MARK: - OBWFilteringMenuItem public
     
@@ -18,17 +18,17 @@ open class OBWFilteringMenuItem {
     
     // MARK: -
     
-    open var title: String? = nil
-    @NSCopying open var attributedTitle: NSAttributedString? = nil
-    open var image: NSImage? = nil
-    open var submenu: OBWFilteringMenu? = nil
-    open var keyEquivalentModifierMask: NSEvent.ModifierFlags = []
+    public var title: String? = nil
+    @NSCopying public var attributedTitle: NSAttributedString? = nil
+    public var image: NSImage? = nil
+    public var submenu: OBWFilteringMenu? = nil
+    public var keyEquivalentModifierMask: NSEvent.ModifierFlags = []
     
-    open var enabled = true
-    open var representedObject: AnyObject? = nil
-    open var actionHandler: ( ( OBWFilteringMenuItem ) -> Void )? = nil
+    public var enabled = true
+    public var representedObject: AnyObject? = nil
+    public var actionHandler: ( ( OBWFilteringMenuItem ) -> Void )? = nil
     
-    open var titleOffset: NSSize {
+    public var titleOffset: NSSize {
         
         if OBWFilteringMenuItem.separatorItem === self {
             return NSZeroSize
@@ -37,10 +37,10 @@ open class OBWFilteringMenuItem {
         return OBWFilteringMenuActionItemView.titleOffsetForMenuItem( self )
     }
     
-    open var isSeparatorItem: Bool { return OBWFilteringMenuItem.separatorItem === self }
-    open var isHighlighted: Bool { return self.menu?.highlightedItem === self }
+    public var isSeparatorItem: Bool { return OBWFilteringMenuItem.separatorItem === self }
+    public var isHighlighted: Bool { return self.menu?.highlightedItem === self }
     
-    open var description: String {
+    public var description: String {
         return "OBWFilteringMenuItem " + ( self.title ?? "" )
     }
     
@@ -53,7 +53,7 @@ open class OBWFilteringMenuItem {
     }()
     
     /*==========================================================================*/
-    open func addAlternateItem( _ menuItem: OBWFilteringMenuItem ) throws {
+    public func addAlternateItem( _ menuItem: OBWFilteringMenuItem ) throws {
         
         guard !self.isAlternate else {
             throw OBWFilteringMenuError.invalidAlternateItem( message: "Alternate item cannot be added to an item that is itself an alternate" )
@@ -83,7 +83,7 @@ open class OBWFilteringMenuItem {
     }
     
     /*==========================================================================*/
-    open func visibleItemForModifierFlags( _ modifierFlags: NSEvent.ModifierFlags ) -> OBWFilteringMenuItem? {
+    public func visibleItemForModifierFlags( _ modifierFlags: NSEvent.ModifierFlags ) -> OBWFilteringMenuItem? {
         
         if modifierFlags == self.keyEquivalentModifierMask {
             return self
@@ -102,7 +102,7 @@ open class OBWFilteringMenuItem {
     }
     
     /*==========================================================================*/
-    open func performAction() {
+    public func performAction() {
         
         if let itemHandler = self.actionHandler {
             itemHandler( self )
