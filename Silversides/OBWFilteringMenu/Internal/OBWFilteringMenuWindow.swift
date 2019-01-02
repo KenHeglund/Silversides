@@ -162,6 +162,7 @@ class OBWFilteringMenuWindow: NSWindow {
     }
     
     /*==========================================================================*/
+    @discardableResult
     func displayMenuLocation( _ menuLocation: NSPoint, atScreenLocation screenLocation: NSPoint, allowWindowToGrowUpward: Bool, resetScrollTracking: Bool = true ) -> Bool {
         
         let geometry = OBWFilteringMenuWindowGeometry( window: self )
