@@ -169,25 +169,29 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
         let stringFilterStatus = OBWFilteringMenuItemFilterStatus.filterStatus( parentMenuItem, filterString: "tt" )
         XCTAssertEqual( stringFilterStatus.matchScore, 2 )
         
-        let stringFilterAlternates = stringFilterStatus.alternateStatus!
-        XCTAssertNotNil( stringFilterAlternates )
+        guard let stringFilterAlternates = stringFilterStatus.alternateStatus else {
+            XCTFail()
+            return
+        }
         
         let shiftKey = OBWFilteringMenuItem.dictionaryKeyWithModifierMask( .shift )
         let optionKey = OBWFilteringMenuItem.dictionaryKeyWithModifierMask( .option )
         let commandKey = OBWFilteringMenuItem.dictionaryKeyWithModifierMask( .command )
         
-        XCTAssertEqual( stringFilterAlternates[shiftKey]!.matchScore, 2 )
-        XCTAssertEqual( stringFilterAlternates[optionKey]!.matchScore, 2 )
-        XCTAssertEqual( stringFilterAlternates[commandKey]!.matchScore, 0 )
+        XCTAssertEqual( stringFilterAlternates[shiftKey]?.matchScore, 2 )
+        XCTAssertEqual( stringFilterAlternates[optionKey]?.matchScore, 2 )
+        XCTAssertEqual( stringFilterAlternates[commandKey]?.matchScore, 0 )
         
         let regexFilterStatus = OBWFilteringMenuItemFilterStatus.filterStatus( parentMenuItem, filterString: "g/m{2}/" )
         XCTAssertEqual( regexFilterStatus.matchScore, 0 )
         
-        let regexFilterAlternates = regexFilterStatus.alternateStatus!
-        XCTAssertNotNil( regexFilterAlternates )
+        guard let regexFilterAlternates = regexFilterStatus.alternateStatus else {
+            XCTFail()
+            return
+        }
         
-        XCTAssertEqual( regexFilterAlternates[shiftKey]!.matchScore, 0 )
-        XCTAssertEqual( regexFilterAlternates[optionKey]!.matchScore, 0 )
-        XCTAssertEqual( regexFilterAlternates[commandKey]!.matchScore, 3 )
+        XCTAssertEqual( regexFilterAlternates[shiftKey]?.matchScore, 0 )
+        XCTAssertEqual( regexFilterAlternates[optionKey]?.matchScore, 0 )
+        XCTAssertEqual( regexFilterAlternates[commandKey]?.matchScore, 3 )
     }
 }

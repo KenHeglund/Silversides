@@ -79,18 +79,25 @@ class SilversidesTests: XCTestCase {
             drawnFrame.fill()
         }
         
-        let trimmedImage: NSImage! = sourceImage.imageByTrimmingTransparentEdges()
-        XCTAssertNotNil( trimmedImage )
+        guard let trimmedImage = sourceImage.imageByTrimmingTransparentEdges() else {
+            XCTFail()
+            return
+        }
         XCTAssertEqual( drawnFrame.size, trimmedImage.size )
     }
     
     /*==========================================================================*/
     func testThatImbalancedEndItemUpdateThrowsError() {
         
-        let window = NSApp.windows.first!
-        let windowController = window.windowController!
-        let viewController = windowController.contentViewController as! ViewController
-        let pathView = viewController.pathViewOutlet!
+        guard
+            let window = NSApp.windows.first,
+            let windowController = window.windowController,
+            let viewController = windowController.contentViewController as? ViewController,
+            let pathView = viewController.pathViewOutlet
+        else {
+            XCTFail()
+            return
+        }
         
         XCTAssertThrowsError( try pathView.endPathItemUpdate() )
         
@@ -103,10 +110,15 @@ class SilversidesTests: XCTestCase {
     /*==========================================================================*/
     func testThatPathViewItemCounts() {
         
-        let window = NSApp.windows.first!
-        let windowController = window.windowController!
-        let viewController = windowController.contentViewController as! ViewController
-        let pathView = viewController.pathViewOutlet!
+        guard
+            let window = NSApp.windows.first,
+            let windowController = window.windowController,
+            let viewController = windowController.contentViewController as? ViewController,
+            let pathView = viewController.pathViewOutlet
+        else {
+            XCTFail()
+            return
+        }
         
         pathView.setItems( [] )
         XCTAssertEqual( pathView.numberOfItems, 0 )
@@ -124,16 +136,21 @@ class SilversidesTests: XCTestCase {
         XCTAssertEqual( pathView.numberOfItems, 1 )
         
         let item = try! pathView.item( atIndex: 0 )
-        XCTAssertEqual( item.title, items.first!.title )
+        XCTAssertEqual( item.title, items[0].title )
     }
     
     /*==========================================================================*/
     func testThatRemoveItemsFromIndexThrowsProperly() {
         
-        let window = NSApp.windows.first!
-        let windowController = window.windowController!
-        let viewController = windowController.contentViewController as! ViewController
-        let pathView = viewController.pathViewOutlet!
+        guard
+            let window = NSApp.windows.first,
+            let windowController = window.windowController,
+            let viewController = windowController.contentViewController as? ViewController,
+            let pathView = viewController.pathViewOutlet
+        else {
+            XCTFail()
+            return
+        }
         
         let items: [OBWPathItem] = [
             OBWPathItem( title: "first", image: nil, representedObject: nil, style: .default, textColor: nil ),
@@ -156,10 +173,15 @@ class SilversidesTests: XCTestCase {
     /*==========================================================================*/
     func testThatItemsAreReplacedProperly() {
         
-        let window = NSApp.windows.first!
-        let windowController = window.windowController!
-        let viewController = windowController.contentViewController as! ViewController
-        let pathView = viewController.pathViewOutlet!
+        guard
+            let window = NSApp.windows.first,
+            let windowController = window.windowController,
+            let viewController = windowController.contentViewController as? ViewController,
+            let pathView = viewController.pathViewOutlet
+        else {
+            XCTFail()
+            return
+        }
         
         let items: [OBWPathItem] = [
             OBWPathItem( title: "first", image: nil, representedObject: nil, style: .default, textColor: nil ),
@@ -179,9 +201,14 @@ class SilversidesTests: XCTestCase {
     /*==========================================================================*/
     func testVisualChangesSlowly() {
         
-        let window = NSApp.windows.first!
-        let windowController = window.windowController!
-        let viewController = windowController.contentViewController as! ViewController
+        guard
+            let window = NSApp.windows.first,
+            let windowController = window.windowController,
+            let viewController = windowController.contentViewController as? ViewController
+        else {
+            XCTFail()
+            return
+        }
         
         let URL1 = URL( fileURLWithPath: "/Applications/Utilities/", isDirectory: true )
         viewController.configurePathViewToShowURL( URL1 )

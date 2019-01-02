@@ -60,7 +60,7 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
             locationInScreen.x += distancePerEvent
             timestamp += intervalPerEvent
             
-            let event = NSEvent.mouseEvent(
+            guard let event = NSEvent.mouseEvent(
                 with: .mouseMoved,
                 location: locationInScreen,
                 modifierFlags: [],
@@ -70,7 +70,11 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
                 eventNumber: 0,
                 clickCount: 0,
                 pressure: 0
-            )!
+            )
+            else {
+                XCTFail()
+                return
+            }
             
             if cursorTracking.isCursorProgressingTowardSubmenu( event ) == false {
                 result = false
@@ -117,7 +121,7 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
             locationInScreen.x += distancePerEvent
             timestamp += intervalPerEvent
             
-            let event = NSEvent.mouseEvent(
+            guard let event = NSEvent.mouseEvent(
                 with: .mouseMoved,
                 location: locationInScreen,
                 modifierFlags: [],
@@ -127,7 +131,11 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
                 eventNumber: 0,
                 clickCount: 0,
                 pressure: 0
-                )!
+                )
+            else {
+                XCTFail()
+                return
+            }
             
             if cursorTracking.isCursorProgressingTowardSubmenu( event ) == false {
                 result = false
@@ -177,7 +185,7 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
             
             timestamp += intervalPerEvent
             
-            let event = NSEvent.mouseEvent(
+            guard let event = NSEvent.mouseEvent(
                 with: .mouseMoved,
                 location: locationInScreen,
                 modifierFlags: [],
@@ -187,7 +195,11 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
                 eventNumber: 0,
                 clickCount: 0,
                 pressure: 0
-                )!
+                )
+            else {
+                XCTFail()
+                return
+            }
             
             if cursorTracking.isCursorProgressingTowardSubmenu( event ) == false {
                 result = false

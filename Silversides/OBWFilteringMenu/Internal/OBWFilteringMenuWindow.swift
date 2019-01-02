@@ -135,15 +135,25 @@ class OBWFilteringMenuWindow: NSWindow {
     var roundedCorners: OBWFilteringMenuCorners {
         
         get {
-            let backgroundView = self.contentView as! OBWFilteringMenuBackground
+            guard let backgroundView = self.contentView as? OBWFilteringMenuBackground else {
+                assertionFailure()
+                return []
+            }
+            
             return backgroundView.roundedCorners
         }
         
         set (newValue) {
-            let backgroundView = self.contentView as! OBWFilteringMenuBackground
+            
+            guard let backgroundView = self.contentView as? OBWFilteringMenuBackground else {
+                assertionFailure()
+                return
+            }
+            
             if backgroundView.roundedCorners == newValue {
                 return
             }
+            
             backgroundView.roundedCorners = newValue
             self.invalidateShadow()
             self.displayIfNeeded()

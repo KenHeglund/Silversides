@@ -544,7 +544,11 @@ class OBWPathItemView: NSView {
             return
         }
         
-        let paragraphStyle = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
+        guard let paragraphStyle = NSParagraphStyle.default.mutableCopy() as? NSMutableParagraphStyle else {
+            assertionFailure()
+            return
+        }
+        
         paragraphStyle.lineBreakMode = .byTruncatingTail
         
         let displayFont = OBWPathItemView.titleFontForPathItemStyle(pathItem.style)
@@ -595,7 +599,14 @@ class OBWPathItemView: NSView {
         let dividerView = self.dividerView
         
         if dividerView.isHidden == false {
-            let dividerImageSize = dividerView.image!.size
+            
+            guard let dividerImage = dividerView.image else {
+                assertionFailure()
+                return false
+            }
+            
+            let dividerImageSize = dividerImage.size
+            
             titleMargins.right = OBWPathItemView.dividerMargins.right + dividerImageSize.width + min(OBWPathItemView.dividerMargins.left, OBWPathItemView.titleMargins.right)
         }
         

@@ -87,7 +87,11 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
                 
                 var pathItem = try! self.pathViewOutlet.item(atIndex: index)
                 
-                let itemInfo = pathItem.representedObject as! ItemInfo
+                guard let itemInfo = pathItem.representedObject as? ItemInfo else {
+                    assertionFailure()
+                    return
+                }
+                
                 if itemInfo.type == .tail {
                     continue
                 }
@@ -123,7 +127,11 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
                 }
                 else {
                     
-                    let range = pathItem.title.range(of: ViewController.titlePrefix)!
+                    guard let range = pathItem.title.range(of: ViewController.titlePrefix) else {
+                        assertionFailure()
+                        return
+                    }
+                    
                     pathItem.title = pathItem.title.replacingCharacters(in: range, with: "")
                 }
                 
@@ -357,7 +365,11 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     func pathView(_ pathView: OBWPathView, filteringMenuForItem pathItem: OBWPathItem, trigger: OBWPathItemTrigger) -> OBWFilteringMenu? {
         
         #if !USE_NSMENU
-            let itemInfo = pathItem.representedObject as! ItemInfo
+            guard let itemInfo = pathItem.representedObject as? ItemInfo else {
+                assertionFailure()
+                return nil
+            }
+        
             let itemURL: URL?
             
             switch itemInfo.type {
@@ -386,12 +398,16 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     func pathView(_ pathView: OBWPathView, menuForItem pathItem: OBWPathItem, trigger: OBWPathItemTrigger) -> NSMenu? {
         
         #if USE_NSMENU
-            let itemInfo = pathItem.representedObject as! ItemInfo
+            guard let itemInfo = pathItem.representedObject as? ItemInfo else {
+                assertionFailure()
+                return nil
+            }
+        
             let itemURL: NSURL?
             
             switch itemInfo.type {
             case .File:
-                itemURL = itemInfo.url.URLByDeletingLastPathComponent!
+                itemURL = itemInfo.url.URLByDeletingLastPathComponent
             case .Tail:
                 itemURL = itemInfo.url
             case .Volume:
@@ -614,7 +630,11 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     /*==========================================================================*/
     func updateMenuItem(menuItem: NSMenuItem, withURL url: NSURL) -> Bool {
         
-        let path = url.path!
+        guard let path = url.path else {
+            assertionFailure()
+            return false
+        }
+        
         let displayName = NSFileManager.defaultManager().displayNameAtPath(path)
         guard displayName.isEmpty == false else {
             return false

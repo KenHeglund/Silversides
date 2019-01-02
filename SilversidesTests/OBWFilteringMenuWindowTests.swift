@@ -29,7 +29,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
         let menu = OBWFilteringMenu()
@@ -54,7 +54,22 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         // Larger menu width, window gets wider
         // Larger menu height, window gets taller
         
-        let commandEvent = NSEvent.keyEvent( with: .flagsChanged, location: NSZeroPoint, modifierFlags: [ .command ], timestamp: ProcessInfo().systemUptime, windowNumber: 0, context: nil, characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: 0 )!
+        guard let commandEvent = NSEvent.keyEvent(
+            with: .flagsChanged,
+            location: NSZeroPoint,
+            modifierFlags: [ .command ],
+            timestamp: ProcessInfo().systemUptime,
+            windowNumber: 0,
+            context: nil,
+            characters: "",
+            charactersIgnoringModifiers: "",
+            isARepeat: false,
+            keyCode: 0 )
+        else {
+            XCTFail()
+            return
+        }
+        
         menuView.handleFlagsChangedEvent( commandEvent )
         
         _ = geometry.updateGeometryWithResizedMenu()
@@ -68,7 +83,22 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         // Smaller menu width, window with remains unchanged
         // Smaller menu height, window height returns to inital height
         
-        let shiftEvent = NSEvent.keyEvent( with: .flagsChanged, location: NSZeroPoint, modifierFlags: [ .shift ], timestamp: ProcessInfo().systemUptime, windowNumber: 0, context: nil, characters: "", charactersIgnoringModifiers: "", isARepeat: false, keyCode: 0 )!
+        guard let shiftEvent = NSEvent.keyEvent(
+            with: .flagsChanged,
+            location: NSZeroPoint,
+            modifierFlags: [ .shift ],
+            timestamp: ProcessInfo().systemUptime,
+            windowNumber: 0,
+            context: nil,
+            characters: "",
+            charactersIgnoringModifiers: "",
+            isARepeat: false,
+            keyCode: 0 )
+        else {
+            XCTFail()
+            return
+        }
+        
         menuView.handleFlagsChangedEvent( shiftEvent )
         
         _ = geometry.updateGeometryWithResizedMenu()
@@ -85,7 +115,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
         let menu = OBWFilteringMenu()
@@ -135,7 +165,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
     /*==========================================================================*/
     func testMinimumWindowSize() {
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let menu = OBWFilteringMenu( title: "menu" )
         
         let window = OBWFilteringMenuWindow( menu: menu, screen: screen )

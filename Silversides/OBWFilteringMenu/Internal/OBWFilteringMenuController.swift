@@ -986,8 +986,14 @@ class OBWFilteringMenuController {
     /*==========================================================================*/
     @objc private func scrollTrackingBoundsChanged(_ notification: Notification) {
         
-        let scrollTracking = notification.object as! OBWFilteringMenuScrollTracking
-        let boundsValue = notification.userInfo?[OBWFilteringMenuScrollTrackingBoundsValueKey] as! NSValue
+        guard
+            let scrollTracking = notification.object as? OBWFilteringMenuScrollTracking,
+            let boundsValue = notification.userInfo?[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
+        else {
+            assertionFailure()
+            return
+        }
+        
         let menuItemBounds = boundsValue.rectValue
         
         guard let windowIndex = self.menuWindowArray.index(where: { $0.scrollTracking === scrollTracking }) else {

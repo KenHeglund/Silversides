@@ -132,11 +132,11 @@ class OBWFilteringMenuItemScrollViewTests: XCTestCase {
         XCTAssertNil( scrollView.viewForMenuItem( OBWFilteringMenuItem.separatorItem ) )
         XCTAssertNil( scrollView.viewForMenuItem( OBWFilteringMenuItem( title: "F" ) ) )
         
-        XCTAssertTrue( scrollView.nextViewAfterItem( menuItems[1] )!.menuItem === menuItems[2] )
+        XCTAssertTrue( scrollView.nextViewAfterItem( menuItems[1] )?.menuItem === menuItems[2] )
         XCTAssertTrue( scrollView.nextViewAfterItem( menuItems.last )?.menuItem === menuItems.last )
         XCTAssertTrue( scrollView.nextViewAfterItem( nil )?.menuItem === menuItems.first )
         
-        XCTAssertTrue( scrollView.previousViewBeforeItem( menuItems[3] )!.menuItem === menuItems[2] )
+        XCTAssertTrue( scrollView.previousViewBeforeItem( menuItems[3] )?.menuItem === menuItems[2] )
         XCTAssertTrue( scrollView.previousViewBeforeItem( menuItems.first )?.menuItem === menuItems.first )
         XCTAssertTrue( scrollView.previousViewBeforeItem( nil )?.menuItem === menuItems.last )
     }

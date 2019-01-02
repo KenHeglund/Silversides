@@ -30,7 +30,7 @@ class OBWFilteringMenuItemTests: XCTestCase {
         XCTAssertNotNil( separatorItem )
         XCTAssertTrue( separatorItem.isSeparatorItem )
         
-        let menuItem = OBWFilteringMenuItem( title: separatorItem.title! )
+        let menuItem = OBWFilteringMenuItem( title: separatorItem.title ?? "" )
         XCTAssertFalse( menuItem.isSeparatorItem )
         
         XCTAssertTrue( OBWFilteringMenuItem.separatorItem === separatorItem )

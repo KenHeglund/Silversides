@@ -28,7 +28,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
         var notificationCount = 0
@@ -59,13 +59,21 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         let scrollTracking = OBWFilteringMenuScrollTracking()
         scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
         
+        guard
+            let scrollContentUpEvent = self.scrollContentUpEvent,
+            let scrollContentDownEvent = self.scrollContentDownEvent
+        else {
+            XCTFail()
+            return
+        }
+        
         // Test
         
-        scrollTracking.scrollEvent( self.scrollContentUpEvent )
+        scrollTracking.scrollEvent( scrollContentUpEvent )
         RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.25 ) )
         XCTAssertEqual( notificationCount, 0 )
         
-        scrollTracking.scrollEvent( self.scrollContentDownEvent )
+        scrollTracking.scrollEvent( scrollContentDownEvent )
         RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.25 ) )
         XCTAssertEqual( notificationCount, 0 )
         
@@ -79,16 +87,21 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
         var notificationBounds = NSZeroRect
-        let observation = NotificationCenter.default.addObserver( forName: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil, queue: nil) { ( notification: Notification ) in
+        let observation = NotificationCenter.default.addObserver( forName: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil, queue: nil) {
+            ( notification: Notification ) in
             
-            guard notificationBounds.isEmpty else { return }
+            guard
+                notificationBounds.isEmpty,
+                let userInfo = notification.userInfo,
+                let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
+            else {
+                return
+            }
             
-            let userInfo = notification.userInfo!
-            let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as! NSValue
             notificationBounds = boundsAsValue.rectValue
         }
         
@@ -111,9 +124,16 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         let scrollTracking = OBWFilteringMenuScrollTracking()
         scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
         
+        guard
+            let scrollContentDownEvent = self.scrollContentDownEvent
+        else {
+            XCTFail()
+            return
+        }
+        
         // Test
         
-        scrollTracking.scrollEvent( self.scrollContentDownEvent )
+        scrollTracking.scrollEvent( scrollContentDownEvent )
         RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.100 ) )
         XCTAssertGreaterThan( notificationBounds.origin.y, geometry.initialBounds.origin.y )
         XCTAssertEqual( notificationBounds.size.height, geometry.initialBounds.size.height )
@@ -128,16 +148,20 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
         var notificationBounds = NSZeroRect
         let observation = NotificationCenter.default.addObserver( forName: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil, queue: nil) { ( notification: Notification ) in
             
-            guard notificationBounds.isEmpty else { return }
+            guard
+                notificationBounds.isEmpty,
+                let userInfo = notification.userInfo,
+                let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
+            else {
+                return
+            }
             
-            let userInfo = notification.userInfo!
-            let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as! NSValue
             notificationBounds = boundsAsValue.rectValue
         }
         
@@ -160,9 +184,16 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         let scrollTracking = OBWFilteringMenuScrollTracking()
         scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
         
+        guard
+            let scrollContentUpEvent = self.scrollContentUpEvent
+        else {
+            XCTFail()
+            return
+        }
+        
         // Test
         
-        scrollTracking.scrollEvent( self.scrollContentUpEvent )
+        scrollTracking.scrollEvent( scrollContentUpEvent )
         RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.500 ) )
         XCTAssertLessThan( notificationBounds.origin.y, geometry.initialBounds.origin.y )
         XCTAssertGreaterThan( notificationBounds.size.height, geometry.initialBounds.size.height )
@@ -177,16 +208,20 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
         var notificationBounds = NSZeroRect
         let observation = NotificationCenter.default.addObserver( forName: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil, queue: nil) { ( notification: Notification ) in
             
-            guard notificationBounds.isEmpty else { return }
+            guard
+                notificationBounds.isEmpty,
+                let userInfo = notification.userInfo,
+                let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
+            else {
+                return
+            }
             
-            let userInfo = notification.userInfo!
-            let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as! NSValue
             notificationBounds = boundsAsValue.rectValue
         }
         
@@ -209,9 +244,16 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         let scrollTracking = OBWFilteringMenuScrollTracking()
         scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
         
+        guard
+            let scrollContentUpEvent = self.scrollContentUpEvent
+        else {
+            XCTFail()
+            return
+        }
+        
         // Test
         
-        scrollTracking.scrollEvent( self.scrollContentUpEvent )
+        scrollTracking.scrollEvent( scrollContentUpEvent )
         RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.25 ) )
         XCTAssertLessThan( notificationBounds.origin.y, geometry.initialBounds.origin.y )
         XCTAssertEqual( notificationBounds.size.height, geometry.initialBounds.size.height )
@@ -226,16 +268,20 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
         var notificationBounds = NSZeroRect
         let observation = NotificationCenter.default.addObserver( forName: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil, queue: nil) { ( notification: Notification ) in
             
-            guard notificationBounds.isEmpty else { return }
+            guard
+                notificationBounds.isEmpty,
+                let userInfo = notification.userInfo,
+                let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
+            else {
+                return
+            }
             
-            let userInfo = notification.userInfo!
-            let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as! NSValue
             notificationBounds = boundsAsValue.rectValue
         }
         
@@ -258,9 +304,16 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         let scrollTracking = OBWFilteringMenuScrollTracking()
         scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
         
+        guard
+            let scrollContentDownEvent = self.scrollContentDownEvent
+        else {
+            XCTFail()
+            return
+        }
+        
         // Test
         
-        scrollTracking.scrollEvent( self.scrollContentDownEvent )
+        scrollTracking.scrollEvent( scrollContentDownEvent )
         RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.25 ) )
         XCTAssertEqual( notificationBounds.origin.y, geometry.initialBounds.origin.y )
         XCTAssertGreaterThan( notificationBounds.size.height, geometry.initialBounds.size.height )
@@ -269,7 +322,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
     }
     
     /*==========================================================================*/
-    private let scrollContentUpEvent: NSEvent = {
+    private let scrollContentUpEvent: NSEvent? = {
         
         // Recorded from the trackpad
         let encodedContentUpEvent = "AAAAAgABQDUAAAADAAFANgAAAAAAAUA3AAAAFgACwDhEdkAARI6gAAACwDlByAAAQjgAAAABADpFSWCOAACUVgABQDsAAAEAAAFAMwAAI70AAUA0AAHH4wABQJIAAAAAAAFAagAAAGMAAUBrAAAEsAABQAv////8AAFADAAAAAAAAUANAAAAAAABQFgAAAABAAFAiQAAAAEAAUBd//szIAABQF4AAAAAAAFAXwAAAAAAAUBg////0AABQGEAAAADAAFAYgAAAAAAAUB7AAAAAAABQGMAAAACAAFAZAAAAAA="
@@ -278,7 +331,7 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
     }()
     
     /*==========================================================================*/
-    private let scrollContentDownEvent: NSEvent = {
+    private let scrollContentDownEvent: NSEvent? = {
         
         // Recorded from the trackpad
         let encodedContentDownEvent = "AAAAAgABQDUAAAADAAFANgAAAAAAAUA3AAAAFgACwDhEeEAARI0AAAACwDlCBAAAQgAAAAABADpKU4eYAACUdQABQDsAAAEAAAFAMwAAI+MAAUA0AAHg5wABQJIAAAAAAAFAagAAAGIAAUBrAAAEsAABQAsAAAA1AAFADP////8AAUANAAAAAAABQFgAAAABAAFAiQAAAAEAAUBdADVnPAABQF7//xmWAAFAXwAAAAAAAUBgAAACFgABQGH////4AAFAYgAAAAAAAUB7AAAAAAABQGMAAAACAAFAZAAAAAE="
@@ -287,12 +340,17 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
     }()
     
     /*==========================================================================*/
-    private class func eventWithString( base64EncodedString encodedString: String ) -> NSEvent {
+    private class func eventWithString( base64EncodedString encodedString: String ) -> NSEvent? {
         
-        let scrollEventData = Data( base64Encoded: encodedString, options: [] )!
-        let event = CGEvent( withDataAllocator: kCFAllocatorDefault, data: scrollEventData as CFData )!
+        guard
+            let scrollEventData = Data( base64Encoded: encodedString, options: [] ),
+            let cgEvent = CGEvent( withDataAllocator: kCFAllocatorDefault, data: scrollEventData as CFData ),
+            let nsEvent = NSEvent( cgEvent: cgEvent )
+        else {
+            return nil
+        }
         
-        return NSEvent( cgEvent: event )!
+        return nsEvent
     }
     
 }

@@ -28,8 +28,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         
         let timestamp = ProcessInfo().systemUptime
         
-        var event: NSEvent!
-        var locationInScreen: NSPoint?
+        var event: NSEvent? = nil
+        var locationInScreen: NSPoint? = nil
         
         event = NSEvent.otherEvent(
             with: .applicationDefined,
@@ -43,7 +43,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             data2: 3
         )
         XCTAssertNotNil( event )
-        XCTAssertNil( event.locationInScreen )
+        XCTAssertNil( event?.locationInScreen )
         
         event = NSEvent.otherEvent(
             with: .periodic,
@@ -57,7 +57,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             data2: 3
         )
         XCTAssertNotNil( event )
-        XCTAssertNil( event.locationInScreen )
+        XCTAssertNil( event?.locationInScreen )
         
         let windowContentFrame = NSRect(
             x: 200.0,
@@ -92,7 +92,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         )
         XCTAssertNotNil( event )
         
-        locationInScreen = event.locationInScreen
+        locationInScreen = event?.locationInScreen
         XCTAssertEqual( locationInScreen, verificationPoint )
         
         event = NSEvent.mouseEvent(
@@ -108,7 +108,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         )
         XCTAssertNotNil( event )
         
-        locationInScreen = event.locationInScreen
+        locationInScreen = event?.locationInScreen
         XCTAssertEqual( locationInScreen, testLocation )
     }
     
@@ -117,10 +117,10 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         
         let timestamp = ProcessInfo().systemUptime
         
-        var event: NSEvent!
-        var locationInView: NSPoint?
-        var testLocation: NSPoint
-        var verificationPoint: NSPoint
+        var event: NSEvent? = nil
+        var locationInView: NSPoint? = nil
+        var testLocation: NSPoint = .zero
+        var verificationPoint: NSPoint = .zero
         
         let windowContentFrame = NSRect(
             x: 200.0,
@@ -158,7 +158,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             pressure: 1.0
         )
         XCTAssertNotNil( event )
-        XCTAssertNil( event.locationInView( testView ) )
+        XCTAssertNil( event?.locationInView( testView ) )
         
         window.contentView?.addSubview( testView )
         
@@ -180,7 +180,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         )
         XCTAssertNotNil( event )
         
-        locationInView = event.locationInView( testView )
+        locationInView = event?.locationInView( testView )
         XCTAssertEqual( locationInView, verificationPoint )
         
         testLocation = NSPoint( x: 250.0, y: 400.0 )
@@ -202,7 +202,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         )
         XCTAssertNotNil( event )
         
-        locationInView = event.locationInView( testView )
+        locationInView = event?.locationInView( testView )
         XCTAssertEqual( locationInView, verificationPoint )
         
         event = NSEvent.otherEvent(
@@ -217,7 +217,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             data2: 3
         )
         XCTAssertNotNil( event )
-        XCTAssertNil( event.locationInView( testView ) )
+        XCTAssertNil( event?.locationInView( testView ) )
         
         event = NSEvent.otherEvent(
             with: .periodic,
@@ -231,6 +231,6 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             data2: 3
         )
         XCTAssertNotNil( event )
-        XCTAssertNil( event.locationInView( testView ) )
+        XCTAssertNil( event?.locationInView( testView ) )
     }
 }

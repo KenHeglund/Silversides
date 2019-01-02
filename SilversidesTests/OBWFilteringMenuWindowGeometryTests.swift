@@ -111,7 +111,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
     /*==========================================================================*/
     func testInitialGeometryLimitedToMenuSize() {
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         
         let menu = OBWFilteringMenu()
         for index in 1...5 {
@@ -128,7 +128,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
     /*==========================================================================*/
     func testInitialGeometryLimitedToScreenSize() {
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         
         let menu = OBWFilteringMenu()
         for index in 1...200 {
@@ -147,7 +147,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
     /*==========================================================================*/
     func testMinimumFrameSize() {
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenCenter = NSPoint( x: screen.frame.midX, y: screen.frame.midY )
         
         let menu = OBWFilteringMenu()
@@ -170,7 +170,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
         
         let menu = OBWFilteringMenu()
@@ -210,7 +210,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
         
         var longTitle = "Item with an enormously wide title"
@@ -258,7 +258,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
         
         let menu = OBWFilteringMenu()
@@ -299,7 +299,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
         
         let menu = OBWFilteringMenu()
@@ -340,7 +340,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
         
         let menu = OBWFilteringMenu()
@@ -381,7 +381,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
         
         let menu = OBWFilteringMenu()
@@ -428,7 +428,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
         
         let menu = OBWFilteringMenu()
@@ -469,7 +469,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
 
         
@@ -516,7 +516,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
         
         let menu = OBWFilteringMenu()
@@ -560,7 +560,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
         
         let menu = OBWFilteringMenu()
@@ -596,7 +596,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
 
@@ -634,7 +634,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         let screenLimits = screenFrame + OBWFilteringMenuWindowGeometry.screenMargins
         
@@ -674,7 +674,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
         let menu = OBWFilteringMenu()
@@ -778,7 +778,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         let screenLimits = screenFrame + OBWFilteringMenuWindowGeometry.screenMargins
         
@@ -886,7 +886,7 @@ class OBWFilteringMenuWindowGeometryTests: XCTestCase {
         
         // Setup
         
-        let screen = NSScreen.screens.first!
+        let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
         let menu = OBWFilteringMenu()

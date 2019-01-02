@@ -593,7 +593,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     
     /*==========================================================================*/
     private var allItemViews: [OBWFilteringMenuItemView] {
-        return self.itemParentView.subviews as! [OBWFilteringMenuItemView]
+        return self.itemParentView.subviews as? [OBWFilteringMenuItemView] ?? []
     }
     
     /*==========================================================================*/

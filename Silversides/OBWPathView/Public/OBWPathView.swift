@@ -27,6 +27,7 @@ public protocol OBWPathViewDelegate: AnyObject {
 public enum OBWPathViewError: Error {
     case invalidIndex(index: Int, endIndex: Int)
     case imbalancedEndPathItemUpdate
+    case internalConsistency(String)
 }
 
 /*==========================================================================*/
@@ -243,7 +244,11 @@ public class OBWPathView: NSView {
             throw OBWPathViewError.invalidIndex(index: index, endIndex: endIndex)
         }
         
-        return self.itemViews[index].pathItem!
+        guard let pathItem = self.itemViews[index].pathItem else {
+            throw OBWPathViewError.internalConsistency("Valid item view does not have a path item")
+        }
+        
+        return pathItem
     }
     
     /*==========================================================================*/
@@ -536,7 +541,7 @@ public class OBWPathView: NSView {
         }
         
         guard
-            compressibleItemViews.isEmpty == false,
+            let lastCompressibleView = compressibleItemViews.last,
             totalWidthItemsCanCompress > 0.0
         else {
             return 0.0
@@ -563,7 +568,7 @@ public class OBWPathView: NSView {
             let preferredWidth = itemView.preferredWidth
             var widthToCompressItem = widthRemainingToCompress
             
-            if itemView !== compressibleItemViews.last! {
+            if itemView !== lastCompressibleView {
                 
                 let widthItemCanCompress = preferredWidth - itemView.minimumWidth
                 let compressionFraction = widthItemCanCompress / totalWidthItemsCanCompress

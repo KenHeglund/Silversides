@@ -460,7 +460,13 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let attributedTitle: NSMutableAttributedString
         
         if let menuItemTitle = menuItem.attributedTitle, menuItemTitle.length > 0 {
-            attributedTitle = menuItemTitle.mutableCopy() as! NSMutableAttributedString
+            
+            guard let mutableTitle = menuItemTitle.mutableCopy() as? NSMutableAttributedString else {
+                assertionFailure()
+                return nil
+            }
+            
+            attributedTitle = mutableTitle
         }
         else {
             
@@ -474,7 +480,11 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         let range = NSRange(location: 0, length: attributedTitle.length)
         
-        let paragraphStyle = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
+        guard let paragraphStyle = NSParagraphStyle.default.mutableCopy() as? NSMutableParagraphStyle else {
+            assertionFailure()
+            return nil
+        }
+        
         paragraphStyle.lineBreakMode = .byTruncatingTail
         
         let paragraphAttribute = [NSAttributedString.Key.paragraphStyle : paragraphStyle]
