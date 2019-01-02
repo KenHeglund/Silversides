@@ -55,37 +55,37 @@ class OBWFilteringMenuScrollTracking {
         self.window = window
         
         let smallScrollViewFrame = initialDocumentFrame
-        let smallScrollView = NSScrollView( frame: smallScrollViewFrame )
+        let smallScrollView = NSScrollView(frame: smallScrollViewFrame)
         smallScrollView.hasVerticalScroller = true
         smallScrollView.verticalScrollElasticity = .allowed
-        smallScrollView.documentView = NSView( frame: initialDocumentFrame )
+        smallScrollView.documentView = NSView(frame: initialDocumentFrame)
         smallScrollView.contentView.postsBoundsChangedNotifications = true
-        window.contentView?.addSubview( smallScrollView )
+        window.contentView?.addSubview(smallScrollView)
         self.smallScrollView = smallScrollView
         
         let largeScrollViewFrame = NSRect(
-            origin: NSPoint( x: smallScrollViewFrame.maxX, y: 0.0 ),
+            origin: NSPoint(x: smallScrollViewFrame.maxX, y: 0.0),
             size: initialDocumentFrame.size
         )
         
-        let largeScrollView = NSScrollView( frame: largeScrollViewFrame )
+        let largeScrollView = NSScrollView(frame: largeScrollViewFrame)
         largeScrollView.hasVerticalScroller = true
         largeScrollView.verticalScrollElasticity = .allowed
-        largeScrollView.documentView = NSView( frame: initialDocumentFrame )
+        largeScrollView.documentView = NSView(frame: initialDocumentFrame)
         largeScrollView.contentView.postsBoundsChangedNotifications = true
-        window.contentView?.addSubview( largeScrollView )
+        window.contentView?.addSubview(largeScrollView)
         self.largeScrollView = largeScrollView
         
         let notificationCenter = NotificationCenter.default
         
-        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuScrollTracking.smallScrollViewBoundsChanged(_:)), name: NSView.boundsDidChangeNotification, object: smallScrollView.contentView )
-        notificationCenter.addObserver( self, selector: #selector(OBWFilteringMenuScrollTracking.largeScrollViewBoundsChanged(_:)), name: NSView.boundsDidChangeNotification, object: largeScrollView.contentView )
+        notificationCenter.addObserver(self, selector: #selector(OBWFilteringMenuScrollTracking.smallScrollViewBoundsChanged(_:)), name: NSView.boundsDidChangeNotification, object: smallScrollView.contentView)
+        notificationCenter.addObserver(self, selector: #selector(OBWFilteringMenuScrollTracking.largeScrollViewBoundsChanged(_:)), name: NSView.boundsDidChangeNotification, object: largeScrollView.contentView)
     }
     
     /*==========================================================================*/
     deinit {
         let notificationCenter = NotificationCenter.default
-        notificationCenter.removeObserver( self, name: NSView.boundsDidChangeNotification, object: nil )
+        notificationCenter.removeObserver(self, name: NSView.boundsDidChangeNotification, object: nil)
         self.smallScrollView.contentView.postsBoundsChangedNotifications = false
         self.largeScrollView.contentView.postsBoundsChangedNotifications = false
     }
@@ -94,7 +94,7 @@ class OBWFilteringMenuScrollTracking {
     // MARK: - OBWFilteringScrollTracking implementation
     
     /*==========================================================================*/
-    func reset( _ totalMenuItemSize: NSSize, initialBounds: NSRect, finalBounds: NSRect ) {
+    func reset(_ totalMenuItemSize: NSSize, initialBounds: NSRect, finalBounds: NSRect) {
         
         if self.totalMenuItemSize == totalMenuItemSize && self.initialVisibleBounds == initialBounds && self.finalVisibleBounds == finalBounds {
             return
@@ -137,12 +137,12 @@ class OBWFilteringMenuScrollTracking {
         let window = self.window
         let windowContentFrame = NSRect(
             width: OBWFilteringMenuScrollTracking.scrollViewWidth * 3.0,
-            height: max( smallScrollViewSize.height, largeScrollViewSize.height )
+            height: max(smallScrollViewSize.height, largeScrollViewSize.height)
         )
         
         let windowFrame = window.frame
         if windowFrame.size.width < windowContentFrame.size.width || windowFrame.size.height < windowContentFrame.size.height {
-            window.setFrame( windowContentFrame, display: true )
+            window.setFrame(windowContentFrame, display: true)
         }
         
         let smallScrollView = self.smallScrollView
@@ -188,20 +188,20 @@ class OBWFilteringMenuScrollTracking {
             self.clipMode = .both
         }
         
-        smallScrollView.contentView.scroll( to: initialBounds.origin )
-        smallScrollView.reflectScrolledClipView( smallScrollView.contentView )
+        smallScrollView.contentView.scroll(to: initialBounds.origin)
+        smallScrollView.reflectScrolledClipView(smallScrollView.contentView)
         
-        largeScrollView.contentView.scroll( to: initialBounds.origin )
-        largeScrollView.reflectScrolledClipView( largeScrollView.contentView )
+        largeScrollView.contentView.scroll(to: initialBounds.origin)
+        largeScrollView.reflectScrolledClipView(largeScrollView.contentView)
         
         self.action = .scrolling
         self.adjustingBounds = false
     }
     
     /*==========================================================================*/
-    func scrollEvent( _ event: NSEvent ) {
+    func scrollEvent(_ event: NSEvent) {
         
-        let scrollingDeltaY = ( event.hasPreciseScrollingDeltas ? event.scrollingDeltaY : event.deltaY )
+        let scrollingDeltaY = (event.hasPreciseScrollingDeltas ? event.scrollingDeltaY : event.deltaY)
         let clipMode = self.clipMode
         let action = self.action
         let smallScrollBoundsSize = self.smallScrollView.contentView.bounds.size
@@ -213,10 +213,10 @@ class OBWFilteringMenuScrollTracking {
         else if scrollingDeltaY == 0.0 {
             
             if action == .bottomBounce || action == .topBounce {
-                self.smallScrollView.scrollWheel( with: event )
+                self.smallScrollView.scrollWheel(with: event)
             }
             else if action == .resizeUp || action == .resizeDown {
-                self.largeScrollView.scrollWheel( with: event )
+                self.largeScrollView.scrollWheel(with: event)
             }
         }
         else if scrollingDeltaY < 0.0 {
@@ -225,11 +225,11 @@ class OBWFilteringMenuScrollTracking {
             
             if clipMode == .top || smallScrollBoundsSize.height == finalBoundsSize.height {
                 self.action = .bottomBounce
-                self.smallScrollView.scrollWheel( with: event )
+                self.smallScrollView.scrollWheel(with: event)
             }
             else {
                 self.action = .resizeUp
-                self.largeScrollView.scrollWheel( with: event )
+                self.largeScrollView.scrollWheel(with: event)
             }
         }
         else if scrollingDeltaY > 0.0 {
@@ -238,11 +238,11 @@ class OBWFilteringMenuScrollTracking {
             
             if clipMode == .bottom || smallScrollBoundsSize.height == finalBoundsSize.height {
                 self.action = .topBounce
-                self.smallScrollView.scrollWheel( with: event )
+                self.smallScrollView.scrollWheel(with: event)
             }
             else {
                 self.action = .resizeDown
-                self.largeScrollView.scrollWheel( with: event )
+                self.largeScrollView.scrollWheel(with: event)
             }
         }
     }
@@ -265,9 +265,11 @@ class OBWFilteringMenuScrollTracking {
     private var adjustingBounds = false
     
     /*==========================================================================*/
-    @objc private func smallScrollViewBoundsChanged( _ notification: Notification ) {
+    @objc private func smallScrollViewBoundsChanged(_ notification: Notification) {
         
-        guard !self.adjustingBounds else { return }
+        guard self.adjustingBounds == false else {
+            return
+        }
         
         self.adjustingBounds = true
         
@@ -286,9 +288,9 @@ class OBWFilteringMenuScrollTracking {
             )
             
             let largeDocumentView = largeScrollView.documentView
-            largeDocumentView?.setFrameSize( largeDocumentFrame.size )
-            largeScrollView.contentView.scroll( to: smallMenuItemBounds.origin )
-            largeScrollView.reflectScrolledClipView( largeScrollView.contentView )
+            largeDocumentView?.setFrameSize(largeDocumentFrame.size)
+            largeScrollView.contentView.scroll(to: smallMenuItemBounds.origin)
+            largeScrollView.reflectScrolledClipView(largeScrollView.contentView)
         }
         
         let menuItemBounds = NSRect(
@@ -298,8 +300,8 @@ class OBWFilteringMenuScrollTracking {
             height: smallMenuItemBounds.size.height
         )
         
-        let boundsValue = NSValue( rect: menuItemBounds )
-        let userInfo = [ OBWFilteringMenuScrollTrackingBoundsValueKey : boundsValue ]
+        let boundsValue = NSValue(rect: menuItemBounds)
+        let userInfo = [OBWFilteringMenuScrollTrackingBoundsValueKey : boundsValue]
         NotificationCenter.default.post(
             name: OBWFilteringMenuScrollTrackingBoundsChangedNotification,
             object: self,
@@ -310,9 +312,11 @@ class OBWFilteringMenuScrollTracking {
     }
     
     /*==========================================================================*/
-    @objc private func largeScrollViewBoundsChanged( _ notification: Notification ) {
+    @objc private func largeScrollViewBoundsChanged(_ notification: Notification) {
         
-        guard !self.adjustingBounds else { return }
+        guard self.adjustingBounds == false else {
+            return
+        }
         
         let smallScrollView = self.smallScrollView
         let largeScrollView = self.largeScrollView
@@ -332,16 +336,16 @@ class OBWFilteringMenuScrollTracking {
                 x: 0.0,
                 y: largeMenuItemBounds.origin.y,
                 width: OBWFilteringMenuScrollTracking.scrollViewWidth,
-                height: min( menuSize.height - largeMenuItemBounds.origin.y, finalBounds.size.height )
+                height: min(menuSize.height - largeMenuItemBounds.origin.y, finalBounds.size.height)
             )
         }
         else if clipMode == .top {
             
             smallMenuItemBounds = NSRect(
                 x: 0.0,
-                y: max( 0.0, largeMenuItemBounds.origin.y - ( finalBounds.size.height - initialBounds.size.height ) ),
+                y: max(0.0, largeMenuItemBounds.origin.y - (finalBounds.size.height - initialBounds.size.height)),
                 width: OBWFilteringMenuScrollTracking.scrollViewWidth,
-                height: min( finalBounds.size.height, finalBounds.size.height - ( largeDocumentBounds.size.height - menuSize.height ) + largeMenuItemBounds.origin.y )
+                height: min(finalBounds.size.height, finalBounds.size.height - (largeDocumentBounds.size.height - menuSize.height) + largeMenuItemBounds.origin.y)
             )
         }
 
@@ -361,11 +365,11 @@ class OBWFilteringMenuScrollTracking {
         self.adjustingBounds = true
         
         if scrollFrameSize != smallScrollView.frame.size {
-            smallScrollView.setFrameSize( scrollFrameSize )
+            smallScrollView.setFrameSize(scrollFrameSize)
         }
 
-        smallScrollView.contentView.scroll( to: smallMenuItemBounds.origin )
-        smallScrollView.reflectScrolledClipView( smallScrollView.contentView )
+        smallScrollView.contentView.scroll(to: smallMenuItemBounds.origin)
+        smallScrollView.reflectScrolledClipView(smallScrollView.contentView)
         
         let menuItemBounds = NSRect(
             x: smallMenuItemBounds.origin.x,
@@ -374,8 +378,8 @@ class OBWFilteringMenuScrollTracking {
             height: smallMenuItemBounds.size.height
         )
         
-        let boundsValue = NSValue( rect: menuItemBounds )
-        let userInfo = [ OBWFilteringMenuScrollTrackingBoundsValueKey : boundsValue ]
+        let boundsValue = NSValue(rect: menuItemBounds)
+        let userInfo = [OBWFilteringMenuScrollTrackingBoundsValueKey : boundsValue]
         NotificationCenter.default.post(
             name: OBWFilteringMenuScrollTrackingBoundsChangedNotification,
             object: self,
