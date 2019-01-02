@@ -449,7 +449,7 @@ class OBWFilteringMenuController {
         
         guard let eventLocationInScreen = event.obw_locationInScreen else { return }
         
-        let locationInWindow = topmostMenuWindow.obw_convertFromScreen( eventLocationInScreen )
+        let locationInWindow = topmostMenuWindow.convertFromScreen( eventLocationInScreen )
         let topmostMenuPart = topmostMenuWindow.menuPartAtLocation( locationInWindow )
         
         switch topmostMenuPart {
@@ -515,7 +515,7 @@ class OBWFilteringMenuController {
         
         let currentMenuWindow = self.menuWindowAtScreenLocation( eventLocationInScreen )
         let currentMenu = currentMenuWindow?.filteringMenu
-        let locationInWindow = currentMenuWindow?.obw_convertFromScreen( eventLocationInScreen ) ?? NSZeroPoint
+        let locationInWindow = currentMenuWindow?.convertFromScreen( eventLocationInScreen ) ?? NSZeroPoint
         let currentMenuItem = currentMenuWindow?.menuItemAtLocation( locationInWindow )
         
         let previousMenuItem = self.lastHitMenuItem

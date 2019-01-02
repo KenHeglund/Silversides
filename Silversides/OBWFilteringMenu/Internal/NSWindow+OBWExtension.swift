@@ -11,18 +11,18 @@ import Cocoa
 extension NSWindow {
     
     /*==========================================================================*/
-    func obw_convertToScreen( _ locationInWindow: NSPoint ) -> NSPoint {
+    func convertToScreen(_ locationInWindow: NSPoint) -> NSPoint {
         
-        let rectInWindow = NSRect( origin: locationInWindow, size: NSZeroSize )
-        let rectInScreen = self.convertToScreen( rectInWindow )
+        let rectInWindow = NSRect(origin: locationInWindow, size: .zero)
+        let rectInScreen = self.convertToScreen(rectInWindow)
         return rectInScreen.origin
     }
     
     /*==========================================================================*/
-    func obw_convertFromScreen( _ locationInScreen: NSPoint ) -> NSPoint {
+    func convertFromScreen(_ locationInScreen: NSPoint) -> NSPoint {
         
-        let rectInScreen = NSRect( origin: locationInScreen, size: NSZeroSize )
-        let rectInWindow = self.convertFromScreen( rectInScreen )
+        let rectInScreen = NSRect(origin: locationInScreen, size: .zero)
+        let rectInWindow = self.convertFromScreen(rectInScreen)
         return rectInWindow.origin
     }
 }
