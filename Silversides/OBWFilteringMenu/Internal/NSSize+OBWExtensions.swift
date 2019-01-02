@@ -7,28 +7,28 @@
 import Cocoa
 
 /*==========================================================================*/
-func max( _ firstSize: NSSize, _ secondSize: NSSize ) -> NSSize {
+func max(_ lhs: NSSize, _ rhs: NSSize) -> NSSize {
     
     return NSSize(
-        width: max( firstSize.width, secondSize.width ),
-        height: max( firstSize.height, secondSize.height )
+        width: max(lhs.width, rhs.width),
+        height: max(lhs.height, rhs.height)
     )
 }
 
 /*==========================================================================*/
-func +( lhs: NSSize, rhs: NSEdgeInsets ) -> NSSize {
+func +(lhs: NSSize, rhs: NSEdgeInsets) -> NSSize {
     
     let size = lhs
     let insets = rhs
     
     return NSSize(
-        width: max( size.width - insets.left - insets.right, 0.0 ),
-        height: max( size.height - insets.top - insets.bottom, 0.0 )
+        width: max(size.width - insets.left - insets.right, 0.0),
+        height: max(size.height - insets.top - insets.bottom, 0.0)
     )
 }
 
 /*==========================================================================*/
-func -( lhs: NSSize, rhs: NSEdgeInsets ) -> NSSize {
+func -(lhs: NSSize, rhs: NSEdgeInsets) -> NSSize {
     
     let size = lhs
     let insets = rhs
