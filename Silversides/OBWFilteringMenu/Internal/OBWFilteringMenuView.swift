@@ -42,7 +42,7 @@ class OBWFilteringMenuView: NSView {
         )
         
         let menuFont = menu.displayFont
-        let filterFieldSize = NSControl.obw_controlSizeForFontSize( menuFont.pointSize )
+        let filterFieldSize = NSControl.controlSizeForFontSize( menuFont.pointSize )
         
         let filterFrame = NSRect(
             x: OBWFilteringMenuView.filterMargins.left,

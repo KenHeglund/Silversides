@@ -11,16 +11,15 @@ import Cocoa
 extension NSControl {
     
     /*==========================================================================*/
-    class func obw_controlSizeForFontSize( _ fontPointSize: CGFloat ) -> NSControl.ControlSize {
+    class func controlSizeForFontSize(_ fontPointSize: CGFloat) -> NSControl.ControlSize {
         
-        if fontPointSize <= NSFont.systemFontSize( for: .mini ) {
+        if fontPointSize <= NSFont.systemFontSize(for: .mini) {
             return .mini
         }
-        if fontPointSize <= NSFont.systemFontSize( for: .small ) {
+        if fontPointSize <= NSFont.systemFontSize(for: .small) {
             return .small
         }
         
         return .regular
     }
-    
 }
