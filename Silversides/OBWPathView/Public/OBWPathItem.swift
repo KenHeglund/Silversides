@@ -10,16 +10,16 @@ import Cocoa
 
 public struct OBWPathItemStyle: OptionSet {
     
-    public init( rawValue: UInt ) {
+    public init(rawValue: UInt) {
         self.rawValue = rawValue & 0x7
     }
     
     public let rawValue: UInt
     
-    public static let `default`     = OBWPathItemStyle( rawValue: 0 )
-    public static let italic        = OBWPathItemStyle( rawValue: 1 << 0 )
-    public static let bold          = OBWPathItemStyle( rawValue: 1 << 1 )
-    public static let noTextShadow  = OBWPathItemStyle( rawValue: 1 << 2 )
+    public static let `default`     = OBWPathItemStyle(rawValue: 0)
+    public static let italic        = OBWPathItemStyle(rawValue: 1 << 0)
+    public static let bold          = OBWPathItemStyle(rawValue: 1 << 1)
+    public static let noTextShadow  = OBWPathItemStyle(rawValue: 1 << 2)
 }
 
 /*==========================================================================*/
@@ -34,7 +34,7 @@ public struct OBWPathItem {
     public var textColor: NSColor?
     public var accessible: Bool
     
-    public init( title: String, image: NSImage?, representedObject: AnyObject?, style: OBWPathItemStyle, textColor: NSColor?, accessible: Bool = true ) {
+    public init(title: String, image: NSImage?, representedObject: AnyObject?, style: OBWPathItemStyle, textColor: NSColor?, accessible: Bool = true) {
         
         self.title = title
         self.image = image

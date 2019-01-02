@@ -10,22 +10,22 @@ import Cocoa
 
 public enum OBWPathItemTrigger {
     
-    case gui( NSEvent )
+    case gui(NSEvent)
     case accessibility
 }
 
 public protocol OBWPathViewDelegate: AnyObject {
     
-    func pathView( _ pathView: OBWPathView, filteringMenuForItem: OBWPathItem, trigger: OBWPathItemTrigger ) -> OBWFilteringMenu?
-    func pathView( _ pathView: OBWPathView, menuForItem: OBWPathItem, trigger: OBWPathItemTrigger ) -> NSMenu?
+    func pathView(_ pathView: OBWPathView, filteringMenuForItem: OBWPathItem, trigger: OBWPathItemTrigger) -> OBWFilteringMenu?
+    func pathView(_ pathView: OBWPathView, menuForItem: OBWPathItem, trigger: OBWPathItemTrigger) -> NSMenu?
     
-    func pathViewAccessibilityDescription( _ pathView: OBWPathView ) -> String?
-    func pathViewAccessibilityHelp( _ pathView: OBWPathView ) -> String?
-    func pathView( _ pathView: OBWPathView, accessibilityHelpForItem: OBWPathItem ) -> String?
+    func pathViewAccessibilityDescription(_ pathView: OBWPathView) -> String?
+    func pathViewAccessibilityHelp(_ pathView: OBWPathView) -> String?
+    func pathView(_ pathView: OBWPathView, accessibilityHelpForItem: OBWPathItem) -> String?
 }
 
 public enum OBWPathViewError: Error {
-    case invalidIndex( index: Int, endIndex: Int )
+    case invalidIndex(index: Int, endIndex: Int)
     case imbalancedEndPathItemUpdate
 }
 
@@ -45,14 +45,14 @@ private enum OBWPathViewCompression: Int {
 public class OBWPathView: NSView {
     
     /*==========================================================================*/
-    public override init( frame frameRect: NSRect ) {
-        super.init( frame: frameRect )
+    public override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
         self.commonInitialization()
     }
     
     /*==========================================================================*/
-    public required init?( coder: NSCoder ) {
-        super.init( coder: coder )
+    public required init?(coder: NSCoder) {
+        super.init(coder: coder)
         self.commonInitialization()
     }
     
@@ -61,9 +61,9 @@ public class OBWPathView: NSView {
         
         self.autoresizesSubviews = false
         
-        let options: NSTrackingArea.Options = [ NSTrackingArea.Options.mouseEnteredAndExited, NSTrackingArea.Options.mouseMoved, NSTrackingArea.Options.activeAlways, NSTrackingArea.Options.inVisibleRect ]
-        let trackingArea = NSTrackingArea( rect: self.bounds, options: options, owner: self, userInfo: nil )
-        self.addTrackingArea( trackingArea )
+        let options: NSTrackingArea.Options = [.mouseEnteredAndExited, .mouseMoved, .activeAlways, .inVisibleRect]
+        let trackingArea = NSTrackingArea(rect: self.bounds, options: options, owner: self, userInfo: nil)
+        self.addTrackingArea(trackingArea)
         
         self.wantsLayer = true
         
@@ -74,30 +74,32 @@ public class OBWPathView: NSView {
         }
         
         let notificationCenter = NotificationCenter.default
-        notificationCenter.addObserver( self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindow.didBecomeMainNotification, object: self.window )
-        notificationCenter.addObserver( self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindow.didResignMainNotification, object: self.window )
+        notificationCenter.addObserver(self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindow.didBecomeMainNotification, object: self.window)
+        notificationCenter.addObserver(self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindow.didResignMainNotification, object: self.window)
     }
     
     /*==========================================================================*/
     deinit {
         
-        try! self.removeItemsFromIndex( 0 )
+        try! self.removeItemsFromIndex(0)
         
-        NotificationCenter.default.removeObserver( self )
+        NotificationCenter.default.removeObserver(self)
     }
     
     /*==========================================================================*/
     // MARK: - NSResponder overrides
     
     /*==========================================================================*/
-    override public func mouseEntered( with theEvent: NSEvent ) {
-        self.mouseMoved( with: theEvent )
+    override public func mouseEntered(with theEvent: NSEvent) {
+        self.mouseMoved(with: theEvent)
     }
     
     /*==========================================================================*/
-    override public func mouseExited( with theEvent: NSEvent ) {
+    override public func mouseExited(with theEvent: NSEvent) {
         
-        guard self.pathItemUpdateDepth == 0 else { return }
+        guard self.pathItemUpdateDepth == 0 else {
+            return
+        }
         
         var updateItemWidths = false
         
@@ -111,31 +113,35 @@ public class OBWPathView: NSView {
         
         if updateItemWidths {
             self.updateCurrentItemViewWidths()
-            self.adjustItemViewFrames( animate: true )
+            self.adjustItemViewFrames(animate: true)
         }
     }
     
     /*==========================================================================*/
-    override public func mouseMoved( with theEvent: NSEvent ) {
+    override public func mouseMoved(with theEvent: NSEvent) {
         
-        guard self.pathItemUpdateDepth == 0 else { return }
+        guard self.pathItemUpdateDepth == 0 else {
+            return
+        }
         
-        let locationInView = self.convert( theEvent.locationInWindow, from: nil )
+        let locationInView = self.convert(theEvent.locationInWindow, from: nil)
         
-        if !self.updatePreferredWidthRequirementsForCursorLocation( locationInView ) { return }
+        if self.updatePreferredWidthRequirementsForCursorLocation(locationInView) == false {
+            return
+        }
         
         self.updateCurrentItemViewWidths()
-        self.adjustItemViewFrames( animate: true )
+        self.adjustItemViewFrames(animate: true)
     }
     
     /*==========================================================================*/
     // MARK: - NSView overrides
     
     /*==========================================================================*/
-    override public func resize( withOldSuperviewSize oldSize: NSSize ) {
-        super.resize( withOldSuperviewSize: oldSize )
+    override public func resize(withOldSuperviewSize oldSize: NSSize) {
+        super.resize(withOldSuperviewSize: oldSize)
         self.updateCurrentItemViewWidths()
-        self.adjustItemViewFrames( animate: false )
+        self.adjustItemViewFrames(animate: false)
     }
     
     /*==========================================================================*/
@@ -160,19 +166,23 @@ public class OBWPathView: NSView {
     /*==========================================================================*/
     override public func accessibilityRoleDescription() -> String? {
         
-        let descriptionFormat = NSLocalizedString( "path element %@", comment: "PathView accessibility role description format" )
-        guard let standardDescription = NSAccessibility.Role.list.description(with: nil ) else { return nil }
-        return String( format: descriptionFormat, standardDescription )
+        let descriptionFormat = NSLocalizedString("path element %@", comment: "PathView accessibility role description format")
+        
+        guard let standardDescription = NSAccessibility.Role.list.description(with: nil) else {
+            return nil
+        }
+        
+        return String(format: descriptionFormat, standardDescription)
     }
     
     /*==========================================================================*/
     override public func accessibilityValueDescription() -> String? {
-        return self.delegate?.pathViewAccessibilityDescription( self ) ?? "Empty Path"
+        return self.delegate?.pathViewAccessibilityDescription(self) ?? "Empty Path"
     }
     
     /*==========================================================================*/
     override public func accessibilityChildren() -> [Any]? {
-        return NSAccessibility.unignoredChildren( from: self.itemViews )
+        return NSAccessibility.unignoredChildren(from: self.itemViews)
     }
     
     /*==========================================================================*/
@@ -187,7 +197,7 @@ public class OBWPathView: NSView {
     
     /*==========================================================================*/
     override public func accessibilityHelp() -> String? {
-        return self.delegate?.pathViewAccessibilityHelp( self )
+        return self.delegate?.pathViewAccessibilityHelp(self)
     }
     
     /*==========================================================================*/
@@ -212,37 +222,37 @@ public class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    public func setItems( _ pathItems: [OBWPathItem] ) {
+    public func setItems(_ pathItems: [OBWPathItem]) {
         
         self.pathItemUpdate { 
             
             for itemIndex in pathItems.indices.suffix(from: 0) {
-                try! self.setItem( pathItems[itemIndex], atIndex: itemIndex )
+                try! self.setItem(pathItems[itemIndex], atIndex: itemIndex)
             }
             
-            try! self.removeItemsFromIndex( pathItems.endIndex )
+            try! self.removeItemsFromIndex(pathItems.endIndex)
         }
     }
     
     /*==========================================================================*/
-    public func item( atIndex index: Int ) throws -> OBWPathItem {
+    public func item(atIndex index: Int) throws -> OBWPathItem {
         
         let endIndex = self.itemViews.endIndex
         
         guard index >= 0 && index < endIndex else {
-            throw OBWPathViewError.invalidIndex( index: index, endIndex: endIndex )
+            throw OBWPathViewError.invalidIndex(index: index, endIndex: endIndex)
         }
         
         return self.itemViews[index].pathItem!
     }
     
     /*==========================================================================*/
-    public func setItem( _ item: OBWPathItem, atIndex index: Int ) throws {
+    public func setItem(_ item: OBWPathItem, atIndex index: Int) throws {
         
         let endIndex = self.itemViews.endIndex
         
         guard index >= 0 && index <= endIndex else {
-            throw OBWPathViewError.invalidIndex( index: index, endIndex: endIndex )
+            throw OBWPathViewError.invalidIndex(index: index, endIndex: endIndex)
         }
         
         self.pathItemUpdate {
@@ -260,14 +270,14 @@ public class OBWPathView: NSView {
                 
                 if let lastView = self.itemViews.last {
                     let lastViewFrame = lastView.frame
-                    newItemViewFrame.origin.x = max( newItemViewFrame.origin.x, lastViewFrame.origin.x + lastViewFrame.size.width )
+                    newItemViewFrame.origin.x = max(newItemViewFrame.origin.x, lastViewFrame.origin.x + lastViewFrame.size.width)
                 }
                 
-                let itemView = OBWPathItemView( frame: newItemViewFrame )
+                let itemView = OBWPathItemView(frame: newItemViewFrame)
                 itemView.alphaValue = 0.0
                 itemView.pathItem = item
-                self.addSubview( itemView )
-                self.itemViews.append( itemView )
+                self.addSubview(itemView)
+                self.itemViews.append(itemView)
                 
                 newItemViewFrame.size.width = itemView.preferredWidth
                 itemView.currentWidth = newItemViewFrame.size.width
@@ -278,17 +288,16 @@ public class OBWPathView: NSView {
                 
                 self.itemViews[index].pathItem = item
             }
-                
         }
     }
     
     /*==========================================================================*/
-    public func removeItemsFromIndex( _ index: Int ) throws {
+    public func removeItemsFromIndex(_ index: Int) throws {
         
         let endIndex = self.itemViews.endIndex
         
         guard index >= 0 && index <= endIndex else {
-            throw OBWPathViewError.invalidIndex( index: index, endIndex: endIndex )
+            throw OBWPathViewError.invalidIndex(index: index, endIndex: endIndex)
         }
         
         if index == endIndex {
@@ -296,8 +305,8 @@ public class OBWPathView: NSView {
         }
         
         self.pathItemUpdate {
-            self.terminatedViews = Array( self.itemViews.suffix( from: index ) )
-            self.itemViews = Array( self.itemViews.prefix( upTo: index ) )
+            self.terminatedViews = Array(self.itemViews.suffix(from: index))
+            self.itemViews = Array(self.itemViews.prefix(upTo: index))
         }
     }
     
@@ -320,11 +329,11 @@ public class OBWPathView: NSView {
         self.updateItemDividerVisibility()
         _ = self.updatePreferredWidthRequirements()
         self.updateCurrentItemViewWidths()
-        self.adjustItemViewFrames( animate: true )
+        self.adjustItemViewFrames(animate: true)
     }
     
     /*==========================================================================*/
-    public func pathItemUpdate( withHandler handler: () -> Void ) {
+    public func pathItemUpdate(withHandler handler: () -> Void) {
         self.beginPathItemUpdate()
         handler()
         try! self.endPathItemUpdate()
@@ -337,7 +346,9 @@ public class OBWPathView: NSView {
         
         didSet {
             
-            guard self.enabled else { return }
+            guard self.enabled else {
+                return
+            }
             
             for itemView in self.itemViews {
                 itemView.pathViewAppearanceChanged()
@@ -351,38 +362,42 @@ public class OBWPathView: NSView {
     private var terminatedViews: [OBWPathItemView]? = nil
     
     /*==========================================================================*/
-    @objc private func windowBecameOrResignedMain( _ notification: Notification ) {
+    @objc private func windowBecameOrResignedMain(_ notification: Notification) {
         self.needsDisplay = true
-        self.active = ( notification.name == NSWindow.didBecomeMainNotification )
+        self.active = (notification.name == NSWindow.didBecomeMainNotification)
     }
     
     /*==========================================================================*/
     private func updateItemDividerVisibility() {
         
-        guard let lastItemView = self.itemViews.last else { return }
+        guard let lastItemView = self.itemViews.last else {
+            return
+        }
         
         for itemView in self.itemViews {
-            itemView.dividerHidden = ( itemView === lastItemView )
+            itemView.dividerHidden = (itemView === lastItemView)
         }
     }
     
     /*==========================================================================*/
     private func updatePreferredWidthRequirements() -> Bool {
         
-        guard let window = self.window else { return false }
+        guard let window = self.window else {
+            return false
+        }
         
-        let locationInScreen = NSRect( origin: NSEvent.mouseLocation, size: NSZeroSize )
-        let locationInWindow = window.convertFromScreen( locationInScreen )
-        let locationInView = self.convert( locationInWindow.origin, from: nil )
+        let locationInScreen = NSRect(origin: NSEvent.mouseLocation, size: .zero)
+        let locationInWindow = window.convertFromScreen(locationInScreen)
+        let locationInView = self.convert(locationInWindow.origin, from: nil)
         
-        return self.updatePreferredWidthRequirementsForCursorLocation( locationInView )
+        return self.updatePreferredWidthRequirementsForCursorLocation(locationInView)
     }
 
     
     /*==========================================================================*/
-    private func updatePreferredWidthRequirementsForCursorLocation( _ locationInView: NSPoint ) -> Bool {
+    private func updatePreferredWidthRequirementsForCursorLocation(_ locationInView: NSPoint) -> Bool {
         
-        let cursorIsInParent = NSPointInRect( locationInView, self.bounds )
+        let cursorIsInParent = NSPointInRect(locationInView, self.bounds)
         
         var itemLeftBound = self.bounds.origin.x
         var anItemHasBeenCollapsed = false
@@ -395,10 +410,10 @@ public class OBWPathView: NSView {
                 continue
             }
             
-            let itemWidthToTest = ( anItemHasBeenCollapsed ? itemView.preferredWidth : itemView.currentWidth )
+            let itemWidthToTest = (anItemHasBeenCollapsed ? itemView.preferredWidth : itemView.currentWidth)
             let itemRightBound = itemLeftBound + itemWidthToTest
-            let cursorIsInItem = ( locationInView.x >= itemLeftBound && locationInView.x < itemRightBound )
-            let preferredWidthIsRequired = ( cursorIsInParent && cursorIsInItem )
+            let cursorIsInItem = (locationInView.x >= itemLeftBound && locationInView.x < itemRightBound)
+            let preferredWidthIsRequired = (cursorIsInParent && cursorIsInItem)
             
             if itemView.preferredWidthRequired == preferredWidthIsRequired {
                 itemLeftBound += itemWidthToTest
@@ -417,7 +432,7 @@ public class OBWPathView: NSView {
             }
         }
         
-        return ( anItemHasBeenCollapsed || anItemHasBeenExpanded )
+        return (anItemHasBeenCollapsed || anItemHasBeenExpanded)
     }
     
     /*==========================================================================*/
@@ -445,8 +460,8 @@ public class OBWPathView: NSView {
         }
         
         let tailItemView = itemViews.removeLast()
-        let penultimateItemView: OBWPathItemView? = ( itemViews.count > 0 ? itemViews.removeLast() : nil )
-        let headItemView: OBWPathItemView? = ( itemViews.count > 0 ? itemViews.removeFirst() : nil )
+        let penultimateItemView: OBWPathItemView? = (itemViews.count > 0 ? itemViews.removeLast() : nil)
+        let headItemView: OBWPathItemView? = (itemViews.count > 0 ? itemViews.removeFirst() : nil)
         let interiorItemViews = itemViews
         
         let tailPreferredWidth = tailItemView.preferredWidth
@@ -474,24 +489,24 @@ public class OBWPathView: NSView {
         }
         
         if compression.rawValue >= OBWPathViewCompression.interior.rawValue && !interiorItemViews.isEmpty {
-            widthToCompress -= self.compress( itemViews: interiorItemViews, by: widthToCompress )
+            widthToCompress -= self.compress(itemViews: interiorItemViews, by: widthToCompress)
         }
         
         if let headItemView = headItemView {
             if compression.rawValue >= OBWPathViewCompression.head.rawValue {
-                widthToCompress -= self.compress( itemViews: [headItemView], by: widthToCompress )
+                widthToCompress -= self.compress(itemViews: [headItemView], by: widthToCompress)
             }
         }
         
         if let penultimateItemView = penultimateItemView {
             if compression.rawValue >= OBWPathViewCompression.penultimate.rawValue {
-                widthToCompress -= self.compress( itemViews: [penultimateItemView], by: widthToCompress )
+                widthToCompress -= self.compress(itemViews: [penultimateItemView], by: widthToCompress)
             }
         }
         
         if compression.rawValue == OBWPathViewCompression.tail.rawValue {
             let tailMinimumWidth = tailItemView.minimumWidth
-            let tailCurrentWidth = ( tailPreferredWidth - widthToCompress < tailMinimumWidth ? tailMinimumWidth : tailPreferredWidth - widthToCompress )
+            let tailCurrentWidth = (tailPreferredWidth - widthToCompress < tailMinimumWidth ? tailMinimumWidth : tailPreferredWidth - widthToCompress)
             tailItemView.currentWidth = tailCurrentWidth
             tailItemView.idleWidth = tailCurrentWidth
         }
@@ -505,7 +520,7 @@ public class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    private func compress( itemViews: [OBWPathItemView], by compression: CGFloat ) -> CGFloat {
+    private func compress(itemViews: [OBWPathItemView], by compression: CGFloat) -> CGFloat {
         
         var compressibleItemViews: [OBWPathItemView] = []
         var totalWidthItemsCanCompress: CGFloat = 0.0
@@ -516,12 +531,16 @@ public class OBWPathView: NSView {
             
             if widthItemCanCompress > 0.0 {
                 totalWidthItemsCanCompress += widthItemCanCompress
-                compressibleItemViews.append( itemView )
+                compressibleItemViews.append(itemView)
             }
         }
         
-        guard !compressibleItemViews.isEmpty else { return 0.0 }
-        guard totalWidthItemsCanCompress > 0.0 else { return 0.0 }
+        guard
+            compressibleItemViews.isEmpty == false,
+            totalWidthItemsCanCompress > 0.0
+        else {
+            return 0.0
+        }
         
         let widthToCompress = compression
         
@@ -548,7 +567,7 @@ public class OBWPathView: NSView {
                 
                 let widthItemCanCompress = preferredWidth - itemView.minimumWidth
                 let compressionFraction = widthItemCanCompress / totalWidthItemsCanCompress
-                widthToCompressItem = round( widthToCompress * compressionFraction )
+                widthToCompressItem = round(widthToCompress * compressionFraction)
             }
             
             let itemWidth = preferredWidth - widthToCompressItem
@@ -561,12 +580,13 @@ public class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    private func adjustItemViewFrames( animate: Bool ) {
+    private func adjustItemViewFrames(animate: Bool) {
         
-        let shiftKey = NSEvent.modifierFlags.contains( NSEvent.ModifierFlags.shift )
-        let animationDuration = ( animate ? ( shiftKey ? 2.5 : 0.1 ) : 0.0 )
+        let shiftKey = NSEvent.modifierFlags.contains(.shift)
+        let animationDuration = (animate ? (shiftKey ? 2.5 : 0.1) : 0.0)
         
-        NSAnimationContext.runAnimationGroup({ ( context: NSAnimationContext ) in
+        NSAnimationContext.runAnimationGroup({
+            (context: NSAnimationContext) in
             
             context.duration = animationDuration
             
@@ -578,7 +598,7 @@ public class OBWPathView: NSView {
                 itemFrame.origin.x = itemOriginX
                 itemFrame.size.width = itemView.currentWidth
                 
-                let targetView = ( animate ? itemView.animator() : itemView )
+                let targetView = (animate ? itemView.animator() : itemView)
                 targetView.frame = itemFrame
                 targetView.alphaValue = 1.0
                 
@@ -587,13 +607,16 @@ public class OBWPathView: NSView {
                 itemOriginX += itemFrame.size.width
             }
             
-            }, completionHandler: nil )
+            }, completionHandler: nil)
         
-        guard let terminatedViews = self.terminatedViews else { return }
+        guard let terminatedViews = self.terminatedViews else {
+            return
+        }
         
         self.terminatedViews = nil
         
-        NSAnimationContext.runAnimationGroup({ ( context: NSAnimationContext ) in
+        NSAnimationContext.runAnimationGroup({
+            (context: NSAnimationContext) in
             
             context.duration = animationDuration
             
@@ -604,7 +627,7 @@ public class OBWPathView: NSView {
                 var itemFrame = itemView.frame
                 itemFrame.origin.x = itemOriginX
                 
-                let targetView = ( animate ? itemView.animator() : itemView )
+                let targetView = (animate ? itemView.animator() : itemView)
                 targetView.frame = itemFrame
                 targetView.alphaValue = 0.0
                 

@@ -11,26 +11,30 @@ import Cocoa
 
 extension NSColor {
     
-    func colorByScaling( hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat ) -> NSColor {
+    func colorByScaling(hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat) -> NSColor {
         
-        guard let originalColor = self.usingColorSpaceName( NSColorSpaceName.calibratedRGB ) else { return self }
+        guard let originalColor = self.usingColorSpaceName(NSColorSpaceName.calibratedRGB) else {
+            return self
+        }
         
-        let pinColor = { ( value: CGFloat ) -> CGFloat in
+        let pinColor = {
+            ( value: CGFloat ) -> CGFloat in
+            
             if value < 0.0 { return 0.0 }
             if value > 1.0 { return 1.0 }
+            
             return value
         }
         
-        let adjustedHue = pinColor( originalColor.hueComponent * hue )
-        let adjustedSaturation = pinColor( originalColor.saturationComponent * saturation )
-        let adjustedBrightness = pinColor( originalColor.brightnessComponent * brightness )
-        let adjustedAlpha = pinColor( originalColor.alphaComponent * alpha )
+        let adjustedHue = pinColor(originalColor.hueComponent * hue)
+        let adjustedSaturation = pinColor(originalColor.saturationComponent * saturation)
+        let adjustedBrightness = pinColor(originalColor.brightnessComponent * brightness)
+        let adjustedAlpha = pinColor(originalColor.alphaComponent * alpha)
         
-        let adjustedColor = NSColor( hue: adjustedHue, saturation: adjustedSaturation, brightness: adjustedBrightness, alpha: adjustedAlpha )
+        let adjustedColor = NSColor(hue: adjustedHue, saturation: adjustedSaturation, brightness: adjustedBrightness, alpha: adjustedAlpha)
         
-        return ( adjustedColor.usingColorSpaceName( self.colorSpaceName ) ?? self )
+        return (adjustedColor.usingColorSpaceName(self.colorSpaceName) ?? self)
     }
-    
 }
 
 /*==========================================================================*/
@@ -39,14 +43,14 @@ extension NSColor {
 class OBWPathItemView: NSView {
     
     /*==========================================================================*/
-    override init( frame frameRect: NSRect ) {
-        super.init( frame: frameRect )
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
         self.commonInitialization()
     }
     
     /*==========================================================================*/
-    required init?( coder: NSCoder ) {
-        super.init( coder: coder )
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
         self.commonInitialization()
     }
     
@@ -57,9 +61,9 @@ class OBWPathItemView: NSView {
         self.idleWidth = self.currentWidth
         self.preferredWidth = self.currentWidth
         
-        self.addSubview( imageView )
-        self.addSubview( titleField )
-        self.addSubview( dividerView )
+        self.addSubview(imageView)
+        self.addSubview(titleField)
+        self.addSubview(dividerView)
         
         self.autoresizingMask = NSView.AutoresizingMask()
         self.layerContentsRedrawPolicy = .duringViewResize
@@ -69,12 +73,16 @@ class OBWPathItemView: NSView {
     // MARK: - NSResponder overrides
     
     /*==========================================================================*/
-    override func mouseDown( with theEvent: NSEvent ) {
+    override func mouseDown(with theEvent: NSEvent) {
         
-        guard let pathView = self.superview as? OBWPathView else { return }
-        guard pathView.enabled else { return }
+        guard
+            let pathView = self.superview as? OBWPathView,
+            pathView.enabled
+        else {
+            return
+        }
         
-        self.displayItemMenu( .gui( theEvent ) )
+        self.displayItemMenu(.gui(theEvent))
     }
 
     /*==========================================================================*/
@@ -129,13 +137,13 @@ class OBWPathItemView: NSView {
             height: dividerImageSize.height
         )
         
-        let minimumDividerOriginX = itemViewBounds.origin.x + self.minimumWidth - ( dividerMargins.right + dividerImageSize.width )
-        dividerFrame.origin.x = max( dividerFrame.origin.x, minimumDividerOriginX )
+        let minimumDividerOriginX = itemViewBounds.origin.x + self.minimumWidth - (dividerMargins.right + dividerImageSize.width)
+        dividerFrame.origin.x = max(dividerFrame.origin.x, minimumDividerOriginX)
         
         dividerView.frame = dividerFrame
         
         if !dividerView.isHidden {
-            titleMargins.right = dividerMargins.right + dividerFrame.size.width + min( dividerMargins.left, titleMargins.right )
+            titleMargins.right = dividerMargins.right + dividerFrame.size.width + min(dividerMargins.left, titleMargins.right)
         }
         
         let titleField = self.titleField
@@ -180,9 +188,13 @@ class OBWPathItemView: NSView {
     /*==========================================================================*/
     override func accessibilityRoleDescription() -> String? {
         
-        let descriptionFormat = NSLocalizedString( "path element %@", comment: "PathItemView accessibility role description" )
-        guard let standardDescription = NSAccessibility.Role.popUpButton.description(with: nil ) else { return nil }
-        return String( format: descriptionFormat, standardDescription )
+        let descriptionFormat = NSLocalizedString("path element %@", comment: "PathItemView accessibility role description")
+        
+        guard let standardDescription = NSAccessibility.Role.popUpButton.description(with: nil) else {
+            return nil
+        }
+        
+        return String(format: descriptionFormat, standardDescription)
     }
     
     /*==========================================================================*/
@@ -192,7 +204,11 @@ class OBWPathItemView: NSView {
     
     /*==========================================================================*/
     override func isAccessibilityEnabled() -> Bool {
-        guard let pathView = self.superview as? OBWPathView else { return false }
+        
+        guard let pathView = self.superview as? OBWPathView else {
+            return false
+        }
+        
         return pathView.enabled
     }
     
@@ -203,20 +219,26 @@ class OBWPathItemView: NSView {
     
     /*==========================================================================*/
     override func accessibilityHelp() -> String? {
-        guard let pathView = self.superview as? OBWPathView else { return nil }
-        guard let pathItem = self.pathItem else { return nil }
-        return pathView.delegate?.pathView( pathView, accessibilityHelpForItem: pathItem )
+        
+        guard
+            let pathView = self.superview as? OBWPathView,
+            let pathItem = self.pathItem
+        else {
+            return nil
+        }
+        
+        return pathView.delegate?.pathView(pathView, accessibilityHelpForItem: pathItem)
     }
     
     /*==========================================================================*/
     override func accessibilityPerformPress() -> Bool {
-        self.displayItemMenu( .accessibility )
+        self.displayItemMenu(.accessibility)
         return true
     }
     
     /*==========================================================================*/
     override func accessibilityPerformShowMenu() -> Bool {
-        self.displayItemMenu( .accessibility )
+        self.displayItemMenu(.accessibility)
         return true
     }
     
@@ -238,7 +260,7 @@ class OBWPathItemView: NSView {
             self.updateTitleFieldContents()
             
             self.imageView.image = self.pathItem?.image ?? nil
-            self.imageView.isHidden = ( self.imageView.image == nil )
+            self.imageView.isHidden = (self.imageView.image == nil)
             
             self.needsDisplay = true
             
@@ -270,7 +292,7 @@ class OBWPathItemView: NSView {
     }
     
     /*==========================================================================*/
-    func displayItemMenu( _ menuTrigger: OBWPathItemTrigger ) {
+    func displayItemMenu(_ menuTrigger: OBWPathItemTrigger) {
         
         guard
             let pathView = self.superview as? OBWPathView,
@@ -281,11 +303,11 @@ class OBWPathItemView: NSView {
         }
         
         // OBWFilteringMenu
-        if let filteringMenu = delegate.pathView( pathView, filteringMenuForItem: hitPathItem, trigger: menuTrigger ) {
+        if let filteringMenu = delegate.pathView(pathView, filteringMenuForItem: hitPathItem, trigger: menuTrigger) {
             
-            let menuItem = filteringMenu.itemWithTitle( hitPathItem.title )
+            let menuItem = filteringMenu.itemWithTitle(hitPathItem.title)
             
-            var itemLocation = NSPoint( x: self.bounds.minX, y: self.bounds.maxY )
+            var itemLocation = NSPoint(x: self.bounds.minX, y: self.bounds.maxY)
             
             if let menuItem = menuItem {
             
@@ -312,7 +334,7 @@ class OBWPathItemView: NSView {
             
             switch menuTrigger {
                 
-            case .gui( let triggerEvent ):
+            case .gui(let triggerEvent):
                 event = triggerEvent
                 highlightItem = nil
                 
@@ -321,24 +343,24 @@ class OBWPathItemView: NSView {
                 highlightItem = false
             }
             
-            _ = filteringMenu.popUpMenuPositioningItem( menuItem, atLocation: itemLocation, inView: self, withEvent: event, highlightMenuItem: highlightItem )
+            _ = filteringMenu.popUpMenuPositioningItem(menuItem, atLocation: itemLocation, inView: self, withEvent: event, highlightMenuItem: highlightItem)
         }
         
         // NSMenu
-        else if let menu = delegate.pathView( pathView, menuForItem: hitPathItem, trigger: menuTrigger ) {
+        else if let menu = delegate.pathView(pathView, menuForItem: hitPathItem, trigger: menuTrigger) {
             
-            let menuItem = menu.item( withTitle: hitPathItem.title )
+            let menuItem = menu.item(withTitle: hitPathItem.title)
             
             let minorVersion = ProcessInfo().operatingSystemVersion.minorVersion
             let menuItemLocationOffsets: NSSize
             
             if minorVersion <= 10 {
                 // These offsets are based on the geometry of a standard NSMenu and were determined experimentally on Mac OS X 10.10
-                menuItemLocationOffsets = NSSize( width: -17.0, height: 1.0 )
+                menuItemLocationOffsets = NSSize(width: -17.0, height: 1.0)
             }
             else {
                 // These offsets are based on the geometry of a standard NSMenu and were determined experimentally on Mac OS X 10.11
-                menuItemLocationOffsets = NSSize( width: -16.0, height: 2.0 )
+                menuItemLocationOffsets = NSSize(width: -16.0, height: 2.0)
             }
             
             let itemLocation = NSPoint(
@@ -346,17 +368,19 @@ class OBWPathItemView: NSView {
                 y: self.bounds.origin.y + self.bounds.size.height - menuItemLocationOffsets.height
             )
             
-            menu.popUp( positioning: menuItem, at: itemLocation, in: self )
+            menu.popUp(positioning: menuItem, at: itemLocation, in: self)
         }
     }
     
     /*==========================================================================*/
     func pathViewAppearanceChanged() {
         
-        guard let pathView = self.superview as? OBWPathView else { return }
+        guard let pathView = self.superview as? OBWPathView else {
+            return
+        }
         
-        let activeAppearance = ( pathView.enabled && pathView.active )
-        let imageAlpha = ( activeAppearance ? 1.0 : OBWPathItemView.disabledViewAlpha )
+        let activeAppearance = (pathView.enabled && pathView.active)
+        let imageAlpha = (activeAppearance ? 1.0 : OBWPathItemView.disabledViewAlpha)
         
         self.imageView.alphaValue = imageAlpha
         self.dividerView.alphaValue = imageAlpha
@@ -367,16 +391,16 @@ class OBWPathItemView: NSView {
     /*==========================================================================*/
     // MARK: - OBWPathItemView internal
     
-    private static let offscreenTextField = NSTextField( frame: NSZeroRect )
+    private static let offscreenTextField = NSTextField(frame: .zero)
     private var active: Bool = true
     
     /*==========================================================================*/
     private let imageView: NSImageView = {
         
-        let itemImageView = NSImageView( frame: NSZeroRect )
+        let itemImageView = NSImageView(frame: .zero)
         itemImageView.autoresizingMask = NSView.AutoresizingMask()
         itemImageView.isHidden = true
-        itemImageView.cell?.setAccessibilityElement( false )
+        itemImageView.cell?.setAccessibilityElement(false)
         
         return itemImageView
     }()
@@ -384,8 +408,8 @@ class OBWPathItemView: NSView {
     /*==========================================================================*/
     private let titleField: NSTextField = {
         
-        let titleField = NSTextField( frame: NSZeroRect )
-        titleField.cell?.setAccessibilityElement( false )
+        let titleField = NSTextField(frame: .zero)
+        titleField.cell?.setAccessibilityElement(false)
         titleField.cell?.lineBreakMode = .byTruncatingTail
         titleField.autoresizingMask = NSView.AutoresizingMask()
         titleField.isEditable = false
@@ -403,10 +427,10 @@ class OBWPathItemView: NSView {
         
         let frame = NSRect( size: dividerImage.size )
         
-        let dividerImageView = NSImageView( frame: frame )
-        dividerImageView.cell?.setAccessibilityElement( false )
+        let dividerImageView = NSImageView(frame: frame)
+        dividerImageView.cell?.setAccessibilityElement(false)
         dividerImageView.image = dividerImage
-        dividerImageView.autoresizingMask = NSView.AutoresizingMask.maxXMargin
+        dividerImageView.autoresizingMask = .maxXMargin
         dividerImageView.isHidden = true
         
         return dividerImageView
@@ -421,15 +445,15 @@ class OBWPathItemView: NSView {
         let minorVersion = ProcessInfo().operatingSystemVersion.minorVersion
         
         if minorVersion <= 10 {
-            return NSEdgeInsets( top: 3.0, left: 4.0, bottom: 3.0, right: 2.0 )
+            return NSEdgeInsets(top: 3.0, left: 4.0, bottom: 3.0, right: 2.0)
         }
         else {
-            return NSEdgeInsets( top: 3.0, left: 5.0, bottom: 4.0, right: 2.0 )
+            return NSEdgeInsets(top: 3.0, left: 5.0, bottom: 4.0, right: 2.0)
         }
     }()
     
-    private static let titleMargins = NSEdgeInsets( top: 4.0, left: 2.0, bottom: 4.0, right: 2.0 )
-    private static let dividerMargins = NSEdgeInsets( top: 0.0, left: 3.0, bottom: 0.0, right: 2.0 )
+    private static let titleMargins = NSEdgeInsets(top: 4.0, left: 2.0, bottom: 4.0, right: 2.0)
+    private static let dividerMargins = NSEdgeInsets(top: 0.0, left: 3.0, bottom: 0.0, right: 2.0)
     
     private static let minimumTitleWidthWithoutImage: CGFloat = 20.0
 
@@ -438,26 +462,28 @@ class OBWPathItemView: NSView {
         
         let attributes: [NSAttributedString.Key:Any] = [
             .paragraphStyle : NSParagraphStyle.default,
-            .font : NSFont.controlContentFont( ofSize: OBWPathItemView.titleFontSize + 6.0 ),
-            .foregroundColor : NSColor( white: 0.55, alpha: 1.0 ),
+            .font : NSFont.controlContentFont(ofSize: OBWPathItemView.titleFontSize + 6.0),
+            .foregroundColor : NSColor(white: 0.55, alpha: 1.0),
         ]
         
         let string = "⟩" as NSString // \xE2\x9F\xA9
-        let stringBounds = string.boundingRect( with: NSZeroSize, options: [], attributes: attributes )
+        let stringBounds = string.boundingRect(with: NSZeroSize, options: [], attributes: attributes)
         
         let sourceFrame = NSRect(
-            width: ceil( stringBounds.size.width ),
-            height: ceil( stringBounds.size.height )
+            width: ceil(stringBounds.size.width),
+            height: ceil(stringBounds.size.height)
         )
         
-        let sourceImage = NSImage( size: sourceFrame.size )
+        let sourceImage = NSImage(size: sourceFrame.size)
         sourceImage.withLockedFocus {
-            string.draw( at: NSZeroPoint, withAttributes: attributes )
+            string.draw(at: NSZeroPoint, withAttributes: attributes)
         }
         
-        guard let dividerImage = sourceImage.imageByTrimmingTransparentEdges() else { return sourceImage }
+        guard let dividerImage = sourceImage.imageByTrimmingTransparentEdges() else {
+            return sourceImage
+        }
         
-        let maskImage = NSImage( size: dividerImage.size )
+        let maskImage = NSImage(size: dividerImage.size)
         maskImage.withLockedFocus {
             
             let colors = [
@@ -466,36 +492,38 @@ class OBWPathItemView: NSView {
                 NSColor.clear,
             ]
             
-            let locations: [CGFloat] = [ 0.0, 0.65, 1.0 ]
+            let locations: [CGFloat] = [0.0, 0.65, 1.0]
             
-            guard let gradient = NSGradient( colors: colors, atLocations: locations, colorSpace: NSColorSpace.genericRGB ) else { return }
+            guard let gradient = NSGradient(colors: colors, atLocations: locations, colorSpace: NSColorSpace.genericRGB) else {
+                return
+            }
             
             let destinationRect = NSRect(
                 size: dividerImage.size
             )
             
-            gradient.draw( in: destinationRect, angle: 0.0 )
+            gradient.draw(in: destinationRect, angle: 0.0)
         }
         
         dividerImage.withLockedFocus {
-            maskImage.draw( at: NSZeroPoint, from: NSZeroRect, operation: .destinationOut, fraction: 1.0 )
+            maskImage.draw(at: NSZeroPoint, from: NSZeroRect, operation: .destinationOut, fraction: 1.0)
         }
         
         return dividerImage
     }()
     
     /*==========================================================================*/
-    private class func titleFontForPathItemStyle( _ style: OBWPathItemStyle ) -> NSFont {
+    private class func titleFontForPathItemStyle(_ style: OBWPathItemStyle) -> NSFont {
         
-        var displayFont = NSFont.controlContentFont( ofSize: OBWPathItemView.titleFontSize )
+        var displayFont = NSFont.controlContentFont(ofSize: OBWPathItemView.titleFontSize)
         
         let sharedFontManager = NSFontManager.shared
         
-        if style.contains( .italic ) {
-            displayFont = sharedFontManager.convert( displayFont, toHaveTrait: .italicFontMask )
+        if style.contains(.italic) {
+            displayFont = sharedFontManager.convert(displayFont, toHaveTrait: .italicFontMask)
         }
-        if style.contains( .bold ) {
-            displayFont = sharedFontManager.convert( displayFont, toHaveTrait: .boldFontMask )
+        if style.contains(.bold) {
+            displayFont = sharedFontManager.convert(displayFont, toHaveTrait: .boldFontMask)
         }
         
         return displayFont
@@ -509,15 +537,19 @@ class OBWPathItemView: NSView {
             return
         }
         
-        guard let pathItem = self.pathItem else { return }
-        guard let pathView = self.superview as? OBWPathView else { return }
+        guard
+            let pathItem = self.pathItem,
+            let pathView = self.superview as? OBWPathView
+        else {
+            return
+        }
         
         let paragraphStyle = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
         paragraphStyle.lineBreakMode = .byTruncatingTail
         
-        let displayFont = OBWPathItemView.titleFontForPathItemStyle( pathItem.style )
+        let displayFont = OBWPathItemView.titleFontForPathItemStyle(pathItem.style)
         
-        let displayInActiveState = ( pathView.active && pathView.enabled )
+        let displayInActiveState = (pathView.active && pathView.enabled)
         let titleColor: NSColor
         
         if let styleTitleColor = pathItem.textColor {
@@ -526,7 +558,7 @@ class OBWPathItemView: NSView {
                 titleColor = styleTitleColor
             }
             else {
-                titleColor = styleTitleColor.colorByScaling( hue: 1.0, saturation: 1.0, brightness: 1.0, alpha: OBWPathItemView.disabledViewAlpha )
+                titleColor = styleTitleColor.colorByScaling(hue: 1.0, saturation: 1.0, brightness: 1.0, alpha: OBWPathItemView.disabledViewAlpha)
             }
         }
         else if displayInActiveState {
@@ -542,7 +574,7 @@ class OBWPathItemView: NSView {
             .foregroundColor : titleColor,
         ]
         
-        self.titleField.attributedStringValue = NSAttributedString( string: title, attributes: attributes )
+        self.titleField.attributedStringValue = NSAttributedString(string: title, attributes: attributes)
     }
     
     /*==========================================================================*/
@@ -556,7 +588,7 @@ class OBWPathItemView: NSView {
         if !imageView.isHidden {
             
             let imageFrameWidth = self.bounds.size.height - OBWPathItemView.imageMargins.bottom - OBWPathItemView.imageMargins.top
-            titleMargins.left = OBWPathItemView.imageMargins.left + imageFrameWidth + max( OBWPathItemView.imageMargins.right, OBWPathItemView.titleMargins.left )
+            titleMargins.left = OBWPathItemView.imageMargins.left + imageFrameWidth + max(OBWPathItemView.imageMargins.right, OBWPathItemView.titleMargins.left)
             titleMinimumWidth = 0.0
         }
         
@@ -564,26 +596,26 @@ class OBWPathItemView: NSView {
         
         if !dividerView.isHidden {
             let dividerImageSize = dividerView.image!.size
-            titleMargins.right = OBWPathItemView.dividerMargins.right + dividerImageSize.width + min( OBWPathItemView.dividerMargins.left, OBWPathItemView.titleMargins.right )
+            titleMargins.right = OBWPathItemView.dividerMargins.right + dividerImageSize.width + min(OBWPathItemView.dividerMargins.left, OBWPathItemView.titleMargins.right)
         }
         
         let currentMinimumWidth = self.minimumWidth
-        let newMinimumWidth = ( titleMargins.left + titleMinimumWidth + titleMargins.right )
+        let newMinimumWidth = (titleMargins.left + titleMinimumWidth + titleMargins.right)
         
         let currentPreferredWidth = self.preferredWidth
         var newPreferredWidth = newMinimumWidth
         
         if let cell = self.titleField.cell, let pathItem = self.pathItem {
             
-            if !pathItem.title.isEmpty {
-                let titlePreferredWidth = ceil( cell.cellSize.width )
-                newPreferredWidth = ( titleMargins.left + max( titlePreferredWidth, titleMinimumWidth ) + titleMargins.right )
+            if pathItem.title.isEmpty == false {
+                let titlePreferredWidth = ceil(cell.cellSize.width)
+                newPreferredWidth = (titleMargins.left + max(titlePreferredWidth, titleMinimumWidth) + titleMargins.right)
             }
         }
         
         self.preferredWidth = newPreferredWidth
         self.minimumWidth = newMinimumWidth
         
-        return ( currentPreferredWidth != newPreferredWidth || currentMinimumWidth != newMinimumWidth )
+        return (currentPreferredWidth != newPreferredWidth || currentMinimumWidth != newMinimumWidth)
     }
 }
