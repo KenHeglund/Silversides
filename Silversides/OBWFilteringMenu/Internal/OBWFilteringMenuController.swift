@@ -824,15 +824,15 @@ class OBWFilteringMenuController {
             
             if firstWindow.alignmentFromPrevious == .right {
                 self.updateRoundedCornersBetween( leftWindow: secondWindow, rightWindow: firstWindow )
-                firstWindow.roundedCorners.formUnion( [ .TopRight, .BottomRight ] )
+                firstWindow.roundedCorners.formUnion( [ .topRight, .bottomRight ] )
             }
             else {
                 self.updateRoundedCornersBetween( leftWindow: firstWindow, rightWindow: secondWindow )
-                firstWindow.roundedCorners.formUnion( [ .TopLeft, .BottomLeft ] )
+                firstWindow.roundedCorners.formUnion( [ .topLeft, .bottomLeft ] )
             }
         }
         else {
-            firstWindow.roundedCorners = .All
+            firstWindow.roundedCorners = .all
         }
     }
     
@@ -840,31 +840,31 @@ class OBWFilteringMenuController {
     private func updateRoundedCornersBetween( leftWindow: OBWFilteringMenuWindow, rightWindow: OBWFilteringMenuWindow ) {
         
         if leftWindow.frame.maxY > rightWindow.frame.maxY {
-            leftWindow.roundedCorners.insert( .TopRight )
+            leftWindow.roundedCorners.insert( .topRight )
         }
         else {
-            leftWindow.roundedCorners.remove( .TopRight )
+            leftWindow.roundedCorners.remove( .topRight )
         }
         
         if leftWindow.frame.minY < rightWindow.frame.minY {
-            leftWindow.roundedCorners.insert( .BottomRight )
+            leftWindow.roundedCorners.insert( .bottomRight )
         }
         else {
-            leftWindow.roundedCorners.remove( .BottomRight )
+            leftWindow.roundedCorners.remove( .bottomRight )
         }
         
         if rightWindow.frame.maxY > leftWindow.frame.maxY {
-            rightWindow.roundedCorners.insert( .TopLeft )
+            rightWindow.roundedCorners.insert( .topLeft )
         }
         else {
-            rightWindow.roundedCorners.remove( .TopLeft )
+            rightWindow.roundedCorners.remove( .topLeft )
         }
         
         if rightWindow.frame.minY < leftWindow.frame.minY {
-            rightWindow.roundedCorners.insert( .BottomLeft )
+            rightWindow.roundedCorners.insert( .bottomLeft )
         }
         else {
-            rightWindow.roundedCorners.remove( .BottomLeft )
+            rightWindow.roundedCorners.remove( .bottomLeft )
         }
     }
     
