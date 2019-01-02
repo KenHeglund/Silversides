@@ -140,7 +140,7 @@ class OBWFilteringMenuController {
         
         rootMenuWindow.makeKeyAndOrderFront( nil )
         
-        self.eventSource.eventMask = .ApplicationDidResignActive
+        self.eventSource.eventMask = .applicationDidResignActive
         
         let startDate = Date()
         var terminatingEvent: NSEvent? = nil
@@ -477,17 +477,17 @@ class OBWFilteringMenuController {
         
         switch event.subtype.rawValue {
             
-        case OBWApplicationEventSubtype.ApplicationDidResignActive.rawValue:
+        case OBWApplicationEventSubtype.applicationDidResignActive.rawValue:
             #if CONTINUE_ON_RESIGN_ACTIVE
                 return .Continue
             #else
                 return .interrupt
             #endif
             
-        case OBWApplicationEventSubtype.AccessibleItemSelection.rawValue:
+        case OBWApplicationEventSubtype.accessibleItemSelection.rawValue:
             return .accessibleSelection
             
-        case OBWApplicationEventSubtype.Periodic.rawValue:
+        case OBWApplicationEventSubtype.periodic.rawValue:
             self.updateCurrentMenuItem( event, continueCursorTracking: true )
             return .continue
             
@@ -1053,7 +1053,7 @@ class OBWFilteringMenuController {
             timestamp: ProcessInfo().systemUptime,
             windowNumber: 0,
             context: nil,
-            subtype: OBWApplicationEventSubtype.AccessibleItemSelection.rawValue,
+            subtype: OBWApplicationEventSubtype.accessibleItemSelection.rawValue,
             data1: 0,
             data2: 0
                 ) {

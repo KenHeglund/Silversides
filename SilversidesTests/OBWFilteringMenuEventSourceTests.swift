@@ -34,7 +34,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         var event: NSEvent?
         
         let eventSource = OBWFilteringMenuEventSource()
-        eventSource.eventMask = .ApplicationDidResignActive
+        eventSource.eventMask = .applicationDidResignActive
         
         let finderApp = NSRunningApplication.runningApplications( withBundleIdentifier: "com.apple.finder" ).first!
         
@@ -46,7 +46,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         Thread.sleep( forTimeInterval: threadSleepTime )
         event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNotNil( event )
-        XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.ApplicationDidResignActive.rawValue )
+        XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.applicationDidResignActive.rawValue )
         
         // Activate self, should NOT receive an activation event
         NSApp.activate( ignoringOtherApps: true )
@@ -54,7 +54,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNil( event )
         
-        eventSource.eventMask = .ApplicationDidBecomeActive
+        eventSource.eventMask = .applicationDidBecomeActive
         
         // Activate Finder, should NOT receive a deactivation event
         finderApp.activate( options: [] )
@@ -67,7 +67,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         Thread.sleep( forTimeInterval: threadSleepTime )
         event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNotNil( event )
-        XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.ApplicationDidBecomeActive.rawValue )
+        XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.applicationDidBecomeActive.rawValue )
         
         eventSource.eventMask = []
         
@@ -83,21 +83,21 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNil( event )
         
-        eventSource.eventMask = [ .ApplicationDidBecomeActive, .ApplicationDidResignActive ]
+        eventSource.eventMask = [ .applicationDidBecomeActive, .applicationDidResignActive ]
         
         // Activate Finder, SHOULD receive a deactivation event
         finderApp.activate( options: [] )
         Thread.sleep( forTimeInterval: threadSleepTime )
         event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNotNil( event )
-        XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.ApplicationDidResignActive.rawValue )
+        XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.applicationDidResignActive.rawValue )
         
         // Activate self, SHOULD receive an activation event
         NSApp.activate( ignoringOtherApps: true )
         Thread.sleep( forTimeInterval: threadSleepTime )
         event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNotNil( event )
-        XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.ApplicationDidBecomeActive.rawValue )
+        XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.applicationDidBecomeActive.rawValue )
         
         eventSource.eventMask = []
     }
