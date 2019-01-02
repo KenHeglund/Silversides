@@ -17,20 +17,20 @@ extension NSRegularExpression: FilterArgument {}
 class OBWFilteringMenuItemFilterStatus {
     
     /*==========================================================================*/
-    private init( menuItem: OBWFilteringMenuItem ) {
+    private init(menuItem: OBWFilteringMenuItem) {
         
         self.menuItem = menuItem
         
         if let attributedTitle = menuItem.attributedTitle {
             self.searchableTitle = attributedTitle.string
-            self.highlightedTitle = NSAttributedString( attributedString: attributedTitle )
+            self.highlightedTitle = NSAttributedString(attributedString: attributedTitle)
         }
         else if let title = menuItem.title {
             
             self.searchableTitle = title
             
-            let attributes = [ NSAttributedString.Key.font : menuItem.font ]
-            self.highlightedTitle = NSAttributedString( string: title, attributes: attributes )
+            let attributes = [NSAttributedString.Key.font : menuItem.font]
+            self.highlightedTitle = NSAttributedString(string: title, attributes: attributes)
         }
         else {
             self.searchableTitle = ""
@@ -39,39 +39,39 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    class func filterStatus( _ menu: OBWFilteringMenu, filterString: String ) -> [OBWFilteringMenuItemFilterStatus] {
+    class func filterStatus(_ menu: OBWFilteringMenu, filterString: String) -> [OBWFilteringMenuItemFilterStatus] {
         
         var statusArray: [OBWFilteringMenuItemFilterStatus] = []
         
         for menuItem in menu.itemArray {
-            statusArray.append( OBWFilteringMenuItemFilterStatus.filterStatus( menuItem, filterString: filterString ) )
+            statusArray.append(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: filterString))
         }
         
         return statusArray
     }
     
     /*==========================================================================*/
-    class func filterStatus( _ menuItem: OBWFilteringMenuItem, filterString: String ) -> OBWFilteringMenuItemFilterStatus {
+    class func filterStatus(_ menuItem: OBWFilteringMenuItem, filterString: String) -> OBWFilteringMenuItemFilterStatus {
         
-        let status = OBWFilteringMenuItemFilterStatus( menuItem: menuItem )
+        let status = OBWFilteringMenuItemFilterStatus(menuItem: menuItem)
         
-        let bestScore = OBWFilteringMenuItemMatchCriteria.All.memberCount
+        let bestScore = OBWFilteringMenuItemMatchCriteria.all.memberCount
         let worstScore = 0
         
-        guard !filterString.isEmpty else {
+        guard filterString.isEmpty == false else {
             status.matchScore = bestScore
             return status
         }
         
-        guard !menuItem.isSeparatorItem && !status.searchableTitle.isEmpty else {
+        guard menuItem.isSeparatorItem == false && status.searchableTitle.isEmpty == false else {
             status.matchScore = worstScore
             return status
         }
         
-        let filterFunction: ( OBWFilteringMenuItemFilterStatus, FilterArgument ) -> Int
+        let filterFunction: (OBWFilteringMenuItemFilterStatus, FilterArgument) -> Int
         let filterArgument: FilterArgument
         
-        if let regexPattern = OBWFilteringMenuItemFilterStatus.regexPatternFromString( filterString ) {
+        if let regexPattern = OBWFilteringMenuItemFilterStatus.regexPatternFromString(filterString) {
             filterFunction = OBWFilteringMenuItemFilterStatus.filter(_:withRegularExpression:)
             filterArgument = regexPattern
         }
@@ -80,16 +80,16 @@ class OBWFilteringMenuItemFilterStatus {
             filterArgument = filterString
         }
         
-        status.matchScore = filterFunction( status, filterArgument )
+        status.matchScore = filterFunction(status, filterArgument)
         
         for (_,alternateMenuItem) in menuItem.alternates {
             
-            let alternateStatus = OBWFilteringMenuItemFilterStatus( menuItem: alternateMenuItem )
-            alternateStatus.matchScore = filterFunction( alternateStatus, filterArgument )
+            let alternateStatus = OBWFilteringMenuItemFilterStatus(menuItem: alternateMenuItem)
+            alternateStatus.matchScore = filterFunction(alternateStatus, filterArgument)
             
             let modifierMask = alternateMenuItem.keyEquivalentModifierMask
-            let key = OBWFilteringMenuItem.dictionaryKeyWithModifierMask( modifierMask )
-            status.addAlternateStatus( alternateStatus, withKey: key )
+            let key = OBWFilteringMenuItem.dictionaryKeyWithModifierMask(modifierMask)
+            status.addAlternateStatus(alternateStatus, withKey: key)
         }
         
         return status
@@ -100,7 +100,7 @@ class OBWFilteringMenuItemFilterStatus {
     
     let menuItem: OBWFilteringMenuItem
     private(set) var highlightedTitle: NSAttributedString
-    private(set) var matchScore = OBWFilteringMenuItemMatchCriteria.All.memberCount
+    private(set) var matchScore = OBWFilteringMenuItemMatchCriteria.all.memberCount
     private(set) var alternateStatus: [String:OBWFilteringMenuItemFilterStatus]? = nil
     
     /*==========================================================================*/
@@ -109,18 +109,22 @@ class OBWFilteringMenuItemFilterStatus {
     private let searchableTitle: String
     
     /*==========================================================================*/
-    private class func regexPatternFromString( _ filterString: String ) -> NSRegularExpression? {
+    private class func regexPatternFromString(_ filterString: String) -> NSRegularExpression? {
         
         var pattern = filterString
         
-        guard filterString.hasPrefix( "g/" ) else { return nil }
-        guard filterString.hasSuffix( "/" ) else { return nil }
-        guard !filterString.hasSuffix( "\\/" ) else { return nil }
+        guard
+            filterString.hasPrefix( "g/" ),
+            filterString.hasSuffix( "/" ),
+            filterString.hasSuffix( "\\/" ) == false
+        else {
+            return nil
+        }
         
-        pattern = pattern.replacingOccurrences( of: "g/", with: "", options: [ .anchored ], range: nil )
-        pattern = pattern.replacingOccurrences( of: "/", with: "", options: [ .anchored, .backwards ], range: nil )
+        pattern = pattern.replacingOccurrences(of: "g/", with: "", options: [.anchored], range: nil)
+        pattern = pattern.replacingOccurrences(of: "/", with: "", options: [.anchored, .backwards], range: nil)
         
-        if let regex = try? NSRegularExpression( pattern: pattern, options: .anchorsMatchLines ) {
+        if let regex = try? NSRegularExpression(pattern: pattern, options: .anchorsMatchLines) {
             return regex
         }
         
@@ -128,7 +132,7 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    private func addAlternateStatus( _ status: OBWFilteringMenuItemFilterStatus, withKey key: String ) {
+    private func addAlternateStatus(_ status: OBWFilteringMenuItemFilterStatus, withKey key: String) {
         
         if self.alternateStatus == nil {
             self.alternateStatus = [key:status]
@@ -141,16 +145,16 @@ class OBWFilteringMenuItemFilterStatus {
     /*==========================================================================*/
     private class func highlightAttributes() -> [NSAttributedString.Key:Any] {
         
-        var backgroundColor = NSColor( red: 1.0, green: 1.0, blue: 0.0, alpha: 0.5 )
-        var underlineColor = NSColor( red: 0.65, green: 0.50, blue: 0.0, alpha: 0.75 )
+        var backgroundColor = NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 0.5)
+        var underlineColor = NSColor(red: 0.65, green: 0.50, blue: 0.0, alpha: 0.75)
         
         if #available(macOS 10.14, *) {
             
             let knownAppearances: [NSAppearance.Name] = [.aqua, .darkAqua]
             
             if NSApp.effectiveAppearance.bestMatch(from: knownAppearances) == .darkAqua {
-                backgroundColor = NSColor( red: 1.0, green: 1.0, blue: 0.0, alpha: 0.25 )
-                underlineColor = NSColor( red: 0.85, green: 0.70, blue: 0.0, alpha: 0.75 )
+                backgroundColor = NSColor(red: 1.0, green: 1.0, blue: 0.0, alpha: 0.25)
+                underlineColor = NSColor(red: 0.85, green: 0.70, blue: 0.0, alpha: 0.75)
             }
         }
         
@@ -164,38 +168,40 @@ class OBWFilteringMenuItemFilterStatus {
     }
 
     /*==========================================================================*/
-    private class func filter( _ status: OBWFilteringMenuItemFilterStatus, withString filterArgument: FilterArgument ) -> Int {
+    private class func filter(_ status: OBWFilteringMenuItemFilterStatus, withString filterArgument: FilterArgument) -> Int {
         
         let worstScore = 0
         
         guard let filterString = filterArgument as? String else {
-            preconditionFailure( "Expecting a String instance as the filterArgument" )
+            preconditionFailure("Expecting a String instance as the filterArgument")
         }
         
         let searchableTitle = status.searchableTitle
-        let workingHighlightedTitle = NSMutableAttributedString( attributedString: status.highlightedTitle )
+        let workingHighlightedTitle = NSMutableAttributedString(attributedString: status.highlightedTitle)
         let highlightAttributes = OBWFilteringMenuItemFilterStatus.highlightAttributes()
 
         var searchRange = searchableTitle.startIndex ..< searchableTitle.endIndex
-        var matchMask = OBWFilteringMenuItemMatchCriteria.All
+        var matchMask = OBWFilteringMenuItemMatchCriteria.all
         var lastMatchIndex: String.Index? = nil
         
         for index in filterString.indices {
             
             let filterSubstring = String(filterString[index])
             
-            guard let caseInsensitiveRange = searchableTitle.range( of: filterSubstring, options: .caseInsensitive, range: searchRange, locale: nil ) else { return worstScore }
+            guard let caseInsensitiveRange = searchableTitle.range(of: filterSubstring, options: .caseInsensitive, range: searchRange, locale: nil) else {
+                return worstScore
+            }
             
-            let caseSensitiveRange = searchableTitle.range( of: filterSubstring, options: .literal, range: searchRange, locale: nil )
+            let caseSensitiveRange = searchableTitle.range(of: filterSubstring, options: .literal, range: searchRange, locale: nil)
             
             if caseSensitiveRange == nil || caseInsensitiveRange != caseSensitiveRange! {
-                matchMask.remove( .CaseSensitive )
+                matchMask.remove(.caseSensitive)
             }
             
             if let lastMatchIndex = lastMatchIndex {
                 
                 if caseInsensitiveRange.lowerBound != searchableTitle.index(after: lastMatchIndex) {
-                    matchMask.remove( .Contiguous )
+                    matchMask.remove(.contiguous)
                 }
             }
             
@@ -204,56 +210,61 @@ class OBWFilteringMenuItemFilterStatus {
                 length: 1
             )
             
-            workingHighlightedTitle.addAttributes( highlightAttributes, range: highlightRange )
+            workingHighlightedTitle.addAttributes(highlightAttributes, range: highlightRange)
             
             lastMatchIndex = caseInsensitiveRange.lowerBound
             searchRange = caseInsensitiveRange.upperBound ..< searchableTitle.endIndex
         }
         
-        status.highlightedTitle = NSAttributedString( attributedString: workingHighlightedTitle )
+        status.highlightedTitle = NSAttributedString(attributedString: workingHighlightedTitle)
         
         return matchMask.memberCount
     }
     
     /*==========================================================================*/
-    private class func filter( _ status: OBWFilteringMenuItemFilterStatus, withRegularExpression filterArgument: FilterArgument ) -> Int {
+    private class func filter(_ status: OBWFilteringMenuItemFilterStatus, withRegularExpression filterArgument: FilterArgument) -> Int {
         
-        let bestScore = OBWFilteringMenuItemMatchCriteria.All.memberCount
+        let bestScore = OBWFilteringMenuItemMatchCriteria.all.memberCount
         let worstScore = 0
         
         guard let regex = filterArgument as? NSRegularExpression else {
-            preconditionFailure( "expecting an NSRegularExpression instance as the filterArgument" )
+            preconditionFailure("expecting an NSRegularExpression instance as the filterArgument")
         }
         
         let searchableTitle = status.searchableTitle
-        let workingHighlightedTitle = NSMutableAttributedString( attributedString: status.highlightedTitle )
+        let workingHighlightedTitle = NSMutableAttributedString(attributedString: status.highlightedTitle)
         let highlightAttributes = OBWFilteringMenuItemFilterStatus.highlightAttributes()
         
         var matchScore = worstScore
         let matchingOptions = NSRegularExpression.MatchingOptions.reportCompletion
-        let searchRange = NSRange( location: 0, length: searchableTitle.distance(from: searchableTitle.startIndex, to: searchableTitle.endIndex) )
+        let searchRange = NSRange(location: 0, length: searchableTitle.distance(from: searchableTitle.startIndex, to: searchableTitle.endIndex))
         
-        regex.enumerateMatches( in: searchableTitle, options: matchingOptions, range: searchRange) { ( result: NSTextCheckingResult?, flags: NSRegularExpression.MatchingFlags, stop: UnsafeMutablePointer<ObjCBool> ) in
+        regex.enumerateMatches(in: searchableTitle, options: matchingOptions, range: searchRange) {
+            (result: NSTextCheckingResult?, flags: NSRegularExpression.MatchingFlags, stop: UnsafeMutablePointer<ObjCBool> ) in
             
-            guard !flags.contains( .internalError ) else {
+            guard flags.contains(.internalError) == false else {
                 stop.pointee = true
                 return
             }
             
-            guard let result = result else { return }
+            guard let result = result else {
+                return
+            }
             
             for rangeIndex in 0 ..< result.numberOfRanges {
                 
-                let resultRange = result.range( at: rangeIndex )
-                guard resultRange.location != NSNotFound else { continue }
+                let resultRange = result.range(at: rangeIndex)
+                guard resultRange.location != NSNotFound else {
+                    continue
+                }
                 
                 matchScore = bestScore
                 
-                workingHighlightedTitle.addAttributes( highlightAttributes, range: resultRange )
+                workingHighlightedTitle.addAttributes(highlightAttributes, range: resultRange)
             }
         }
         
-        status.highlightedTitle = NSAttributedString( attributedString: workingHighlightedTitle )
+        status.highlightedTitle = NSAttributedString(attributedString: workingHighlightedTitle)
         
         return matchScore
     }
@@ -264,27 +275,27 @@ class OBWFilteringMenuItemFilterStatus {
     /*==========================================================================*/
     private struct OBWFilteringMenuItemMatchCriteria: OptionSet {
         
-        init( rawValue: UInt ) {
+        init(rawValue: UInt) {
             self.rawValue = rawValue & 0x7
         }
         
         private(set) var rawValue: UInt
         
-        static let Basic            = OBWFilteringMenuItemMatchCriteria( rawValue: 1 << 0 )
-        static let CaseSensitive    = OBWFilteringMenuItemMatchCriteria( rawValue: 1 << 1 )
-        static let Contiguous       = OBWFilteringMenuItemMatchCriteria( rawValue: 1 << 2 )
+        static let basic            = OBWFilteringMenuItemMatchCriteria(rawValue: 1 << 0)
+        static let caseSensitive    = OBWFilteringMenuItemMatchCriteria(rawValue: 1 << 1)
+        static let contiguous       = OBWFilteringMenuItemMatchCriteria(rawValue: 1 << 2)
         
-        static let All = OBWFilteringMenuItemMatchCriteria( rawValue: 0x7 )
-        static let Last = OBWFilteringMenuItemMatchCriteria.Contiguous
+        static let all = OBWFilteringMenuItemMatchCriteria(rawValue: 0x7)
+        static let last = OBWFilteringMenuItemMatchCriteria.contiguous
         
         var memberCount: Int {
             
             let rawValue = self.rawValue
-            var bitMask = OBWFilteringMenuItemMatchCriteria.Last.rawValue
+            var bitMask = OBWFilteringMenuItemMatchCriteria.last.rawValue
             var bitCount = 0
             repeat {
                 
-                if ( bitMask & rawValue ) != 0 {
+                if (bitMask & rawValue) != 0 {
                     bitCount += 1
                 }
                 
@@ -295,5 +306,4 @@ class OBWFilteringMenuItemFilterStatus {
             return bitCount
         }
     }
-    
 }
