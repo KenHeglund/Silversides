@@ -11,7 +11,7 @@ import Cocoa
 extension NSView {
     
     /*==========================================================================*/
-    var obw_boundsLowerLeftPoint: NSPoint {
+    var boundsLowerLeftPoint: NSPoint {
         
         let viewBounds = self.bounds
         var lowerLeftCorner = viewBounds.origin
@@ -24,21 +24,29 @@ extension NSView {
     }
     
     /*==========================================================================*/
-    var obw_boundsInScreen: NSRect {
+    var boundsInScreen: NSRect {
         
-        let boundsInWindow = self.convert( self.bounds, to: nil )
-        guard let window = self.window else { return self.bounds }
-        return window.convertToScreen( boundsInWindow )
+        let boundsInWindow = self.convert(self.bounds, to: nil)
+        
+        if let window = self.window {
+            return window.convertToScreen(boundsInWindow)
+        }
+        else {
+            return self.bounds
+        }
     }
     
     /*==========================================================================*/
-    func obw_convertPointToScreen( _ locationInView: NSPoint ) -> NSPoint {
+    func convertPointToScreen(_ locationInView: NSPoint) -> NSPoint {
         
-        guard let window = self.window else { return locationInView }
-        let locationInWindow = self.convert( locationInView, to: nil )
+        guard let window = self.window else {
+            return locationInView
+        }
         
-        let rectInWindow = NSRect( origin: locationInWindow, size: NSZeroSize )
-        let rectInScreen = window.convertToScreen( rectInWindow )
+        let locationInWindow = self.convert(locationInView, to: nil)
+        
+        let rectInWindow = NSRect(origin: locationInWindow, size: .zero)
+        let rectInScreen = window.convertToScreen(rectInWindow)
         
         return rectInScreen.origin
     }

@@ -29,10 +29,10 @@ class NSView_OBWExtensionTests: XCTestCase {
         let frame = NSRect( x: 11.0, y: 17.0, width: 23.0, height: 37.0 )
         
         let view = NSView( frame: frame )
-        XCTAssertEqual( view.obw_boundsLowerLeftPoint, NSZeroPoint )
+        XCTAssertEqual( view.boundsLowerLeftPoint, NSZeroPoint )
         
         let flippedView = FlippedView( frame: frame )
-        XCTAssertEqual( flippedView.obw_boundsLowerLeftPoint, NSPoint( x: 0.0, y: frame.size.height ) )
+        XCTAssertEqual( flippedView.boundsLowerLeftPoint, NSPoint( x: 0.0, y: frame.size.height ) )
     }
     
     /*==========================================================================*/
@@ -45,7 +45,7 @@ class NSView_OBWExtensionTests: XCTestCase {
         let testView = NSView( frame: viewFrame )
         window.contentView?.addSubview( testView )
         
-        let boundsInScreen = testView.obw_boundsInScreen
+        let boundsInScreen = testView.boundsInScreen
         
         let verificationRect = NSRect(
             x: windowContentFrame.origin.x + viewFrame.origin.x,
@@ -63,7 +63,7 @@ class NSView_OBWExtensionTests: XCTestCase {
             y: windowContentFrame.origin.y + viewFrame.origin.y + locationInView.y
         )
         
-        let locationInScreen = testView.obw_convertPointToScreen( locationInView )
+        let locationInScreen = testView.convertPointToScreen( locationInView )
         
         XCTAssertEqual( locationInScreen, verificationPoint )
     }

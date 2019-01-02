@@ -754,7 +754,7 @@ class OBWFilteringMenuItemScrollView: NSView {
             return
         }
         
-        let locationInScreen = self.obw_convertPointToScreen( itemTopLeftInScrollView )
+        let locationInScreen = self.convertPointToScreen( itemTopLeftInScrollView )
         
         let menuLocation = NSPoint(
             x: itemViewFrame.minX,

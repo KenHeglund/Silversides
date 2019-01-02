@@ -101,7 +101,7 @@ class OBWFilteringMenuController {
         
         guard let screen = event?.obw_screen ?? view?.window?.screen ?? NSScreen.screens.first else { return false }
         
-        let locationInScreen = view?.obw_convertPointToScreen( locationInView ) ?? locationInView
+        let locationInScreen = view?.convertPointToScreen( locationInView ) ?? locationInView
         
         guard let controller = OBWFilteringMenuController( menuItem: menuItem, atLocation: locationInScreen, inScreen: screen, highlighted: highlighted ) else { return false }
         
@@ -658,7 +658,7 @@ class OBWFilteringMenuController {
         let menuItemBounds = newMenuView.menuItemBounds
         let menuLocation = NSPoint( x: menuItemBounds.minX, y: menuItemBounds.maxY )
         
-        newWindow.displayMenuLocation( menuLocation, adjacentToScreenArea: itemView.obw_boundsInScreen, prefrerredAlignment: parentMenuWindow.alignmentFromPrevious )
+        newWindow.displayMenuLocation( menuLocation, adjacentToScreenArea: itemView.boundsInScreen, prefrerredAlignment: parentMenuWindow.alignmentFromPrevious )
         
         self.updateMenuCorners()
         
@@ -878,7 +878,7 @@ class OBWFilteringMenuController {
         guard let menu = menuItem.menu else { return }
         guard let window = self.menuWindowForMenu( menu ) else { return }
         guard let itemView = window.menuView.viewForMenuItem( menuItem ) else { return }
-        let itemViewBoundsInScreen = itemView.obw_boundsInScreen
+        let itemViewBoundsInScreen = itemView.boundsInScreen
         
         let sourceLine = NSRect(
             x: NSEvent.mouseLocation.x,
@@ -907,7 +907,7 @@ class OBWFilteringMenuController {
         guard let window = self.menuWindowForMenu( menu ) else { return }
         guard let itemView = window.menuView.viewForMenuItem( menuItem ) else { return }
         
-        let itemViewBoundsInScreen = itemView.obw_boundsInScreen
+        let itemViewBoundsInScreen = itemView.boundsInScreen
         
         let sourceLine = NSRect(
             x: NSEvent.mouseLocation.x,
