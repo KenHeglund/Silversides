@@ -87,6 +87,11 @@ class OBWFilteringMenuCursorTracking {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuCursorTracking private
     
+    private struct Waypoint {
+        var timestamp: TimeInterval
+        var locationInScreen: NSPoint
+    }
+    
     private static let trackingInterval = 0.10
     private static let minimumSpeed = 10.0
     
@@ -96,9 +101,7 @@ class OBWFilteringMenuCursorTracking {
     
     private var lastMouseTimestamp: TimeInterval? = nil
     
-    private let cursorWaypoints: [OBWFilteringMenuCursorTrackingWaypoint] =
-        (1...20).map({ _ in OBWFilteringMenuCursorTrackingWaypoint() })
-    
+    private var cursorWaypoints: [Waypoint] = []
     
     fileprivate var topSlope: CGFloat = 0.0
     fileprivate var topOffset: CGFloat = 0.0
@@ -198,61 +201,40 @@ class OBWFilteringMenuCursorTracking {
     
     /*==========================================================================*/
     private func resetWaypoints() {
-        
-        for waypoint in self.cursorWaypoints {
-            waypoint.timestamp = nil
-        }
+        self.cursorWaypoints = []
     }
     
     /*==========================================================================*/
     private func isCursorMovingFastEnough(_ timestamp: TimeInterval, locationInScreen: NSPoint) -> Bool {
         
-        let waypoints = self.cursorWaypoints
-        var oldestIndex = waypoints.startIndex
+        self.cursorWaypoints.append(Waypoint(timestamp: timestamp, locationInScreen: locationInScreen))
         
-        let firstIndex = (waypoints.startIndex + 1)
-        let lastIndex = (waypoints.endIndex - 1)
-        
-        for index in (firstIndex...lastIndex).reversed() {
-            
-            let newTimestamp = waypoints[index - 1].timestamp
-            let newLocation = waypoints[index - 1].locationInScreen
-            
-            let oldTimestamp = waypoints[index].timestamp
-            
-            waypoints[index].timestamp = newTimestamp
-            waypoints[index].locationInScreen = newLocation
-            
-            if oldTimestamp == nil && newTimestamp != nil {
-                oldestIndex = index
-            }
-        }
-        
-        waypoints[0].timestamp = timestamp
-        waypoints[0].locationInScreen = locationInScreen
-        
-        if oldestIndex == waypoints.startIndex {
+        guard self.cursorWaypoints.count > 1 else {
             return true
         }
         
-        let distanceX = waypoints[oldestIndex].locationInScreen.x - waypoints[0].locationInScreen.x
-        let distanceY = waypoints[oldestIndex].locationInScreen.y - waypoints[0].locationInScreen.y
+        let maxWaypointCount = 20
+        
+        if self.cursorWaypoints.count > maxWaypointCount {
+            self.cursorWaypoints = Array(self.cursorWaypoints.dropFirst(self.cursorWaypoints.count - maxWaypointCount))
+        }
+        
+        let oldestWaypoint = self.cursorWaypoints[0]
+        let distanceX = oldestWaypoint.locationInScreen.x - locationInScreen.x
+        let distanceY = oldestWaypoint.locationInScreen.y - locationInScreen.y
         
         let distance = Double(abs(distanceX) + abs(distanceY))
-        let time = timestamp - waypoints[oldestIndex].timestamp!
+        let time = timestamp - oldestWaypoint.timestamp
+        
+        guard time > 0.0 else {
+            return true
+        }
+        
         let speed = distance / time
         
         return speed >= OBWFilteringMenuCursorTracking.minimumSpeed
     }
     
-}
-
-/*==========================================================================*/
-// MARK: -
-
-private class OBWFilteringMenuCursorTrackingWaypoint {
-    var timestamp: TimeInterval? = nil
-    var locationInScreen: NSPoint = NSZeroPoint
 }
 
 /*==========================================================================*/
