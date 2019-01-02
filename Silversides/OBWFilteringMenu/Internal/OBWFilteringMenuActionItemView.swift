@@ -460,7 +460,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let attributedTitle: NSMutableAttributedString
         
         if let menuItemTitle = menuItem.attributedTitle, menuItemTitle.length > 0 {
-            attributedTitle = menuItem.attributedTitle!.mutableCopy() as! NSMutableAttributedString
+            attributedTitle = menuItemTitle.mutableCopy() as! NSMutableAttributedString
         }
         else {
             

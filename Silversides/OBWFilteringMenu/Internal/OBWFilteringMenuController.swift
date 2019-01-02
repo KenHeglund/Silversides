@@ -423,7 +423,7 @@ class OBWFilteringMenuController {
         
         targetMenuWindow.menuView.handleFlagsChangedEvent(event)
         
-        guard !targetMenuWindow.accessibilityActive else {
+        guard targetMenuWindow.accessibilityActive == false else {
             return .continue
         }
         
@@ -551,7 +551,7 @@ class OBWFilteringMenuController {
         
         let previousMenuItem = self.lastHitMenuItem
         let previousMenu = previousMenuItem?.menu
-        let previousMenuWindow = (previousMenu != nil ? self.menuWindowForMenu(previousMenu!) : nil)
+        let previousMenuWindow = previousMenu.flatMap({ self.menuWindowForMenu($0) })
         
         self.lastHitMenuItem = currentMenuItem
         
@@ -575,7 +575,7 @@ class OBWFilteringMenuController {
                 self.updateCursorTracking()
                 return
             }
-            else if !continueCursorTracking {
+            else if continueCursorTracking == false {
                 // The cursor is between source and submenu but must be interrupted
                 self.endCursorTracking()
                 self.removeTopmostMenuWindow(withFade: false)

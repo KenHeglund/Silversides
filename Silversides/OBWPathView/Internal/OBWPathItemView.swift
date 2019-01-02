@@ -123,7 +123,7 @@ class OBWPathItemView: NSView {
         
         imageView.frame = imageFrame
         
-        if !imageView.isHidden {
+        if imageView.isHidden == false {
             titleMargins.left = imageMargins.left + imageFrame.size.width + max( imageMargins.right, titleMargins.left )
         }
         
@@ -142,7 +142,7 @@ class OBWPathItemView: NSView {
         
         dividerView.frame = dividerFrame
         
-        if !dividerView.isHidden {
+        if dividerView.isHidden == false {
             titleMargins.right = dividerMargins.right + dividerFrame.size.width + min(dividerMargins.left, titleMargins.right)
         }
         
@@ -585,7 +585,7 @@ class OBWPathItemView: NSView {
         
         let imageView = self.imageView
         
-        if !imageView.isHidden {
+        if imageView.isHidden == false {
             
             let imageFrameWidth = self.bounds.size.height - OBWPathItemView.imageMargins.bottom - OBWPathItemView.imageMargins.top
             titleMargins.left = OBWPathItemView.imageMargins.left + imageFrameWidth + max(OBWPathItemView.imageMargins.right, OBWPathItemView.titleMargins.left)
@@ -594,7 +594,7 @@ class OBWPathItemView: NSView {
         
         let dividerView = self.dividerView
         
-        if !dividerView.isHidden {
+        if dividerView.isHidden == false {
             let dividerImageSize = dividerView.image!.size
             titleMargins.right = OBWPathItemView.dividerMargins.right + dividerImageSize.width + min(OBWPathItemView.dividerMargins.left, OBWPathItemView.titleMargins.right)
         }

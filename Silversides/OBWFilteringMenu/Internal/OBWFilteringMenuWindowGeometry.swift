@@ -92,7 +92,7 @@ class OBWFilteringMenuWindowGeometry {
         var rightGeometry: OBWFilteringMenuWindowGeometry? = OBWFilteringMenuWindowGeometry(window: self.window)
         if let geometry = rightGeometry {
             
-            if !geometry.updateGeometryToDisplayMenuLocation(locationInMenu, atScreenLocation: rightAlignmentLocation, allowWindowToGrowUpward: true) {
+            if geometry.updateGeometryToDisplayMenuLocation(locationInMenu, atScreenLocation: rightAlignmentLocation, allowWindowToGrowUpward: true) == false {
                 rightGeometry = nil
             }
         }
@@ -117,7 +117,7 @@ class OBWFilteringMenuWindowGeometry {
         var leftGeometry: OBWFilteringMenuWindowGeometry? = OBWFilteringMenuWindowGeometry( window: self.window )
         if let geometry = leftGeometry {
             
-            if !geometry.updateGeometryToDisplayMenuLocation(locationInMenu, atScreenLocation: leftAlignmentLocation, allowWindowToGrowUpward: true) {
+            if geometry.updateGeometryToDisplayMenuLocation(locationInMenu, atScreenLocation: leftAlignmentLocation, allowWindowToGrowUpward: true) == false {
                 leftGeometry = nil
             }
         }
@@ -129,40 +129,52 @@ class OBWFilteringMenuWindowGeometry {
         let windowGeometry: OBWFilteringMenuWindowGeometry
         let alignment: OBWFilteringMenuAlignment
         
-        if leftGeometry == nil {
-            windowGeometry = rightGeometry!
+        if
+            let geometry = rightGeometry,
+            leftGeometry == nil
+        {
+            windowGeometry = geometry
             alignment = .right
         }
-        else if rightGeometry == nil {
-            windowGeometry = leftGeometry!
+        else if
+            let geometry = leftGeometry,
+            rightGeometry == nil
+        {
+            windowGeometry = geometry
             alignment = .left
         }
-        else {
+        else if
+            let leftGeometry = leftGeometry,
+            let rightGeometry = rightGeometry
+        {
             
             switch preferredAlignment {
                 
             case .left:
                 
-                if leftGeometry!.frame.origin.x != leftAlignmentLocation.x && rightGeometry!.frame.origin.x == rightAlignmentLocation.x {
-                    windowGeometry = rightGeometry!
+                if leftGeometry.frame.origin.x != leftAlignmentLocation.x && rightGeometry.frame.origin.x == rightAlignmentLocation.x {
+                    windowGeometry = rightGeometry
                     alignment = .right
                 }
                 else {
-                    windowGeometry = leftGeometry!
+                    windowGeometry = leftGeometry
                     alignment = .left
                 }
                 
             case .right:
                 
-                if rightGeometry!.frame.origin.x != rightAlignmentLocation.x && leftGeometry!.frame.origin.x == leftAlignmentLocation.x {
-                    windowGeometry = leftGeometry!
+                if rightGeometry.frame.origin.x != rightAlignmentLocation.x && leftGeometry.frame.origin.x == leftAlignmentLocation.x {
+                    windowGeometry = leftGeometry
                     alignment = .left
                 }
                 else {
-                    windowGeometry = rightGeometry!
+                    windowGeometry = rightGeometry
                     alignment = .right
                 }
             }
+        }
+        else {
+            return preferredAlignment
         }
         
         self.frame = windowGeometry.frame

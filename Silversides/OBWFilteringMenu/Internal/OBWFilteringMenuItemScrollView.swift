@@ -511,7 +511,7 @@ class OBWFilteringMenuItemScrollView: NSView {
                 primaryItemView.isHidden = false
                 NSAccessibility.post(element: primaryItemView, notification: NSAccessibility.Notification.created)
             }
-            else if !primaryViewVisible && !primaryItemView.isHidden {
+            else if primaryViewVisible == false && primaryItemView.isHidden == false {
                 primaryItemView.isHidden = true
                 NSAccessibility.post(element: primaryItemView, notification: NSAccessibility.Notification.uiElementDestroyed)
             }
@@ -553,7 +553,7 @@ class OBWFilteringMenuItemScrollView: NSView {
                     alternateItemView.isHidden = false
                     NSAccessibility.post(element: alternateItemView, notification: NSAccessibility.Notification.created)
                 }
-                else if !alternateViewVisible && !alternateItemView.isHidden {
+                else if alternateViewVisible == false && alternateItemView.isHidden == false {
                     alternateItemView.isHidden = true
                     NSAccessibility.post(element: alternateItemView, notification: NSAccessibility.Notification.uiElementDestroyed)
                 }

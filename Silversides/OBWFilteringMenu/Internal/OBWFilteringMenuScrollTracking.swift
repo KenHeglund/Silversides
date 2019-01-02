@@ -146,7 +146,15 @@ class OBWFilteringMenuScrollTracking {
         }
         
         let smallScrollView = self.smallScrollView
-        let smallDocumentView = smallScrollView.documentView!
+        let largeScrollView = self.largeScrollView
+        
+        guard
+            let smallDocumentView = smallScrollView.documentView,
+            let largeDocumentView = largeScrollView.documentView
+        else {
+            return
+        }
+        
         let smallDocumentFrame = NSRect(
             width: OBWFilteringMenuScrollTracking.scrollViewWidth,
             height: totalMenuItemSize.height
@@ -159,8 +167,6 @@ class OBWFilteringMenuScrollTracking {
         )
         smallScrollView.frame = smallScrollViewFrame
         
-        let largeScrollView = self.largeScrollView
-        let largeDocumentView = largeScrollView.documentView!
         let largeDocumentFrame = NSRect(
             width: OBWFilteringMenuScrollTracking.scrollViewWidth,
             height: totalMenuItemSize.height - initialBounds.size.height + finalBounds.size.height
@@ -320,7 +326,12 @@ class OBWFilteringMenuScrollTracking {
         
         let smallScrollView = self.smallScrollView
         let largeScrollView = self.largeScrollView
-        let largeDocumentBounds = largeScrollView.documentView!.bounds
+        
+        guard let documentView = self.largeScrollView.documentView else {
+            return
+        }
+        
+        let largeDocumentBounds = documentView.bounds
         let largeMenuItemBounds = largeScrollView.contentView.bounds
         
         let menuSize = self.totalMenuItemSize

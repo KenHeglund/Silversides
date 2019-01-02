@@ -488,7 +488,7 @@ public class OBWPathView: NSView {
             compression = .head
         }
         
-        if compression.rawValue >= OBWPathViewCompression.interior.rawValue && !interiorItemViews.isEmpty {
+        if compression.rawValue >= OBWPathViewCompression.interior.rawValue && interiorItemViews.isEmpty == false {
             widthToCompress -= self.compress(itemViews: interiorItemViews, by: widthToCompress)
         }
         

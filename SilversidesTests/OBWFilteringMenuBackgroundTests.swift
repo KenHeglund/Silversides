@@ -54,22 +54,22 @@ class OBWFilteringMenuBackgroundTests: XCTestCase {
         var roundedCorners: OBWFilteringMenuCorners = []
         
         var testRect = NSRect( x: imageFrame.origin.x, y: imageFrame.maxY - 1.0, width: 1.0, height: 1.0 )
-        if !image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
+        if image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) == false {
             roundedCorners.insert( .topLeft )
         }
         
         testRect.origin.y = imageFrame.origin.y
-        if !image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
+        if image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) == false {
             roundedCorners.insert( .bottomLeft )
         }
         
         testRect.origin.x = imageFrame.maxX - 1.0
-        if !image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
+        if image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) == false {
             roundedCorners.insert( .bottomRight )
         }
 
         testRect.origin.y = imageFrame.maxY - 1.0
-        if !image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) {
+        if image.hitTest( testRect, withDestinationRect: imageFrame, context: nil, hints: nil, flipped: false ) == false {
             roundedCorners.insert( .topRight )
         }
         

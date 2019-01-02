@@ -106,7 +106,7 @@ class OBWFilteringMenuView: NSView {
         let filterField = self.filterField
         let filterFieldFrame = filterField.frame
         
-        if !filterField.isHidden && NSPointInRect(locationInView, filterFieldFrame) {
+        if filterField.isHidden == false && NSPointInRect(locationInView, filterFieldFrame) {
             
             // The search field might call -[super cursorUpdate:], which might eventually reach -[NSResponder cursorUpdate:], which will send the message up the responder chain, which leads back here.  'dispatchingCursorUpdateToFilterField' is used to break that recursion.
             
@@ -383,8 +383,11 @@ class OBWFilteringMenuView: NSView {
         
         if [kVK_UpArrow, kVK_Home, kVK_PageUp].contains(keyCode) {
             
-            if currentEditor != nil && currentHighlightedItem == nil {
-                currentEditor!.keyDown(with: event)
+            if
+                let currentEditor = currentEditor,
+                currentHighlightedItem == nil
+            {
+                currentEditor.keyDown(with: event)
                 return .continue
             }
             
@@ -398,14 +401,17 @@ class OBWFilteringMenuView: NSView {
                 nextHighlightedItemView = scrollView.scrollItemsDownOnePage()
             }
             
-            if nextHighlightedItemView === currentHighlightedItemView && !filterField.isHidden {
+            if nextHighlightedItemView === currentHighlightedItemView && filterField.isHidden == false {
                 self.moveKeyboardFocusToFilterFieldAndSelectAll(true)
                 return .highlight
             }
             
-            if nextHighlightedItemView != nil && nextHighlightedItemView !== currentHighlightedItemView {
-                filteringMenu.highlightedItem = nextHighlightedItemView!.menuItem
-                scrollView.scrollItemToVisible(nextHighlightedItemView!.menuItem)
+            if
+                let nextHighlightedItemView = nextHighlightedItemView,
+                nextHighlightedItemView !== currentHighlightedItemView
+            {
+                filteringMenu.highlightedItem = nextHighlightedItemView.menuItem
+                scrollView.scrollItemToVisible(nextHighlightedItemView.menuItem)
                 return .highlight
             }
             
@@ -427,9 +433,12 @@ class OBWFilteringMenuView: NSView {
                 nextHighlightedItemView = scrollView.scrollItemsUpOnePage()
             }
             
-            if nextHighlightedItemView != nil && nextHighlightedItemView !== currentHighlightedItemView {
-                filteringMenu.highlightedItem = nextHighlightedItemView!.menuItem
-                scrollView.scrollItemToVisible(nextHighlightedItemView!.menuItem)
+            if
+                let nextHighlightedItemView = nextHighlightedItemView,
+                nextHighlightedItemView !== currentHighlightedItemView
+            {
+                filteringMenu.highlightedItem = nextHighlightedItemView.menuItem
+                scrollView.scrollItemToVisible(nextHighlightedItemView.menuItem)
                 return .highlight
             }
             
@@ -438,12 +447,13 @@ class OBWFilteringMenuView: NSView {
         
         if [kVK_LeftArrow, kVK_RightArrow, kVK_Space, kVK_Return, kVK_ANSI_KeypadEnter].contains(keyCode) {
             
-            guard currentEditor != nil else {
+            if let currentEditor = currentEditor {
+                currentEditor.keyDown(with: event)
+                return .continue
+            }
+            else {
                 return .unhandled
             }
-            
-            currentEditor!.keyDown(with: event)
-            return .continue
         }
         
         if filterField.isHidden {
@@ -519,7 +529,7 @@ class OBWFilteringMenuView: NSView {
     func menuPartAtLocation(_ locationInView: NSPoint) -> OBWFilteringMenuPart {
         
         let filterField = self.filterField
-        if !filterField.isHidden && NSPointInRect(locationInView, filterField.frame) {
+        if filterField.isHidden == false && NSPointInRect(locationInView, filterField.frame) {
             return .filter
         }
         

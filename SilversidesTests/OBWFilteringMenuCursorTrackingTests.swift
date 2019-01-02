@@ -72,7 +72,7 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
                 pressure: 0
             )!
             
-            if !cursorTracking.isCursorProgressingTowardSubmenu( event ) {
+            if cursorTracking.isCursorProgressingTowardSubmenu( event ) == false {
                 result = false
             }
         }
@@ -129,7 +129,7 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
                 pressure: 0
                 )!
             
-            if !cursorTracking.isCursorProgressingTowardSubmenu( event ) {
+            if cursorTracking.isCursorProgressingTowardSubmenu( event ) == false {
                 result = false
             }
         }
@@ -189,7 +189,7 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
                 pressure: 0
                 )!
             
-            if !cursorTracking.isCursorProgressingTowardSubmenu( event ) {
+            if cursorTracking.isCursorProgressingTowardSubmenu( event ) == false {
                 result = false
             }
         }

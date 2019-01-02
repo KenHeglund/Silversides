@@ -488,7 +488,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             pathItems.append(self.pathItemWithInfo(itemInfo))
         }
         
-        if !ViewController.isContainerURL(url) {
+        if ViewController.isContainerURL(url) == false {
             return pathItems
         }
         
@@ -503,7 +503,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             representedObject: ItemInfo(url: url, type: .tail),
             style: [.italic, .noTextShadow],
             textColor: NSColor.disabledControlTextColor,
-            accessible: !descendantURLs.isEmpty
+            accessible: descendantURLs.isEmpty == false
         )
         
         pathItems.append(tailItem)

@@ -228,15 +228,15 @@ class OBWFilteringMenuCursorTracking {
             }
         }
         
-        waypoints.first!.timestamp = timestamp
-        waypoints.first!.locationInScreen = locationInScreen
+        waypoints[0].timestamp = timestamp
+        waypoints[0].locationInScreen = locationInScreen
         
         if oldestIndex == waypoints.startIndex {
             return true
         }
         
-        let distanceX = waypoints[oldestIndex].locationInScreen.x - waypoints.first!.locationInScreen.x
-        let distanceY = waypoints[oldestIndex].locationInScreen.y - waypoints.first!.locationInScreen.y
+        let distanceX = waypoints[oldestIndex].locationInScreen.x - waypoints[0].locationInScreen.x
+        let distanceY = waypoints[oldestIndex].locationInScreen.y - waypoints[0].locationInScreen.y
         
         let distance = Double(abs(distanceX) + abs(distanceY))
         let time = timestamp - waypoints[oldestIndex].timestamp!

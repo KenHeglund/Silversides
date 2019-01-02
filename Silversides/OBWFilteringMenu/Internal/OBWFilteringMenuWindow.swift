@@ -60,9 +60,10 @@ class OBWFilteringMenuWindow: NSWindow {
         self.isReleasedWhenClosed = false
         self.animationBehavior = .utilityWindow
         
-        self.contentView = OBWFilteringMenuBackground(frame: contentFrame)
-        self.contentView!.autoresizingMask = [.width, .height]
-        self.contentView!.addSubview(menuView)
+        let contentView = OBWFilteringMenuBackground(frame: contentFrame)
+        contentView.autoresizingMask = [.width, .height]
+        contentView.addSubview(menuView)
+        self.contentView = contentView
     }
     
     /*==========================================================================*/
@@ -166,7 +167,7 @@ class OBWFilteringMenuWindow: NSWindow {
     func displayMenuLocation(_ menuLocation: NSPoint, atScreenLocation screenLocation: NSPoint, allowWindowToGrowUpward: Bool, resetScrollTracking: Bool = true) -> Bool {
         
         let geometry = OBWFilteringMenuWindowGeometry(window: self)
-        if !geometry.updateGeometryToDisplayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: allowWindowToGrowUpward) {
+        if geometry.updateGeometryToDisplayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: allowWindowToGrowUpward) == false {
             return false
         }
         

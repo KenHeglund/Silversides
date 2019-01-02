@@ -36,7 +36,7 @@ class OBWFilteringMenuControllerTests: XCTestCase {
             
         }
         
-        let screenFrame = NSScreen.screens.first!.frame
+        let screenFrame = NSScreen.screens[0].frame
         let locationInScreen = NSPoint(
             x: screenFrame.maxX - 20.0,
             y: screenFrame.minY + 100.0
@@ -44,7 +44,7 @@ class OBWFilteringMenuControllerTests: XCTestCase {
         
         #if INTERACTIVE_TESTS
             Swift.print( "Make a menu selection in the lower-right corner of the screen..." )
-            OBWFilteringMenuController.popUpMenuPositioningItem( firstMenu.itemArray.first!, atLocation: locationInScreen, inView: nil, withEvent: nil, highlighted: false )
+            OBWFilteringMenuController.popUpMenuPositioningItem( firstMenu.itemArray[0], atLocation: locationInScreen, inView: nil, withEvent: nil, highlighted: false )
         #endif // INTERACTIVE_TESTS
         
         let secondMenu = OBWFilteringMenu( title: "Second Menu" )
@@ -79,7 +79,7 @@ class OBWFilteringMenuControllerTests: XCTestCase {
         
         #if INTERACTIVE_TESTS
             Swift.print( "Make a menu selection in the lower-right corner of the screen..." )
-            OBWFilteringMenuController.popUpMenuPositioningItem( secondMenu.itemArray.first!, atLocation: locationInScreen, inView: nil, withEvent: nil, highlighted: false )
+            OBWFilteringMenuController.popUpMenuPositioningItem( secondMenu.itemArray[0], atLocation: locationInScreen, inView: nil, withEvent: nil, highlighted: false )
         #endif // INTERACTIVE_TESTS
     }
     

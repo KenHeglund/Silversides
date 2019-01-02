@@ -36,7 +36,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         let eventSource = OBWFilteringMenuEventSource()
         eventSource.eventMask = .applicationDidResignActive
         
-        let finderApp = NSRunningApplication.runningApplications( withBundleIdentifier: "com.apple.finder" ).first!
+        let finderApp = NSRunningApplication.runningApplications( withBundleIdentifier: "com.apple.finder" )[0]
         
         NSApp.activate( ignoringOtherApps: true )
         Thread.sleep( forTimeInterval: threadSleepTime )

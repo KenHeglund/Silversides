@@ -135,11 +135,10 @@ class OBWFilteringMenuItemFilterStatus {
     private func addAlternateStatus(_ status: OBWFilteringMenuItemFilterStatus, withKey key: String) {
         
         if self.alternateStatus == nil {
-            self.alternateStatus = [key:status]
+            self.alternateStatus = [:]
         }
-        else {
-            self.alternateStatus![key] = status
-        }
+        
+        self.alternateStatus?[key] = status
     }
     
     /*==========================================================================*/
@@ -192,9 +191,14 @@ class OBWFilteringMenuItemFilterStatus {
                 return worstScore
             }
             
-            let caseSensitiveRange = searchableTitle.range(of: filterSubstring, options: .literal, range: searchRange, locale: nil)
-            
-            if caseSensitiveRange == nil || caseInsensitiveRange != caseSensitiveRange! {
+            if
+                matchMask.contains(.caseSensitive),
+                let caseSensitiveRange = searchableTitle.range(of: filterSubstring, options: .literal, range: searchRange, locale: nil),
+                caseSensitiveRange == caseInsensitiveRange
+            {
+                // allow the case-sensitive flag to persist...
+            }
+            else {
                 matchMask.remove(.caseSensitive)
             }
             
