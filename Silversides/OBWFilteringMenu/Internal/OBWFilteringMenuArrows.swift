@@ -26,9 +26,9 @@ class OBWFilteringMenuArrows {
             let flatSideInset = OBWFilteringMenuArrows.longSideInset
             
             let path = NSBezierPath()
-            path.move( to: NSPoint( x: frame.size.width, y: flatSideInset ) )
-            path.line( to: NSPoint( x: frame.size.width / 2.0, y: frame.size.height ) )
-            path.line( to: NSPoint( x: 0.0, y: flatSideInset ) )
+            path.move(to: NSPoint(x: frame.width, y: flatSideInset))
+            path.line(to: NSPoint(x: frame.width / 2.0, y: frame.height))
+            path.line(to: NSPoint(x: 0.0, y: flatSideInset))
             path.close()
             
             NSColor.secondaryLabelColor.set()
@@ -54,9 +54,9 @@ class OBWFilteringMenuArrows {
             let flatSideInset = OBWFilteringMenuArrows.longSideInset
             
             let path = NSBezierPath()
-            path.move( to: NSPoint( x: 0.0, y: frame.size.height - flatSideInset ) )
-            path.line( to: NSPoint( x: frame.size.width / 2.0, y: 0.0 ) )
-            path.line( to: NSPoint( x: frame.size.width, y: frame.size.height - flatSideInset ) )
+            path.move(to: NSPoint(x: 0.0, y: frame.size.height - flatSideInset))
+            path.line(to: NSPoint(x: frame.size.width / 2.0, y: 0.0))
+            path.line(to: NSPoint(x: frame.size.width, y: frame.size.height - flatSideInset))
             path.close()
             
             NSColor.secondaryLabelColor.set()
@@ -72,7 +72,7 @@ class OBWFilteringMenuArrows {
     static let selectedRightArrow: NSImage = {
         
         let path = OBWFilteringMenuArrows.rightArrowPath
-        let imageSize = NSIntegralRect( path.bounds ).size
+        let imageSize = NSIntegralRect(path.bounds).size
         
         let image = NSImage(size: imageSize, flipped: false, drawingHandler: {
             _ in
@@ -90,7 +90,7 @@ class OBWFilteringMenuArrows {
     static let unselectedRightArrow: NSImage = {
         
         let path = OBWFilteringMenuArrows.rightArrowPath
-        let imageSize = NSIntegralRect( path.bounds ).size
+        let imageSize = NSIntegralRect(path.bounds).size
         
         let image = NSImage(size: imageSize, flipped: false, drawingHandler: {
             _ in
@@ -122,12 +122,11 @@ class OBWFilteringMenuArrows {
         )
         
         let rightArrowPath = NSBezierPath()
-        rightArrowPath.move( to: NSPoint( x: flatSideInset, y: 0.0 ) )
-        rightArrowPath.line( to: NSPoint( x: frame.size.width, y: frame.size.height / 2.0 ) )
-        rightArrowPath.line( to: NSPoint( x: flatSideInset, y: frame.size.height ) )
+        rightArrowPath.move(to: NSPoint(x: flatSideInset, y: 0.0))
+        rightArrowPath.line(to: NSPoint(x: frame.size.width, y: frame.size.height / 2.0))
+        rightArrowPath.line(to: NSPoint(x: flatSideInset, y: frame.size.height))
         rightArrowPath.close()
         
         return rightArrowPath
     }()
-    
 }
