@@ -56,7 +56,7 @@ class OBWFilteringMenuCursorTracking {
     /*==========================================================================*/
     func isCursorProgressingTowardSubmenu( _ event: NSEvent ) -> Bool {
         
-        if let eventLocation = event.obw_locationInScreen {
+        if let eventLocation = event.locationInScreen {
             
             if self.applyLimits {
                 

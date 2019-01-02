@@ -100,7 +100,7 @@ class OBWFilteringMenuView: NSView {
         
         guard !self.dispatchingCursorUpdateToFilterField else { return }
         
-        guard let locationInView = event.obw_locationInView( self ) else { return }
+        guard let locationInView = event.locationInView( self ) else { return }
         
         let filterField = self.filterField
         let filterFieldFrame = filterField.frame
@@ -305,7 +305,7 @@ class OBWFilteringMenuView: NSView {
             return .unhandled
         }
         
-        guard let locationInView = event.obw_locationInView( self ) else { return .unhandled }
+        guard let locationInView = event.locationInView( self ) else { return .unhandled }
         
         if NSPointInRect( locationInView, self.scrollView.frame ) {
             return .unhandled

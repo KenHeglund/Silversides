@@ -99,7 +99,7 @@ class OBWFilteringMenuController {
         
         guard let menu = menuItem.menu else { return false }
         
-        guard let screen = event?.obw_screen ?? view?.window?.screen ?? NSScreen.screens.first else { return false }
+        guard let screen = event?.screen ?? view?.window?.screen ?? NSScreen.screens.first else { return false }
         
         let locationInScreen = view?.convertPointToScreen( locationInView ) ?? locationInView
         
@@ -165,7 +165,7 @@ class OBWFilteringMenuController {
                 }
                 
                 let currentMenuWindow: OBWFilteringMenuWindow?
-                if let locationInScreen = event.obw_locationInScreen {
+                if let locationInScreen = event.locationInScreen {
                     currentMenuWindow = self.menuWindowAtScreenLocation( locationInScreen )
                 }
                 else {
@@ -447,7 +447,7 @@ class OBWFilteringMenuController {
             }
         }
         
-        guard let eventLocationInScreen = event.obw_locationInScreen else { return }
+        guard let eventLocationInScreen = event.locationInScreen else { return }
         
         let locationInWindow = topmostMenuWindow.convertFromScreen( eventLocationInScreen )
         let topmostMenuPart = topmostMenuWindow.menuPartAtLocation( locationInWindow )
@@ -511,7 +511,7 @@ class OBWFilteringMenuController {
     /*==========================================================================*/
     private func updateCurrentMenuItem( _ event: NSEvent, continueCursorTracking: Bool ) {
         
-        let eventLocationInScreen = event.obw_locationInScreen ?? NSEvent.mouseLocation
+        let eventLocationInScreen = event.locationInScreen ?? NSEvent.mouseLocation
         
         let currentMenuWindow = self.menuWindowAtScreenLocation( eventLocationInScreen )
         let currentMenu = currentMenuWindow?.filteringMenu
