@@ -10,15 +10,11 @@ import Cocoa
 
 extension NSScreen {
     
-    class func screenContainingLocation( _ locationInScreen: NSPoint ) -> NSScreen? {
+    /*==========================================================================*/
+    class func screenContainingLocation(_ locationInScreen: NSPoint) -> NSScreen? {
         
-        for screen in self.screens {
-            
-            if NSPointInRect( locationInScreen, screen.frame ) {
-                return screen
-            }
-        }
-        
-        return nil
+        return self.screens.first(where: {
+            NSPointInRect(locationInScreen, $0.frame)
+        })
     }
 }
