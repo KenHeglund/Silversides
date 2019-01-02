@@ -138,13 +138,13 @@ class OBWFilteringMenuView: NSView {
     }
     
     /*==========================================================================*/
-    override func accessibilityRole() -> NSAccessibilityRole? {
-        return NSAccessibilityRole.list
+    override func accessibilityRole() -> NSAccessibility.Role? {
+        return NSAccessibility.Role.list
     }
     
     /*==========================================================================*/
     override func accessibilityRoleDescription() -> String? {
-        return NSAccessibilityRole.list.description(with: nil )
+        return NSAccessibility.Role.list.description(with: nil )
     }
     
     /*==========================================================================*/
@@ -156,7 +156,7 @@ class OBWFilteringMenuView: NSView {
             children.append( filterField )
         }
         
-        return NSAccessibilityUnignoredChildren( children )
+        return NSAccessibility.unignoredChildren( from: children )
     }
     
     /*==========================================================================*/
@@ -167,7 +167,7 @@ class OBWFilteringMenuView: NSView {
     /*==========================================================================*/
     override func accessibilityParent() -> Any? {
         guard let window = self.window else { return nil }
-        return NSAccessibilityUnignoredAncestor( window )
+        return NSAccessibility.unignoredAncestor( of: window )
     }
     
     /*==========================================================================*/
@@ -221,7 +221,7 @@ class OBWFilteringMenuView: NSView {
             return
         }
         
-        NSAccessibilityPostNotification( currentEditor, NSAccessibilityNotificationName.focusedUIElementChanged )
+        NSAccessibility.post( element: currentEditor, notification: NSAccessibility.Notification.focusedUIElementChanged )
         
         let filterString = filterField.stringValue
         let menuItemArray = self.filteringMenu.itemArray

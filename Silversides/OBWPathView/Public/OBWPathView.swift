@@ -153,15 +153,15 @@ open class OBWPathView: NSView {
     }
     
     /*==========================================================================*/
-    override open func accessibilityRole() -> NSAccessibilityRole? {
-        return NSAccessibilityRole.list
+    override open func accessibilityRole() -> NSAccessibility.Role? {
+        return NSAccessibility.Role.list
     }
     
     /*==========================================================================*/
     override open func accessibilityRoleDescription() -> String? {
         
         let descriptionFormat = NSLocalizedString( "path element %@", comment: "PathView accessibility role description format" )
-        guard let standardDescription = NSAccessibilityRole.list.description(with: nil ) else { return nil }
+        guard let standardDescription = NSAccessibility.Role.list.description(with: nil ) else { return nil }
         return String( format: descriptionFormat, standardDescription )
     }
     
@@ -172,7 +172,7 @@ open class OBWPathView: NSView {
     
     /*==========================================================================*/
     override open func accessibilityChildren() -> [Any]? {
-        return NSAccessibilityUnignoredChildren( self.itemViews )
+        return NSAccessibility.unignoredChildren( from: self.itemViews )
     }
     
     /*==========================================================================*/

@@ -136,7 +136,7 @@ class OBWFilteringMenuEventSource: NSObject {
         )
         
         timer.fireDate = Date( timeIntervalSinceNow: delayInSeconds )
-        RunLoop.current.add( timer, forMode: RunLoopMode.commonModes )
+        RunLoop.current.add( timer, forMode: RunLoop.Mode.common )
         
         self.eventTimer = timer
         self.eventMask.insert( .Periodic )

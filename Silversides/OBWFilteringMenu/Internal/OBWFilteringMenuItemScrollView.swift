@@ -470,17 +470,17 @@ class OBWFilteringMenuItemScrollView: NSView {
                 primaryItemView.frame = itemViewFrame
                 
                 if primaryViewVisible {
-                    NSAccessibilityPostNotification( primaryItemView, NSAccessibilityNotificationName.moved )
+                    NSAccessibility.post( element: primaryItemView, notification: NSAccessibility.Notification.moved )
                 }
             }
             
             if primaryViewVisible && primaryItemView.isHidden {
                 primaryItemView.isHidden = false
-                NSAccessibilityPostNotification( primaryItemView, NSAccessibilityNotificationName.created )
+                NSAccessibility.post( element: primaryItemView, notification: NSAccessibility.Notification.created )
             }
             else if !primaryViewVisible && !primaryItemView.isHidden {
                 primaryItemView.isHidden = true
-                NSAccessibilityPostNotification( primaryItemView, NSAccessibilityNotificationName.uiElementDestroyed )
+                NSAccessibility.post( element: primaryItemView, notification: NSAccessibility.Notification.uiElementDestroyed )
             }
             
             var visibleItemView: OBWFilteringMenuItemView? = ( primaryViewVisible ? primaryItemView : nil )
@@ -512,17 +512,17 @@ class OBWFilteringMenuItemScrollView: NSView {
                     alternateItemView.frame = alternateItemViewFrame
                     
                     if alternateViewVisible {
-                        NSAccessibilityPostNotification( alternateItemView, NSAccessibilityNotificationName.moved )
+                        NSAccessibility.post( element: alternateItemView, notification: NSAccessibility.Notification.moved )
                     }
                 }
                 
                 if alternateViewVisible && alternateItemView.isHidden {
                     alternateItemView.isHidden = false
-                    NSAccessibilityPostNotification( alternateItemView, NSAccessibilityNotificationName.created)
+                    NSAccessibility.post( element: alternateItemView, notification: NSAccessibility.Notification.created)
                 }
                 else if !alternateViewVisible && !alternateItemView.isHidden {
                     alternateItemView.isHidden = true
-                    NSAccessibilityPostNotification( alternateItemView, NSAccessibilityNotificationName.uiElementDestroyed )
+                    NSAccessibility.post( element: alternateItemView, notification: NSAccessibility.Notification.uiElementDestroyed )
                 }
                 
                 if alternateViewVisible {

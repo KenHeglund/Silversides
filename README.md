@@ -20,6 +20,6 @@ The demonstration application implements an OBWPathView that displays a file pat
 
 ### Build Environment
 
-* Swift 4
-* Xcode 9.2 / macOS 10.13 SDK
+* Swift 4.2
+* Xcode 10 / macOS 10.14 SDK
 * Deploys to macOS 10.11 or newer

@@ -95,15 +95,15 @@ class OBWFilteringMenuWindow: NSWindow {
     // MARK: - NSAccessibility implementation
     
     /*==========================================================================*/
-    override func accessibilitySubrole() -> NSAccessibilitySubrole? {
+    override func accessibilitySubrole() -> NSAccessibility.Subrole? {
         self.accessibilityActive = true
-        return NSAccessibilitySubrole.standardWindow
+        return NSAccessibility.Subrole.standardWindow
     }
     
     /*==========================================================================*/
     override func accessibilityRoleDescription() -> String? {
         self.accessibilityActive = true
-        return NSAccessibilityRole.window.description(with: NSAccessibilitySubrole.standardWindow )
+        return NSAccessibility.Role.window.description(with: NSAccessibility.Subrole.standardWindow )
     }
     
     /*==========================================================================*/

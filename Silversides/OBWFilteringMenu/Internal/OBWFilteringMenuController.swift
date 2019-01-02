@@ -159,7 +159,7 @@ class OBWFilteringMenuController {
                 #endif
                 
                 let timeoutDate = Date( timeIntervalSinceNow: timeoutInterval )
-                guard let event = NSApp.nextEvent( matching: NSEvent.EventTypeMask.any, until: timeoutDate, inMode: RunLoopMode.defaultRunLoopMode, dequeue: true ) else {
+                guard let event = NSApp.nextEvent( matching: NSEvent.EventTypeMask.any, until: timeoutDate, inMode: RunLoop.Mode.default, dequeue: true ) else {
                     result = .cancel
                     return
                 }
@@ -687,14 +687,14 @@ class OBWFilteringMenuController {
             
             // It seems that the run loop needs to run at least once to actually get the window to redraw.  Previously, a -display message to the window was sufficient to get an immediate redraw.  This may be a side-effect of running a custom event loop in 10.11 El Capitan.
             
-            runLoop.run( mode: RunLoopMode.defaultRunLoopMode, before: Date( timeIntervalSinceNow: blinkInterval ) )
+            runLoop.run( mode: RunLoop.Mode.default, before: Date( timeIntervalSinceNow: blinkInterval ) )
             Thread.sleep( forTimeInterval: blinkInterval )
             
             menu.highlightedItem = menuItem
             itemView.needsDisplay = true
             menuWindow.display()
             
-            runLoop.run( mode: RunLoopMode.defaultRunLoopMode, before: Date( timeIntervalSinceNow: blinkInterval ) )
+            runLoop.run( mode: RunLoop.Mode.default, before: Date( timeIntervalSinceNow: blinkInterval ) )
             Thread.sleep( forTimeInterval: blinkInterval )
         }
         

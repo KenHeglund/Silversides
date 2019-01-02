@@ -48,7 +48,7 @@ open class OBWFilteringMenuItem {
     // MARK: -
     
     /*==========================================================================*/
-    open static let separatorItem: OBWFilteringMenuItem = {
+    public static let separatorItem: OBWFilteringMenuItem = {
         return OBWFilteringMenuItem( title: "<separator>" )
     }()
     

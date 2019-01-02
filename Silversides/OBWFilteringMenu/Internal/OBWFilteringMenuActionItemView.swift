@@ -255,9 +255,9 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     /*==========================================================================*/
-    override func accessibilityRole() -> NSAccessibilityRole? {
+    override func accessibilityRole() -> NSAccessibility.Role? {
         let itemHasSubmenu = ( self.menuItem.submenu != nil )
-        return ( itemHasSubmenu ? NSAccessibilityRole.popUpButton : NSAccessibilityRole.button )
+        return ( itemHasSubmenu ? NSAccessibility.Role.popUpButton : NSAccessibility.Role.button )
     }
     
     /*==========================================================================*/
@@ -269,7 +269,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     /*==========================================================================*/
     override func accessibilityParent() -> Any? {
         guard let superview = self.superview else { return nil }
-        return NSAccessibilityUnignoredAncestor( superview )
+        return NSAccessibility.unignoredAncestor( of: superview )
     }
     
     /*==========================================================================*/
@@ -403,7 +403,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             
             let attributedString = NSMutableAttributedString( attributedString: filterStatus.highlightedTitle )
             let range = NSRange( location: 0, length: attributedString.length )
-            attributedString.addAttribute( NSAttributedStringKey.foregroundColor, value: NSColor.selectedMenuItemTextColor, range: range )
+            attributedString.addAttribute( NSAttributedString.Key.foregroundColor, value: NSColor.selectedMenuItemTextColor, range: range )
             
             return attributedString
         }
@@ -454,7 +454,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             
             guard let itemTitle = menuItem.title else { return nil }
             
-            let fontAttribute = [ NSAttributedStringKey.font : menuItem.font ]
+            let fontAttribute = [ NSAttributedString.Key.font : menuItem.font ]
             attributedTitle = NSMutableAttributedString( string: itemTitle, attributes: fontAttribute )
         }
         
@@ -463,11 +463,11 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let paragraphStyle = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
         paragraphStyle.lineBreakMode = .byTruncatingTail
         
-        let paragraphAttribute = [ NSAttributedStringKey.paragraphStyle : paragraphStyle ]
+        let paragraphAttribute = [ NSAttributedString.Key.paragraphStyle : paragraphStyle ]
         attributedTitle.addAttributes( paragraphAttribute, range: range )
         
         if menuItem.isHighlighted {
-            let colorAttribute = [ NSAttributedStringKey.foregroundColor : NSColor.selectedMenuItemTextColor ]
+            let colorAttribute = [ NSAttributedString.Key.foregroundColor : NSColor.selectedMenuItemTextColor ]
             attributedTitle.addAttributes( colorAttribute, range: range )
         }
         

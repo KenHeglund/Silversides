@@ -29,7 +29,7 @@ class OBWFilteringMenuItemFilterStatus {
             
             self.searchableTitle = title
             
-            let attributes = [ NSAttributedStringKey.font : menuItem.font ]
+            let attributes = [ NSAttributedString.Key.font : menuItem.font ]
             self.highlightedTitle = NSAttributedString( string: title, attributes: attributes )
         }
         else {
@@ -139,7 +139,7 @@ class OBWFilteringMenuItemFilterStatus {
     }
     
     /*==========================================================================*/
-    private class func highlightAttributes() -> [NSAttributedStringKey:Any] {
+    private class func highlightAttributes() -> [NSAttributedString.Key:Any] {
         
         var backgroundColor = NSColor( red: 1.0, green: 1.0, blue: 0.0, alpha: 0.5 )
         var underlineColor = NSColor( red: 0.65, green: 0.50, blue: 0.0, alpha: 0.75 )
@@ -154,7 +154,7 @@ class OBWFilteringMenuItemFilterStatus {
             }
         }
         
-        let highlightAttributes: [NSAttributedStringKey:Any] = [
+        let highlightAttributes: [NSAttributedString.Key:Any] = [
             .backgroundColor : backgroundColor,
             .underlineColor : underlineColor,
             .underlineStyle : 1 as AnyObject,

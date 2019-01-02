@@ -173,15 +173,15 @@ class OBWPathItemView: NSView {
     }
     
     /*==========================================================================*/
-    override func accessibilityRole() -> NSAccessibilityRole? {
-        return NSAccessibilityRole.popUpButton
+    override func accessibilityRole() -> NSAccessibility.Role? {
+        return NSAccessibility.Role.popUpButton
     }
     
     /*==========================================================================*/
     override func accessibilityRoleDescription() -> String? {
         
         let descriptionFormat = NSLocalizedString( "path element %@", comment: "PathItemView accessibility role description" )
-        guard let standardDescription = NSAccessibilityRole.popUpButton.description(with: nil ) else { return nil }
+        guard let standardDescription = NSAccessibility.Role.popUpButton.description(with: nil ) else { return nil }
         return String( format: descriptionFormat, standardDescription )
     }
     
@@ -436,7 +436,7 @@ class OBWPathItemView: NSView {
     /*==========================================================================*/
     private static var dividerImage: NSImage = {
         
-        let attributes: [NSAttributedStringKey:Any] = [
+        let attributes: [NSAttributedString.Key:Any] = [
             .paragraphStyle : NSParagraphStyle.default,
             .font : NSFont.controlContentFont( ofSize: OBWPathItemView.titleFontSize + 6.0 ),
             .foregroundColor : NSColor( white: 0.55, alpha: 1.0 ),
@@ -536,7 +536,7 @@ class OBWPathItemView: NSView {
             titleColor = NSColor.disabledControlTextColor
         }
         
-        let attributes: [NSAttributedStringKey:Any] = [
+        let attributes: [NSAttributedString.Key:Any] = [
             .paragraphStyle : paragraphStyle,
             .font : displayFont,
             .foregroundColor : titleColor,
