@@ -44,14 +44,14 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         // Activate Finder, SHOULD receive a deactivation event
         finderApp.activate( options: [] )
         Thread.sleep( forTimeInterval: threadSleepTime )
-        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNotNil( event )
         XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.ApplicationDidResignActive.rawValue )
         
         // Activate self, should NOT receive an activation event
         NSApp.activate( ignoringOtherApps: true )
         Thread.sleep( forTimeInterval: threadSleepTime )
-        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNil( event )
         
         eventSource.eventMask = .ApplicationDidBecomeActive
@@ -59,13 +59,13 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         // Activate Finder, should NOT receive a deactivation event
         finderApp.activate( options: [] )
         Thread.sleep( forTimeInterval: threadSleepTime )
-        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNil( event )
         
         // Activate self, SHOULD receive an activation event
         NSApp.activate( ignoringOtherApps: true )
         Thread.sleep( forTimeInterval: threadSleepTime )
-        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNotNil( event )
         XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.ApplicationDidBecomeActive.rawValue )
         
@@ -74,13 +74,13 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         // Activate Finder, should NOT receive a deactivation event
         finderApp.activate( options: [] )
         Thread.sleep( forTimeInterval: threadSleepTime )
-        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNil( event )
         
         // Activate self, should NOT receive an activation event
         NSApp.activate( ignoringOtherApps: true )
         Thread.sleep( forTimeInterval: threadSleepTime )
-        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNil( event )
         
         eventSource.eventMask = [ .ApplicationDidBecomeActive, .ApplicationDidResignActive ]
@@ -88,14 +88,14 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         // Activate Finder, SHOULD receive a deactivation event
         finderApp.activate( options: [] )
         Thread.sleep( forTimeInterval: threadSleepTime )
-        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNotNil( event )
         XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.ApplicationDidResignActive.rawValue )
         
         // Activate self, SHOULD receive an activation event
         NSApp.activate( ignoringOtherApps: true )
         Thread.sleep( forTimeInterval: threadSleepTime )
-        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        event = NSApp.nextEvent( matching: eventMask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         XCTAssertNotNil( event )
         XCTAssertEqual( event?.subtype.rawValue, OBWApplicationEventSubtype.ApplicationDidBecomeActive.rawValue )
         
@@ -114,13 +114,13 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         
         let mask = NSEvent.EventTypeMask.applicationDefined
         
-        let cocoaEvent1 = NSApp.nextEvent( matching: mask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        let cocoaEvent1 = NSApp.nextEvent( matching: mask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         let eventInterval1 = Date.timeIntervalSinceReferenceDate
         
-        let cocoaEvent2 = NSApp.nextEvent( matching: mask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        let cocoaEvent2 = NSApp.nextEvent( matching: mask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         let eventInterval2 = Date.timeIntervalSinceReferenceDate
         
-        let cocoaEvent3 = NSApp.nextEvent( matching: mask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        let cocoaEvent3 = NSApp.nextEvent( matching: mask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         let eventInterval3 = Date.timeIntervalSinceReferenceDate
         
         XCTAssertNotNil( cocoaEvent1 )
@@ -134,7 +134,7 @@ class OBWFilteringMenuEventSourceTests: XCTestCase {
         
         eventSource.stopPeriodicApplicationEvents()
         
-        let cocoaEvent4 = NSApp.nextEvent( matching: mask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoopMode.defaultRunLoopMode, dequeue: true )
+        let cocoaEvent4 = NSApp.nextEvent( matching: mask, until: Date( timeIntervalSinceNow: eventWaitTime ), inMode: RunLoop.Mode.default, dequeue: true )
         
         XCTAssertNil( cocoaEvent4 )
     }
