@@ -27,30 +27,30 @@ enum OBWFilteringMenuPart {
 class OBWFilteringMenuWindow: NSWindow {
     
     /*==========================================================================*/
-    init( menu: OBWFilteringMenu, screen: NSScreen ) {
+    init(menu: OBWFilteringMenu, screen: NSScreen) {
         
         self.filteringMenu = menu
         
-        let menuView = OBWFilteringMenuView( menu: menu )
+        let menuView = OBWFilteringMenuView(menu: menu)
         self.menuView = menuView
         
-        let menuViewOrigin = NSPoint( x: 0.0, y: OBWFilteringMenuWindow.interiorMargins.bottom )
-        self.menuView.setFrameOrigin( menuViewOrigin )
+        let menuViewOrigin = NSPoint(x: 0.0, y: OBWFilteringMenuWindow.interiorMargins.bottom)
+        self.menuView.setFrameOrigin(menuViewOrigin)
         
         let windowContentSize = menuView.frame.size - OBWFilteringMenuWindow.interiorMargins
-        let windowFrameSize = max( windowContentSize, OBWFilteringMenuWindow.minimumFrameSize )
+        let windowFrameSize = max(windowContentSize, OBWFilteringMenuWindow.minimumFrameSize)
         
         let windowOrigin = NSPoint(
-            x: screen.frame.midX - floor( windowFrameSize.width / 2.0 ),
-            y: screen.frame.midY - floor( windowFrameSize.height / 2.0 )
+            x: screen.frame.midX - floor(windowFrameSize.width / 2.0),
+            y: screen.frame.midY - floor(windowFrameSize.height / 2.0)
         )
         
-        let contentFrame = NSRect( origin: windowOrigin, size: windowFrameSize )
+        let contentFrame = NSRect(origin: windowOrigin, size: windowFrameSize)
         
-        super.init( contentRect: contentFrame, styleMask: .borderless, backing: .buffered, defer: false )
+        super.init(contentRect: contentFrame, styleMask: .borderless, backing: .buffered, defer: false)
         
         // NSPopUpMenuWindowLevel = 101. Expose widgets seem to appear at window level 100.  This window should be above everything except Expose, including the main menu which is at level 24.
-        self.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey( .popUpMenuWindow )) - 2)
+        self.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.popUpMenuWindow)) - 2)
         
         self.isOpaque = false
         self.backgroundColor = NSColor.clear
@@ -60,9 +60,9 @@ class OBWFilteringMenuWindow: NSWindow {
         self.isReleasedWhenClosed = false
         self.animationBehavior = .utilityWindow
         
-        self.contentView = OBWFilteringMenuBackground( frame: contentFrame )
-        self.contentView!.autoresizingMask = [ NSView.AutoresizingMask.width, NSView.AutoresizingMask.height ]
-        self.contentView!.addSubview( menuView )
+        self.contentView = OBWFilteringMenuBackground(frame: contentFrame)
+        self.contentView!.autoresizingMask = [.width, .height]
+        self.contentView!.addSubview(menuView)
     }
     
     /*==========================================================================*/
@@ -72,17 +72,17 @@ class OBWFilteringMenuWindow: NSWindow {
     override var canBecomeMain: Bool { return false }
     
     /*==========================================================================*/
-    override func fieldEditor( _ createFlag: Bool, for anObject: Any? ) -> NSText? {
+    override func fieldEditor(_ createFlag: Bool, for anObject: Any?) -> NSText? {
         
         guard let searchField = anObject as? NSSearchField else {
-            return super.fieldEditor( createFlag, for: anObject )
+            return super.fieldEditor(createFlag, for: anObject)
         }
         
         if let fieldEditor = self.filterFieldEditor {
             return fieldEditor
         }
         
-        if !createFlag {
+        if createFlag == false {
             return nil
         }
         
@@ -103,7 +103,7 @@ class OBWFilteringMenuWindow: NSWindow {
     /*==========================================================================*/
     override func accessibilityRoleDescription() -> String? {
         self.accessibilityActive = true
-        return NSAccessibility.Role.window.description(with: NSAccessibility.Subrole.standardWindow )
+        return NSAccessibility.Role.window.description(with: NSAccessibility.Subrole.standardWindow)
     }
     
     /*==========================================================================*/
@@ -116,7 +116,7 @@ class OBWFilteringMenuWindow: NSWindow {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuWindow implementation
     
-    static let interiorMargins = NSEdgeInsets( top: 4.0, left: 0.0, bottom: 4.0, right: 0.0 )
+    static let interiorMargins = NSEdgeInsets(top: 4.0, left: 0.0, bottom: 4.0, right: 0.0)
     
     static let minimumFrameSize = NSSize(
         width: 80.0 + OBWFilteringMenuBackground.roundedCornerRadius * 2.0,
@@ -138,7 +138,7 @@ class OBWFilteringMenuWindow: NSWindow {
             return backgroundView.roundedCorners
         }
         
-        set ( newValue ) {
+        set (newValue) {
             let backgroundView = self.contentView as! OBWFilteringMenuBackground
             if backgroundView.roundedCorners == newValue {
                 return
@@ -150,58 +150,58 @@ class OBWFilteringMenuWindow: NSWindow {
     }
     
     /*==========================================================================*/
-    func menuItemAtLocation( _ locationInWindow: NSPoint ) -> OBWFilteringMenuItem? {
-        let locationInView = self.menuView.convert( locationInWindow, from: nil )
-        return self.menuView.menuItemAtLocation( locationInView )
+    func menuItemAtLocation(_ locationInWindow: NSPoint) -> OBWFilteringMenuItem? {
+        let locationInView = self.menuView.convert(locationInWindow, from: nil)
+        return self.menuView.menuItemAtLocation(locationInView)
     }
     
     /*==========================================================================*/
-    func menuPartAtLocation( _ locationInWindow: NSPoint ) -> OBWFilteringMenuPart {
-        let locationInView = self.menuView.convert( locationInWindow, from: nil )
-        return self.menuView.menuPartAtLocation( locationInView )
+    func menuPartAtLocation(_ locationInWindow: NSPoint) -> OBWFilteringMenuPart {
+        let locationInView = self.menuView.convert(locationInWindow, from: nil)
+        return self.menuView.menuPartAtLocation(locationInView)
     }
     
     /*==========================================================================*/
     @discardableResult
-    func displayMenuLocation( _ menuLocation: NSPoint, atScreenLocation screenLocation: NSPoint, allowWindowToGrowUpward: Bool, resetScrollTracking: Bool = true ) -> Bool {
+    func displayMenuLocation(_ menuLocation: NSPoint, atScreenLocation screenLocation: NSPoint, allowWindowToGrowUpward: Bool, resetScrollTracking: Bool = true) -> Bool {
         
-        let geometry = OBWFilteringMenuWindowGeometry( window: self )
-        if !geometry.updateGeometryToDisplayMenuLocation( menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: allowWindowToGrowUpward ) {
+        let geometry = OBWFilteringMenuWindowGeometry(window: self)
+        if !geometry.updateGeometryToDisplayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: allowWindowToGrowUpward) {
             return false
         }
         
-        self.applyWindowGeometry( geometry )
+        self.applyWindowGeometry(geometry)
         
         if resetScrollTracking {
-            self.scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
+            self.scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
         }
         
         return true
     }
     
     /*==========================================================================*/
-    func displayMenuLocation( _ menuLocation: NSPoint, adjacentToScreenArea areaInScreen: NSRect, prefrerredAlignment: OBWFilteringMenuAlignment ) {
+    func displayMenuLocation(_ menuLocation: NSPoint, adjacentToScreenArea areaInScreen: NSRect, prefrerredAlignment: OBWFilteringMenuAlignment) {
         
-        let geometry = OBWFilteringMenuWindowGeometry( window: self )
-        let newAlignment = geometry.updateGeometryToDisplayMenuLocation( menuLocation, adjacentToScreenArea: areaInScreen, preferredAlignment: prefrerredAlignment )
+        let geometry = OBWFilteringMenuWindowGeometry(window: self)
+        let newAlignment = geometry.updateGeometryToDisplayMenuLocation(menuLocation, adjacentToScreenArea: areaInScreen, preferredAlignment: prefrerredAlignment)
         
-        self.applyWindowGeometry( geometry )
+        self.applyWindowGeometry(geometry)
         self.alignmentFromPrevious = newAlignment
         self.screenAnchor = areaInScreen
         
-        self.scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
+        self.scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
     }
     
     /*==========================================================================*/
-    func displayMenuItemBounds( _ menuItemBounds: NSRect ) -> Bool {
+    func displayMenuItemBounds(_ menuItemBounds: NSRect) -> Bool {
         
-        let windowGeometry = OBWFilteringMenuWindowGeometry( window: self )
+        let windowGeometry = OBWFilteringMenuWindowGeometry(window: self)
         
-        if !windowGeometry.updateGeometryToDisplayMenuItemBounds( menuItemBounds ) {
+        if windowGeometry.updateGeometryToDisplayMenuItemBounds(menuItemBounds) == false {
             return false
         }
         
-        self.applyWindowGeometry( windowGeometry )
+        self.applyWindowGeometry(windowGeometry)
         
         return true
     }
@@ -209,22 +209,22 @@ class OBWFilteringMenuWindow: NSWindow {
     /*==========================================================================*/
     func displayUpdatedTotalMenuItemSize() -> Bool {
         
-        let geometry = OBWFilteringMenuWindowGeometry( window: self )
-        if !geometry.updateGeometryWithResizedMenu() {
+        let geometry = OBWFilteringMenuWindowGeometry(window: self)
+        if geometry.updateGeometryWithResizedMenu() == false {
             return false
         }
         
-        self.applyWindowGeometry( geometry )
+        self.applyWindowGeometry(geometry)
         
-        self.scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
+        self.scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
         
-        NotificationCenter.default.post( name: OBWFilteringMenuTotalItemSizeChangedNotification, object: self )
+        NotificationCenter.default.post(name: OBWFilteringMenuTotalItemSizeChangedNotification, object: self)
         
         return true
     }
     
     /*==========================================================================*/
-    func applyWindowGeometry( _ windowGeometry: OBWFilteringMenuWindowGeometry ) {
+    func applyWindowGeometry(_ windowGeometry: OBWFilteringMenuWindowGeometry) {
         
         let currentWindowFrame = self.frame
         let newWindowFrame = windowGeometry.frame
@@ -233,7 +233,7 @@ class OBWFilteringMenuWindow: NSWindow {
         
         if currentWindowFrame == newWindowFrame {
             
-            menuView.setMenuItemBoundsOriginY( windowGeometry.initialBounds.origin.y )
+            menuView.setMenuItemBoundsOriginY(windowGeometry.initialBounds.origin.y)
         }
         else {
             
@@ -247,16 +247,17 @@ class OBWFilteringMenuWindow: NSWindow {
             )
             
             menuView.frame = menuViewFrame
-            menuView.setMenuItemBoundsOriginY( windowGeometry.initialBounds.origin.y )
+            menuView.setMenuItemBoundsOriginY(windowGeometry.initialBounds.origin.y)
             
-            self.setFrame( newWindowFrame, display: true )
+            self.setFrame(newWindowFrame, display: true)
             self.invalidateShadow()
         }
     }
     
     /*==========================================================================*/
     func resetScrollTracking() {
-        let geometry = OBWFilteringMenuWindowGeometry( window: self )
-        self.scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
+        let geometry = OBWFilteringMenuWindowGeometry(window: self)
+        self.scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
     }
 }
+
