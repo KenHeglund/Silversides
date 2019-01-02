@@ -11,7 +11,7 @@ import Cocoa
 extension NSImage {
     
     /*==========================================================================*/
-    func withLockedFocus( _ handler: () -> Void ) {
+    func withLockedFocus(_ handler: () -> Void) {
         self.lockFocus()
         handler()
         self.unlockFocus()
@@ -20,9 +20,9 @@ extension NSImage {
     /*==========================================================================*/
     func imageByTrimmingTransparentEdges() -> NSImage? {
         
-        let sourceFrame = NSRect( size: self.size )
+        let sourceFrame = NSRect(size: self.size)
         
-        if !self.hitTest( sourceFrame, withDestinationRect: sourceFrame, context: nil, hints: nil, flipped: false ) {
+        if self.hitTest(sourceFrame, withDestinationRect: sourceFrame, context: nil, hints: nil, flipped: false) == false {
             return nil
         }
         
@@ -38,7 +38,7 @@ extension NSImage {
                 height: 1.0
             )
             
-            if ( self.hitTest( testRect, withDestinationRect: sourceFrame, context: nil, hints: nil, flipped: false ) ) {
+            if self.hitTest(testRect, withDestinationRect: sourceFrame, context: nil, hints: nil, flipped: false) {
                 break
             }
             
@@ -56,7 +56,7 @@ extension NSImage {
                 height: 1.0
             )
             
-            if ( self.hitTest( testRect, withDestinationRect: sourceFrame, context: nil, hints: nil, flipped: false ) ) {
+            if self.hitTest(testRect, withDestinationRect: sourceFrame, context: nil, hints: nil, flipped: false) {
                 break
             }
             
@@ -73,7 +73,7 @@ extension NSImage {
                 height: contentFrame.size.height
             )
             
-            if ( self.hitTest( testRect, withDestinationRect: sourceFrame, context: nil, hints: nil, flipped: false ) ) {
+            if self.hitTest(testRect, withDestinationRect: sourceFrame, context: nil, hints: nil, flipped: false) {
                 break
             }
             
@@ -91,21 +91,21 @@ extension NSImage {
                 height: contentFrame.size.height
             )
             
-            if ( self.hitTest( testRect, withDestinationRect: sourceFrame, context: nil, hints: nil, flipped: false ) ) {
+            if self.hitTest(testRect, withDestinationRect: sourceFrame, context: nil, hints: nil, flipped: false) {
                 break
             }
             
             contentFrame.size.width = sourceFrame.origin.x + sourceFrame.size.width - CGFloat(rightOffset) - contentFrame.origin.x
         }
         
-        if NSEqualRects( sourceFrame, contentFrame ) {
+        if NSEqualRects(sourceFrame, contentFrame) {
             return self
         }
         
         
-        let trimmedImage = NSImage( size: contentFrame.size )
+        let trimmedImage = NSImage(size: contentFrame.size)
         trimmedImage.withLockedFocus {
-            self.draw( at: NSZeroPoint, from: contentFrame, operation: .copy, fraction: 1.0 )
+            self.draw(at: .zero, from: contentFrame, operation: .copy, fraction: 1.0)
         }
         
         return trimmedImage
