@@ -11,13 +11,13 @@ import Cocoa
 class OBWFilteringMenuCursorTracking {
     
     /*==========================================================================*/
-    init( subviewOfItem: OBWFilteringMenuItem, fromSourceLine: NSRect, toArea: NSRect ) {
+    init(subviewOfItem: OBWFilteringMenuItem, fromSourceLine: NSRect, toArea: NSRect) {
         
         self.sourceMenuItem = subviewOfItem
         self.destinationArea = toArea
         
         OBWFilteringMenuCursorTracking.debugWindow?.trackingView.cursorTracking = self
-        OBWFilteringMenuCursorTracking.debugWindow?.orderFront( nil )
+        OBWFilteringMenuCursorTracking.debugWindow?.orderFront(nil)
         
         self.sourceLine = fromSourceLine
         
@@ -28,7 +28,7 @@ class OBWFilteringMenuCursorTracking {
     /*==========================================================================*/
     deinit {
         OBWFilteringMenuCursorTracking.debugWindow?.trackingView.cursorTracking = nil
-        OBWFilteringMenuCursorTracking.debugWindow?.orderOut( nil )
+        OBWFilteringMenuCursorTracking.debugWindow?.orderOut(nil)
     }
     
     /*==========================================================================*/
@@ -50,24 +50,24 @@ class OBWFilteringMenuCursorTracking {
     
     /*==========================================================================*/
     class func hideDebugWindow() {
-        OBWFilteringMenuCursorTracking.debugWindow?.orderOut( nil )
+        OBWFilteringMenuCursorTracking.debugWindow?.orderOut(nil)
     }
     
     /*==========================================================================*/
-    func isCursorProgressingTowardSubmenu( _ event: NSEvent ) -> Bool {
+    func isCursorProgressingTowardSubmenu(_ event: NSEvent) -> Bool {
         
         if let eventLocation = event.locationInScreen {
             
             if self.applyLimits {
                 
-                let topLimit = ( self.topSlope * eventLocation.x ) + self.topOffset
-                let bottomLimit = ( self.bottomSlope * eventLocation.x ) + self.bottomOffset
+                let topLimit = (self.topSlope * eventLocation.x) + self.topOffset
+                let bottomLimit = (self.bottomSlope * eventLocation.x) + self.bottomOffset
                 
                 if eventLocation.y < bottomLimit || eventLocation.y > topLimit {
                     return false
                 }
                 
-                if !self.isCursorMovingFastEnough( event.timestamp, locationInScreen: eventLocation ) {
+                if self.isCursorMovingFastEnough(event.timestamp, locationInScreen: eventLocation) == false {
                     return false
                 }
             }
@@ -122,8 +122,8 @@ class OBWFilteringMenuCursorTracking {
         let sourceLine = self.sourceLine
         let destinationArea = self.destinationArea
         
-        let sourcePadding = NSSize( width: 0.0, height: 6.0 )
-        let destinationPadding = NSSize( width: 0.0, height: 40.0 )
+        let sourcePadding = NSSize(width: 0.0, height: 6.0)
+        let destinationPadding = NSSize(width: 0.0, height: 40.0)
         
         let leftEdge: NSRect
         let rightEdge: NSRect
@@ -137,14 +137,14 @@ class OBWFilteringMenuCursorTracking {
                 x: sourceLine.origin.x - sourcePadding.width,
                 y: sourceLine.origin.y - sourcePadding.height,
                 width: 0.0,
-                height: sourceLine.size.height + ( 2.0 * sourcePadding.height )
+                height: sourceLine.size.height + (2.0 * sourcePadding.height)
             )
             
             rightEdge = NSRect(
                 x: destinationArea.origin.x - destinationPadding.width,
                 y: destinationArea.origin.y - destinationPadding.height,
                 width: 0.0,
-                height: destinationArea.size.height + ( 2.0 * destinationPadding.height )
+                height: destinationArea.size.height + (2.0 * destinationPadding.height)
             )
             
             minimumDrawX = sourceLine.origin.x
@@ -156,14 +156,14 @@ class OBWFilteringMenuCursorTracking {
                 x: destinationArea.origin.x + destinationArea.size.width - destinationPadding.width,
                 y: destinationArea.origin.y - destinationPadding.height,
                 width: 0.0,
-                height: destinationArea.size.height + ( 2.0 * destinationPadding.height )
+                height: destinationArea.size.height + (2.0 * destinationPadding.height)
             )
             
             rightEdge = NSRect(
                 x: sourceLine.origin.x + sourcePadding.width,
                 y: sourceLine.origin.y - sourcePadding.height,
                 width: 0.0,
-                height: sourceLine.size.height + ( 2.0 * sourcePadding.height )
+                height: sourceLine.size.height + (2.0 * sourcePadding.height)
             )
             
             minimumDrawX = destinationArea.origin.x;
@@ -176,15 +176,17 @@ class OBWFilteringMenuCursorTracking {
         }
         
         let run = rightEdge.origin.x - leftEdge.origin.x
-        guard run != 0.0 else { return }
+        guard run != 0.0 else {
+            return
+        }
         
         let topRise = rightEdge.maxY - leftEdge.maxY
         self.topSlope = topRise / run
-        self.topOffset = leftEdge.maxY - ( topSlope * leftEdge.origin.x )
+        self.topOffset = leftEdge.maxY - (topSlope * leftEdge.origin.x)
         
         let bottomRise = rightEdge.origin.y - leftEdge.origin.y
         self.bottomSlope = bottomRise / run
-        self.bottomOffset = leftEdge.origin.y - ( bottomSlope * leftEdge.origin.x )
+        self.bottomOffset = leftEdge.origin.y - (bottomSlope * leftEdge.origin.x)
         
         self.minimumDrawX = minimumDrawX
         self.maximumDrawX = maximumDrawX
@@ -203,7 +205,7 @@ class OBWFilteringMenuCursorTracking {
     }
     
     /*==========================================================================*/
-    private func isCursorMovingFastEnough( _ timestamp: TimeInterval, locationInScreen: NSPoint ) -> Bool {
+    private func isCursorMovingFastEnough(_ timestamp: TimeInterval, locationInScreen: NSPoint) -> Bool {
         
         let waypoints = self.cursorWaypoints
         var oldestIndex = waypoints.startIndex
@@ -236,7 +238,7 @@ class OBWFilteringMenuCursorTracking {
         let distanceX = waypoints[oldestIndex].locationInScreen.x - waypoints.first!.locationInScreen.x
         let distanceY = waypoints[oldestIndex].locationInScreen.y - waypoints.first!.locationInScreen.y
         
-        let distance = Double( abs( distanceX ) + abs( distanceY ) )
+        let distance = Double(abs(distanceX) + abs(distanceY))
         let time = timestamp - waypoints[oldestIndex].timestamp!
         let speed = distance / time
         
@@ -260,49 +262,50 @@ private class OBWFilteringMenuCursorTrackingDebugView: NSView {
     
     weak var cursorTracking: OBWFilteringMenuCursorTracking? = nil
     
-    override func draw( _ dirtyRect: NSRect ) {
+    override func draw(_ dirtyRect: NSRect) {
         
         let bounds = self.bounds
         
         NSColor.clear.set()
-        bounds.fill( )
+        bounds.fill()
         
-        guard let cursorTracking = self.cursorTracking else { return }
+        guard let cursorTracking = self.cursorTracking else {
+            return
+        }
         
         let topLeft = NSPoint(
             x: cursorTracking.minimumDrawX,
-            y: ( cursorTracking.topSlope * cursorTracking.minimumDrawX ) + cursorTracking.topOffset
+            y: (cursorTracking.topSlope * cursorTracking.minimumDrawX) + cursorTracking.topOffset
         )
         
         let topRight = NSPoint(
             x: cursorTracking.maximumDrawX,
-            y: ( cursorTracking.topSlope * cursorTracking.maximumDrawX ) + cursorTracking.topOffset
+            y: (cursorTracking.topSlope * cursorTracking.maximumDrawX) + cursorTracking.topOffset
         )
         
         let bottomLeft = NSPoint(
             x: cursorTracking.minimumDrawX,
-            y: ( cursorTracking.bottomSlope * cursorTracking.minimumDrawX ) + cursorTracking.bottomOffset
+            y: (cursorTracking.bottomSlope * cursorTracking.minimumDrawX) + cursorTracking.bottomOffset
         )
         
         let bottomRight = NSPoint(
             x: cursorTracking.maximumDrawX,
-            y: ( cursorTracking.bottomSlope * cursorTracking.maximumDrawX ) + cursorTracking.bottomOffset
+            y: (cursorTracking.bottomSlope * cursorTracking.maximumDrawX) + cursorTracking.bottomOffset
         )
         
         NSColor.systemRed.withAlphaComponent(0.15).set()
         
         let path = NSBezierPath()
-        path.move( to: topRight )
-        path.line( to: topLeft )
-        path.line( to: bottomLeft )
-        path.line( to: bottomRight )
+        path.move(to: topRight)
+        path.line(to: topLeft)
+        path.line(to: bottomLeft)
+        path.line(to: bottomRight)
         path.close()
         path.fill()
         
         NSColor.systemRed.withAlphaComponent(0.5).set()
         path.stroke()
     }
-    
 }
 
 /*==========================================================================*/
@@ -316,12 +319,12 @@ private class OBWFilteringMenuCursorTrackingDebugWindow: NSWindow {
         
         let screenFrame = NSScreen.screens.first?.frame ?? NSZeroRect
         
-        let trackingView = OBWFilteringMenuCursorTrackingDebugView( frame: screenFrame )
+        let trackingView = OBWFilteringMenuCursorTrackingDebugView(frame: screenFrame)
         self.trackingView = trackingView
         
-        super.init( contentRect: screenFrame, styleMask: .borderless, backing: .buffered, defer: false )
+        super.init(contentRect: screenFrame, styleMask: .borderless, backing: .buffered, defer: false)
         
-        self.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey( .screenSaverWindow )) - 10)
+        self.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.screenSaverWindow)) - 10)
         self.isOpaque = false
         self.backgroundColor = NSColor.clear
         self.hasShadow = false
@@ -330,7 +333,6 @@ private class OBWFilteringMenuCursorTrackingDebugWindow: NSWindow {
         self.isReleasedWhenClosed = false
         self.animationBehavior = .none
         
-        self.contentView?.addSubview( trackingView )
+        self.contentView?.addSubview(trackingView)
     }
-    
 }
