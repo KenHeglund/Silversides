@@ -39,6 +39,7 @@
 		BE9CB0BC1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0BB1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift */; };
 		BE9CB0BE1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0BD1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift */; };
 		BEBEECC81D77E59A0050D277 /* OBWFilteringMenuBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEBEECC71D77E59A0050D277 /* OBWFilteringMenuBackground.swift */; };
+		BEC2CD4821D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC2CD4721D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift */; };
 		BEC489BF1D4C173500CE7AB8 /* Silversides.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC489BE1D4C173500CE7AB8 /* Silversides.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BEC489C61D4C173500CE7AB8 /* OBWControls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC489BB1D4C173500CE7AB8 /* OBWControls.framework */; };
 		BEC489CB1D4C173500CE7AB8 /* OBWPathViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC489CA1D4C173500CE7AB8 /* OBWPathViewTests.swift */; };
@@ -131,6 +132,7 @@
 		BE9CB0BB1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuItemView.swift; sourceTree = "<group>"; };
 		BE9CB0BD1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuActionItemView.swift; sourceTree = "<group>"; };
 		BEBEECC71D77E59A0050D277 /* OBWFilteringMenuBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuBackground.swift; sourceTree = "<group>"; };
+		BEC2CD4721D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringPopUpButtonCell.swift; sourceTree = "<group>"; };
 		BEC489BB1D4C173500CE7AB8 /* OBWControls.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OBWControls.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEC489BE1D4C173500CE7AB8 /* Silversides.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Silversides.h; sourceTree = "<group>"; };
 		BEC489C51D4C173500CE7AB8 /* SilversidesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SilversidesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -201,6 +203,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		BEC2CD4621D6F11200C452F6 /* OBWFilteringPopUpButtonCell */ = {
+			isa = PBXGroup;
+			children = (
+				BEC2CD4721D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift */,
+			);
+			path = OBWFilteringPopUpButtonCell;
+			sourceTree = "<group>";
+		};
 		BEC489B11D4C173500CE7AB8 = {
 			isa = PBXGroup;
 			children = (
@@ -228,6 +238,7 @@
 		BEC489BD1D4C173500CE7AB8 /* Silversides */ = {
 			isa = PBXGroup;
 			children = (
+				BEC2CD4621D6F11200C452F6 /* OBWFilteringPopUpButtonCell */,
 				BEFDC93A1D6F2FC20005ACFF /* OBWFilteringMenu */,
 				BEC489D61D4C181500CE7AB8 /* OBWPathView */,
 				BEC489DA1D4C193500CE7AB8 /* Resources */,
@@ -510,6 +521,7 @@
 				BE9CB0BC1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift in Sources */,
 				BEFDC94C1D6FA0940005ACFF /* OBWPathView.swift in Sources */,
 				BE9CB0B61D86464F00323D09 /* OBWFilteringMenuArrows.swift in Sources */,
+				BEC2CD4821D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift in Sources */,
 				BE4685B81D8F68E900AC4B6F /* OBWFilteringMenuScrollTracking.swift in Sources */,
 				BE4685AE1D8CA98700AC4B6F /* OBWFilteringMenuCursorTracking.swift in Sources */,
 				BE44C8DB1DA72D92009517A5 /* NSRect+OBWExtension.swift in Sources */,

@@ -37,6 +37,8 @@ private class ItemInfo {
 class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBWFilteringMenuDelegate {
     
     @IBOutlet var pathViewOutlet: OBWPathView! = nil
+    @IBOutlet var filteringPopUpButtonOutlet: NSPopUpButton! = nil
+    @IBOutlet var standardPopUpButtonOutlet: NSPopUpButton! = nil
     
     private(set) var pathViewConfigured = false
     private var kvoRegistered = false
@@ -218,6 +220,10 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         
         super.viewDidLoad()
         
+        assert(self.pathViewOutlet != nil)
+        assert(self.filteringPopUpButtonOutlet != nil)
+        assert(self.standardPopUpButtonOutlet != nil)
+        
         // Do any additional setup after loading the view.
         
         self.pathViewOutlet.delegate = self
@@ -228,6 +234,19 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         self.configurePathViewToShowURL( homeURL )
         
         NSColorPanel.shared.showsAlpha = true
+        
+        guard let cell = self.filteringPopUpButtonOutlet.cell as? OBWFilteringPopUpButtonCell else {
+            assertionFailure("cell for the pop up button is expected to be a OBWFilteringPopUpButtonCell")
+            return
+        }
+
+        let menu = OBWFilteringMenu( title: "" )
+        
+        if self.populateFilteringMenu( menu, withContentsAtURL: nil ) {
+            cell.filteringMenu = menu
+        }
+        
+        self.standardPopUpButtonOutlet.menu = ViewController.makeStandardMenu()
     }
     
     /*==========================================================================*/
@@ -700,5 +719,42 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             layer.borderColor = nil
             layer.borderWidth = 0.0
         }
+    }
+    
+    /*==========================================================================*/
+    private static func makeStandardMenu() -> NSMenu {
+        
+        let standardMenu = NSMenu(title: "Standard")
+        
+        let filterItem = NSMenuItem(title: "filter", action: nil, keyEquivalent: "")
+        
+        let parentFrame = NSRect(x: 0.0, y: 0.0, width: 100.0, height: 32.0)
+        let parentView = NSView(frame: parentFrame)
+        parentView.autoresizingMask = .width
+        
+        let searchFrame = NSRect(x: 0.0, y: 0.0, width: 20.0, height: 20.0)
+        let searchField = NSSearchField(frame: searchFrame)
+        searchField.translatesAutoresizingMaskIntoConstraints = false
+        searchField.placeholderString = "Filter"
+        searchField.focusRingType = .none
+        parentView.addSubview(searchField)
+        
+        NSLayoutConstraint.activate([
+            searchField.topAnchor.constraint(equalTo: parentView.topAnchor, constant: 2.0),
+            searchField.bottomAnchor.constraint(equalTo: parentView.bottomAnchor, constant: -2.0),
+            searchField.leadingAnchor.constraint(equalTo: parentView.leadingAnchor, constant: 8.0),
+            searchField.trailingAnchor.constraint(equalTo: parentView.trailingAnchor, constant: -8.0),
+        ])
+        
+        filterItem.view = parentView
+        standardMenu.addItem(filterItem)
+        
+        standardMenu.addItem(withTitle: "First", action: nil, keyEquivalent: "")
+        standardMenu.addItem(withTitle: "Second", action: nil, keyEquivalent: "")
+        standardMenu.addItem(withTitle: "Third", action: nil, keyEquivalent: "")
+        standardMenu.addItem(withTitle: "Fourth", action: nil, keyEquivalent: "")
+        standardMenu.addItem(withTitle: "Fifth", action: nil, keyEquivalent: "")
+
+        return standardMenu
     }
 }
