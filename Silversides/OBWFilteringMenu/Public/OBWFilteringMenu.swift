@@ -145,8 +145,10 @@ public class OBWFilteringMenu {
     static let currentHighlightedItemKey = "OBWFilteringMenuCurrentHighlightedItemKey"
     static let previousHighlightedItemKey = "OBWFilteringMenuPreviousHighlightedItemKey"
     
+    var parentItem: OBWFilteringMenuItem? = nil
+    
     var displayFont: NSFont {
-        return self.font ?? NSFont.menuFont(ofSize: 0.0)
+        return self.font ?? self.parentItem?.menu?.displayFont ?? NSFont.menuFont(ofSize: 0.0)
     }
     
     /*==========================================================================*/

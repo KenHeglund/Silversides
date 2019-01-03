@@ -21,7 +21,16 @@ public class OBWFilteringMenuItem {
     public var title: String? = nil
     @NSCopying public var attributedTitle: NSAttributedString? = nil
     public var image: NSImage? = nil
-    public var submenu: OBWFilteringMenu? = nil
+    
+    public var submenu: OBWFilteringMenu? = nil {
+        willSet {
+            self.submenu?.parentItem = nil
+        }
+        didSet {
+            self.submenu?.parentItem = self
+        }
+    }
+    
     public var keyEquivalentModifierMask: NSEvent.ModifierFlags = []
     
     public var enabled = true

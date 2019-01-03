@@ -728,7 +728,6 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         
         let submenu = OBWFilteringMenu(title: path)
         submenu.delegate = self
-        submenu.font = NSFont.systemFont(ofSize: 11.0)
         menuItem.submenu = submenu
         
         return menuItem
