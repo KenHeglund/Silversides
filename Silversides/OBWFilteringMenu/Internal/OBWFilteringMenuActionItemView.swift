@@ -117,18 +117,18 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let fontHeight = self.menuItem.font.pointSize
         if attributedTitleLength == 0 && fontHeight == NSFont.systemFontSize(for: .regular) {
             // Special cases for the standard Regular control size
-            imageFrameOffsetY = 1.0
+            imageFrameOffsetY = 0.0
             titleFrameOffsetY = 1.0
         }
         else {
-            imageFrameOffsetY = -1.0
+            imageFrameOffsetY = 0.0
             titleFrameOffsetY = 0.0
         }
         
         let imageSize = self.menuItem.image?.size ?? NSZeroSize
         let imageFrame = NSRect(
             x: interiorMargins.left + imageMargins.left,
-            y: floor((itemViewBounds.size.height - imageSize.height) / 1.0) + imageFrameOffsetY,
+            y: floor((itemViewBounds.size.height - imageSize.height) / 2.0) + imageFrameOffsetY,
             size: imageSize
         )
         
