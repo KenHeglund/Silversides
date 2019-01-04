@@ -248,7 +248,7 @@ class OBWFilteringMenuController {
                     }
                     
                     if let menuItem = self.lastHitMenuItem {
-                        self.performActionForItem(menuItem)
+                        self.performSelectionOfItem(menuItem)
                         result = .guiSelection
                     }
                     else {
@@ -370,7 +370,7 @@ class OBWFilteringMenuController {
         if keyCode == kVK_ANSI_KeypadEnter {
             
             if let highlightedItem = highlightedItem {
-                self.performActionForItem(highlightedItem)
+                self.performSelectionOfItem(highlightedItem)
             }
             
             return .guiSelection
@@ -392,7 +392,7 @@ class OBWFilteringMenuController {
             }
             
             if let highlightedItem = highlightedItem {
-                self.performActionForItem(highlightedItem)
+                self.performSelectionOfItem(highlightedItem)
             }
             
             return .guiSelection
@@ -713,7 +713,7 @@ class OBWFilteringMenuController {
     }
     
     /*==========================================================================*/
-    private func performActionForItem(_ menuItem: OBWFilteringMenuItem) {
+    private func performSelectionOfItem(_ menuItem: OBWFilteringMenuItem) {
         
         guard
             let menu = menuItem.menu,
@@ -747,6 +747,9 @@ class OBWFilteringMenuController {
         }
         
         menuItem.performAction()
+        
+        let userInfo = [OBWFilteringMenu.itemKey : menuItem]
+        NotificationCenter.default.post(name: OBWFilteringMenu.didSelectItem, object: menuItem.menu, userInfo: userInfo)
     }
     
     // MARK: - Menu Windows
@@ -1121,7 +1124,7 @@ class OBWFilteringMenuController {
         }
         else if menuItem.enabled {
             
-            self.performActionForItem(menuItem)
+            self.performSelectionOfItem(menuItem)
             
             if let pseudoEvent = NSEvent.otherEvent(
                 with: .applicationDefined,

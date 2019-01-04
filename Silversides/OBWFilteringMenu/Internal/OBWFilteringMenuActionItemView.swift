@@ -117,7 +117,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let fontHeight = self.menuItem.font.pointSize
         if attributedTitleLength == 0 && fontHeight == NSFont.systemFontSize(for: .regular) {
             // Special cases for the standard Regular control size
-            imageFrameOffsetY = 0.0
+            imageFrameOffsetY = 1.0
             titleFrameOffsetY = 1.0
         }
         else {

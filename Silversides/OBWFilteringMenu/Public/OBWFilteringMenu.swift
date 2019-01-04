@@ -28,8 +28,10 @@ public class OBWFilteringMenu {
     public static let didEndSessionNotification = Notification.Name(rawValue: "OBWFilteringMenuDidEndSessionNotification")
     public static let didBeginTrackingNotification = Notification.Name(rawValue: "OBWFilteringMenuDidBeginTrackingNotification")
     public static let willEndTrackingNotification = Notification.Name(rawValue: "OBWFilteringMenuWillEndTrackingNotification")
+    public static let didSelectItem = Notification.Name(rawValue: "OBWFilteringMenuDidSelectItem")
     
     public static let rootKey = "OBWFilteringMenuRootKey"
+    public static let itemKey = "OBWFilteringMenuItemKey"
     
     // MARK: - OBWFilteringMenu public
     

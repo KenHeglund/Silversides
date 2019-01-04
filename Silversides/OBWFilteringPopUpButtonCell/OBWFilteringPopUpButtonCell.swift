@@ -24,8 +24,8 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
         let fontSize = NSFont.systemFontSize(for: controlSize)
         menu.font = NSFont.menuFont(ofSize: fontSize)
         
-        let menuItem: OBWFilteringMenuItem? = nil
-        let itemLocation = cellFrame.origin
+        let menuItem = self.visibleFilteringItem
+        let itemLocation = NSPoint(x: cellFrame.origin.x - 10.0, y: cellFrame.origin.y + 2.0)
         let highlightItem = true
         
         _ = menu.popUpMenuPositioningItem(menuItem, atLocation: itemLocation, inView: controlView, withEvent: event, highlightMenuItem: highlightItem)
@@ -34,7 +34,62 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
     }
     
     /*==========================================================================*/
+    public override func synchronizeTitleAndSelectedItem() {
+        self.setTitle("\(Int.random(in: 0...100_000))")
+    }
+    
+    /*==========================================================================*/
     // MARK: - OBWFilteringPopUpButtonCell implementation
     
-    public var filteringMenu: OBWFilteringMenu? = nil
+    public var filteringMenu: OBWFilteringMenu? = nil {
+        
+        willSet {
+            self.visibleFilteringItem = nil
+            NotificationCenter.default.removeObserver(self, name: OBWFilteringMenu.didSelectItem, object: self.filteringMenu)
+        }
+        didSet {
+            NotificationCenter.default.addObserver(self, selector: #selector(OBWFilteringPopUpButtonCell.didSelectMenuItem(_:)), name: OBWFilteringMenu.didSelectItem, object: self.filteringMenu)
+            
+            if let firstMenuItem = self.filteringMenu?.itemArray.first {
+                self.displayMenuItem(firstMenuItem)
+            }
+        }
+    }
+    
+    /*==========================================================================*/
+    // MARK: - OBWFilteringPopUpButtonCell private
+    
+    private var visibleFilteringItem: OBWFilteringMenuItem? = nil
+    
+    /*==========================================================================*/
+    @objc private func didSelectMenuItem(_ notification: Notification) {
+        
+        guard
+            let menu = notification.object as? OBWFilteringMenu,
+            menu === self.filteringMenu,
+            let menuItem = notification.userInfo?[OBWFilteringMenu.itemKey] as? OBWFilteringMenuItem
+        else {
+            return
+        }
+        
+        self.displayMenuItem(menuItem)
+    }
+    
+    /*==========================================================================*/
+    private func displayMenuItem(_ filteringMenuItem: OBWFilteringMenuItem) {
+        
+        if self.menu == nil {
+            self.menu = NSMenu(title: "Placeholder")
+        }
+        
+        self.visibleFilteringItem = filteringMenuItem
+        
+        self.menu?.removeAllItems()
+        
+        let standardMenuItem = NSMenuItem(title: filteringMenuItem.title ?? "", action: nil, keyEquivalent: "")
+        standardMenuItem.image = filteringMenuItem.image
+        self.menu?.addItem(standardMenuItem)
+        
+        self.setTitle(standardMenuItem.title)
+    }
 }
