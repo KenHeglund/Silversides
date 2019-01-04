@@ -37,8 +37,12 @@ private class ItemInfo {
 class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBWFilteringMenuDelegate {
     
     @IBOutlet var pathViewOutlet: OBWPathView! = nil
-    @IBOutlet var filteringPopUpButtonOutlet: NSPopUpButton! = nil
-    @IBOutlet var standardPopUpButtonOutlet: NSPopUpButton! = nil
+    @IBOutlet var regularFilteringPopUpButtonOutlet: NSPopUpButton! = nil
+    @IBOutlet var smallFilteringPopUpButtonOutlet: NSPopUpButton! = nil
+    @IBOutlet var miniFilteringPopUpButtonOutlet: NSPopUpButton! = nil
+    @IBOutlet var regularStandardPopUpButtonOutlet: NSPopUpButton! = nil
+    @IBOutlet var smallStandardPopUpButtonOutlet: NSPopUpButton! = nil
+    @IBOutlet var miniStandardPopUpButtonOutlet: NSPopUpButton! = nil
     
     private(set) var pathViewConfigured = false
     private var kvoRegistered = false
@@ -235,8 +239,12 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         super.viewDidLoad()
         
         assert(self.pathViewOutlet != nil)
-        assert(self.filteringPopUpButtonOutlet != nil)
-        assert(self.standardPopUpButtonOutlet != nil)
+        assert(self.regularFilteringPopUpButtonOutlet != nil)
+        assert(self.smallFilteringPopUpButtonOutlet != nil)
+        assert(self.miniFilteringPopUpButtonOutlet != nil)
+        assert(self.regularStandardPopUpButtonOutlet != nil)
+        assert(self.smallStandardPopUpButtonOutlet != nil)
+        assert(self.miniStandardPopUpButtonOutlet != nil)
         
         // Do any additional setup after loading the view.
         
@@ -249,18 +257,33 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         
         NSColorPanel.shared.showsAlpha = true
         
-        guard let cell = self.filteringPopUpButtonOutlet.cell as? OBWFilteringPopUpButtonCell else {
-            assertionFailure("cell for the pop up button is expected to be a OBWFilteringPopUpButtonCell")
+        guard
+            let regularCell = self.regularFilteringPopUpButtonOutlet.cell as? OBWFilteringPopUpButtonCell,
+            let smallCell = self.smallFilteringPopUpButtonOutlet.cell as? OBWFilteringPopUpButtonCell,
+            let miniCell = self.miniFilteringPopUpButtonOutlet.cell as? OBWFilteringPopUpButtonCell
+        else {
+            assertionFailure("cells for the filtering pop up buttons are expected to be a OBWFilteringPopUpButtonCell")
             return
         }
-
-        let menu = OBWFilteringMenu(title: "")
         
-        if self.populateFilteringMenu(menu, withContentsAtURL: nil) {
-            cell.filteringMenu = menu
+        let popupButtonBaseURL = URL(fileURLWithPath: "/Volumes/Macintosh HD/Applications")
+        
+        for cell in [regularCell, smallCell, miniCell] {
+            
+            let menu = OBWFilteringMenu(title: "")
+            if self.populateFilteringMenu(menu, withContentsAtURL: popupButtonBaseURL, subdirectories: false) {
+                
+                for menuItem in menu.itemArray {
+                    menuItem.image?.size = OBWFilteringMenu.iconSize(for: cell.controlSize)
+                }
+                
+                cell.filteringMenu = menu
+            }
         }
         
-        self.standardPopUpButtonOutlet.menu = ViewController.makeStandardMenu()
+        self.regularStandardPopUpButtonOutlet.menu = ViewController.makeStandardMenu()
+        self.smallStandardPopUpButtonOutlet.menu = ViewController.makeStandardMenu()
+        self.miniStandardPopUpButtonOutlet.menu = ViewController.makeStandardMenu()
     }
     
     /*==========================================================================*/
@@ -281,7 +304,13 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             
             let parentURL = URL(fileURLWithPath: parentPath)
             
-            _ = self.populateFilteringMenu(menu, withContentsAtURL: parentURL)
+            guard self.populateFilteringMenu(menu, withContentsAtURL: parentURL, subdirectories: true) else {
+                return
+            }
+        
+            for menuItem in menu.itemArray {
+                menuItem.image?.size = OBWFilteringMenu.iconSize(for: .small)
+            }
         #endif // !USE_NSMENU
     }
     
@@ -382,12 +411,16 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             }
             
             let menu = OBWFilteringMenu(title: itemURL?.path ?? "")
-            menu.font = NSFont.systemFont(ofSize: 11.0)
+            menu.font = NSFont.systemFont(ofSize: NSFont.systemFontSize(for: .small))
             
-            guard self.populateFilteringMenu(menu, withContentsAtURL: itemURL) else {
-                return nil
+            guard self.populateFilteringMenu(menu, withContentsAtURL: itemURL, subdirectories: true) else {
+                    return nil
+                }
+        
+            for menuItem in menu.itemArray {
+                menuItem.image?.size = OBWFilteringMenu.iconSize(for: .small)
             }
-            
+
             return menu
         #else
             return nil
@@ -664,7 +697,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     
     #if !USE_NSMENU
     /*==========================================================================*/
-    func populateFilteringMenu(_ menu: OBWFilteringMenu, withContentsAtURL parentURL: URL?) -> Bool {
+    func populateFilteringMenu(_ menu: OBWFilteringMenu, withContentsAtURL parentURL: URL?, subdirectories: Bool) -> Bool {
         
         // TODO: When navigating via VoiceOver, insert an item at the top of the menu that allows the parent URL to be selected.  Without that item, a URL representing a folder cannot be selected.
         
@@ -676,7 +709,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             
             for url in descendantURLs {
                 
-                if let menuItem = self.filteringMenuItem(withURL: url as NSURL) {
+                if let menuItem = self.filteringMenuItem(withURL: url as NSURL, subdirectories: subdirectories) {
                     menu.addItem(menuItem)
                 }
             }
@@ -694,7 +727,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     }
     
     /*==========================================================================*/
-    func filteringMenuItem(withURL url: NSURL) -> OBWFilteringMenuItem? {
+    func filteringMenuItem(withURL url: NSURL, subdirectories: Bool) -> OBWFilteringMenuItem? {
         
         guard let path = url.path else {
             return nil
@@ -719,10 +752,9 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         }
         
         let icon = NSWorkspace.shared.icon(forFile: path)
-        icon.size = NSSize(width: 17.0, height: 17.0)
         menuItem.image = icon
         
-        if ViewController.isContainerURL(url as URL) == false {
+        guard subdirectories, ViewController.isContainerURL(url as URL) else {
             return menuItem
         }
         
@@ -834,12 +866,21 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         filterItem.view = parentView
         standardMenu.addItem(filterItem)
         
-        standardMenu.addItem(withTitle: "First", action: nil, keyEquivalent: "")
-        standardMenu.addItem(withTitle: "Second", action: nil, keyEquivalent: "")
-        standardMenu.addItem(withTitle: "Third", action: nil, keyEquivalent: "")
-        standardMenu.addItem(withTitle: "Fourth", action: nil, keyEquivalent: "")
-        standardMenu.addItem(withTitle: "Fifth", action: nil, keyEquivalent: "")
-
+        let itemMap: [(String, String)] = [
+            ("First", NSImage.computerName),
+            ("Second", NSImage.folderName),
+            ("Third", NSImage.folderSmartName),
+            ("Fourth", NSImage.trashEmptyName),
+            ("Fifth", NSImage.trashFullName),
+        ]
+        
+        for (title, imageName) in itemMap {
+            
+            let menuItem = NSMenuItem(title: title, action: nil, keyEquivalent: "")
+            menuItem.image = NSImage(named: imageName)
+            standardMenu.addItem(menuItem)
+        }
+        
         return standardMenu
     }
 }

@@ -25,17 +25,20 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
         menu.font = NSFont.menuFont(ofSize: fontSize)
         
         let menuItem = self.visibleFilteringItem
-        let itemLocation = NSPoint(x: cellFrame.origin.x - 10.0, y: cellFrame.origin.y + 2.0)
-        let highlightItem = true
         
-        _ = menu.popUpMenuPositioningItem(menuItem, atLocation: itemLocation, inView: controlView, withEvent: event, highlightMenuItem: highlightItem)
+        let itemLocation: NSPoint
+        switch controlSize {
+        case .regular:
+            itemLocation = NSPoint(x: cellFrame.origin.x - 10.0, y: cellFrame.origin.y + 1.0)
+        case .small:
+            itemLocation = NSPoint(x: cellFrame.origin.x - 10.0, y: cellFrame.origin.y + 1.0)
+        case .mini:
+            itemLocation = NSPoint(x: cellFrame.origin.x - 10.0, y: cellFrame.origin.y + 0.0)
+        }
+        
+        _ = menu.popUpMenuPositioningItem(menuItem, atLocation: itemLocation, inView: controlView, withEvent: event, highlightMenuItem: true)
         
         return true
-    }
-    
-    /*==========================================================================*/
-    public override func synchronizeTitleAndSelectedItem() {
-        self.setTitle("\(Int.random(in: 0...100_000))")
     }
     
     /*==========================================================================*/

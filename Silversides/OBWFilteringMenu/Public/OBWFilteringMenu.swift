@@ -140,6 +140,19 @@ public class OBWFilteringMenu {
     }
     
     /*==========================================================================*/
+    public static func iconSize(for controlSize: NSControl.ControlSize) -> NSSize {
+        
+        switch controlSize {
+        case .regular:
+            return NSSize(width: 17.0, height: 17.0)
+        case .small:
+            return NSSize(width: 15.0, height: 15.0)
+        case .mini:
+            return NSSize(width: 13.0, height: 13.0)
+        }
+    }
+    
+    /*==========================================================================*/
     // MARK: - OBWFilteringMenu internal
     
     static let allowedModifierFlags: NSEvent.ModifierFlags = [.shift, .control, .option, .command]
