@@ -8,12 +8,6 @@ import Cocoa
 
 /*==========================================================================*/
 
-public let OBWFilteringMenuWillBeginSessionNotification = "OBWFilteringMenuWillBeginSessionNotification"
-public let OBWFilteringMenuDidEndSessionNotification = "OBWFilteringMenuDidEndSessionNotification"
-public let OBWFilteringMenuDidBeginTrackingNotification = "OBWFilteringMenuDidBeginTrackingNotification"
-public let OBWFilteringMenuWillEndTrackingNotification = "OBWFilteringMenuWillEndTrackingNotification"
-public let OBWFilteringMenuRootKey = "OBWFilteringMenuRootKey"
-
 public enum OBWFilteringMenuError: Error {
     case invalidAlternateItem(message: String)
 }
@@ -29,6 +23,13 @@ public protocol OBWFilteringMenuDelegate {
 // MARK: -
 
 public class OBWFilteringMenu {
+    
+    public static let willBeginSessionNotification = Notification.Name(rawValue: "OBWFilteringMenuWillBeginSessionNotification")
+    public static let didEndSessionNotification = Notification.Name(rawValue: "OBWFilteringMenuDidEndSessionNotification")
+    public static let didBeginTrackingNotification = Notification.Name(rawValue: "OBWFilteringMenuDidBeginTrackingNotification")
+    public static let willEndTrackingNotification = Notification.Name(rawValue: "OBWFilteringMenuWillEndTrackingNotification")
+    
+    public static let rootKey = "OBWFilteringMenuRootKey"
     
     // MARK: - OBWFilteringMenu public
     

@@ -117,11 +117,11 @@ class OBWFilteringMenuController {
         }
         
         let notificationCenter = NotificationCenter.default
-        notificationCenter.post(name: Notification.Name(rawValue: OBWFilteringMenuWillBeginSessionNotification), object: menu)
+        notificationCenter.post(name: OBWFilteringMenu.willBeginSessionNotification, object: menu)
         
         let menuItemSelected = controller.runEventLoop()
         
-        notificationCenter.post(name: Notification.Name(rawValue: OBWFilteringMenuDidEndSessionNotification), object: menu)
+        notificationCenter.post(name: OBWFilteringMenu.didEndSessionNotification, object: menu)
         
         return menuItemSelected
     }
@@ -148,8 +148,8 @@ class OBWFilteringMenuController {
         let notificationCenter = NotificationCenter.default
         
         let initialMenu = self.rootMenu
-        let userInfo = [OBWFilteringMenuRootKey : initialMenu]
-        notificationCenter.post(name: Notification.Name(rawValue: OBWFilteringMenuDidBeginTrackingNotification), object: initialMenu, userInfo: userInfo)
+        let userInfo = [OBWFilteringMenu.rootKey : initialMenu]
+        notificationCenter.post(name: OBWFilteringMenu.didBeginTrackingNotification, object: initialMenu, userInfo: userInfo)
         
         rootMenuWindow.makeKeyAndOrderFront(nil)
         
@@ -708,8 +708,8 @@ class OBWFilteringMenuController {
         
         newWindow.makeKeyAndOrderFront(nil)
         
-        let userInfo: [String:AnyObject] = [OBWFilteringMenuRootKey : self.rootMenu]
-        NotificationCenter.default.post(name: Notification.Name(rawValue: OBWFilteringMenuDidBeginTrackingNotification), object: newMenu, userInfo: userInfo)
+        let userInfo: [String:AnyObject] = [OBWFilteringMenu.rootKey : self.rootMenu]
+        NotificationCenter.default.post(name: OBWFilteringMenu.didBeginTrackingNotification, object: newMenu, userInfo: userInfo)
     }
     
     /*==========================================================================*/
@@ -762,7 +762,7 @@ class OBWFilteringMenuController {
         }
         
         let notificationCenter = NotificationCenter.default
-        let userInfo: [String:AnyObject] = [OBWFilteringMenuRootKey : self.rootMenu]
+        let userInfo: [String:AnyObject] = [OBWFilteringMenu.rootKey : self.rootMenu]
         
         var terminatedMenuWindows: [OBWFilteringMenuWindow] = []
         
@@ -774,7 +774,7 @@ class OBWFilteringMenuController {
             
             let menu = menuWindow.filteringMenu
             
-            notificationCenter.post(name: Notification.Name(rawValue: OBWFilteringMenuWillEndTrackingNotification), object: menuWindow, userInfo: userInfo)
+            notificationCenter.post(name: OBWFilteringMenu.willEndTrackingNotification, object: menuWindow, userInfo: userInfo)
             
             menu.highlightedItem = nil
             
