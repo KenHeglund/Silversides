@@ -327,14 +327,12 @@ class OBWFilteringMenuView: NSView {
         guard
             filterField.isHidden == false,
             let locationInView = event.locationInView(self),
-            NSPointInRect(locationInView, self.scrollView.frame)
+            NSPointInRect(locationInView, filterField.frame)
         else {
             return .unhandled
         }
         
-        if NSPointInRect(locationInView, filterField.frame) {
-            filterField.mouseDown(with: event)
-        }
+        filterField.mouseDown(with: event)
         
         return .continue
     }
