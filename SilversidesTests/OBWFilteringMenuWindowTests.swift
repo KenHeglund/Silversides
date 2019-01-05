@@ -42,7 +42,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         
         let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
         
-        let geometry = OBWFilteringMenuWindowGeometry( window: window, constrainToScreen: true )
+        let geometry = OBWFilteringMenuWindowGeometry( window: window )
         let screenCenter = NSPoint( x: screenFrame.midX, y: screenFrame.midY )
         if geometry.updateGeometryToDisplayMenuLocation( NSZeroPoint, atScreenLocation: screenCenter, allowWindowToGrowUpward: true ) {
             window.applyWindowGeometry( geometry )
@@ -125,7 +125,7 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         
         let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
         
-        let geometry = OBWFilteringMenuWindowGeometry( window: window, constrainToScreen: true )
+        let geometry = OBWFilteringMenuWindowGeometry( window: window )
         let screenLocation = NSPoint( x: screenFrame.midX, y: screenFrame.origin.y + 40.0 )
         let menuLocation = NSPoint( x: 0.0, y: geometry.totalMenuItemSize.height )
         if geometry.updateGeometryToDisplayMenuLocation( menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false ) {

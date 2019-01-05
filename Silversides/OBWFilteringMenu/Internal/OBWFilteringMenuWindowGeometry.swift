@@ -12,7 +12,7 @@ import Cocoa
 class OBWFilteringMenuWindowGeometry {
     
     /*==========================================================================*/
-    init(window: OBWFilteringMenuWindow, constrainToScreen: Bool = true) {
+    init(window: OBWFilteringMenuWindow) {
         
         let screenFrame = window.screen?.frame ?? NSZeroRect
         
@@ -36,9 +36,7 @@ class OBWFilteringMenuWindowGeometry {
         
         self.finalBounds = NSRect(size: finalSize)
         
-        if constrainToScreen {
-            self.constrainGeometryToScreen(allowWindowToGrowUpward: true)
-        }
+        self.constrainGeometryToScreen(allowWindowToGrowUpward: true)
     }
     
     /*==========================================================================*/
