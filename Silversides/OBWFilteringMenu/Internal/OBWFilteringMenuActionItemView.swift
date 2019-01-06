@@ -20,7 +20,7 @@ class OBWImageCell: NSImageCell {
     }
 }
 
-extension NSGraphicsContext {
+private extension NSGraphicsContext {
     
     static func withSavedGraphicsState( _ handler: () -> Void ) {
         NSGraphicsContext.saveGraphicsState()
