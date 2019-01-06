@@ -119,7 +119,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let interiorMargins = OBWFilteringMenuActionItemView.interiorMargins
         let imageMargins = OBWFilteringMenuActionItemView.imageMargins
         
-        let indentation = CGFloat(self.menuItem.indentationLevel) * self.bounds.height * OBWFilteringMenuActionItemView.indentationRatio
+        let indentation = CGFloat(self.menuItem.indentationLevel) * OBWFilteringMenuActionItemView.distancePerIndent
         
         let imageFrameOffsetY: CGFloat
         let titleFrameOffsetY: CGFloat
@@ -287,7 +287,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             }
         }
         
-        let indentation = CGFloat(menuItem.indentationLevel) * preferredSize.height * OBWFilteringMenuActionItemView.indentationRatio
+        let indentation = CGFloat(menuItem.indentationLevel) * OBWFilteringMenuActionItemView.distancePerIndent
         preferredSize.width += indentation
         
         return preferredSize
@@ -405,7 +405,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         let menuItemSize = OBWFilteringMenuActionItemView.preferredSizeForMenuItem(menuItem)
         
-        let indentation = CGFloat(menuItem.indentationLevel) * menuItemSize.height * OBWFilteringMenuActionItemView.indentationRatio
+        let indentation = CGFloat(menuItem.indentationLevel) * OBWFilteringMenuActionItemView.distancePerIndent
         
         // Offset from top-left of item view to bottom-left of text field
         
@@ -463,7 +463,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     private static let imageMargins = NSEdgeInsets(top: 2.0, left: 2.0, bottom: 2.0, right: 2.0)
     private static let titleToSubmenuArrowSpacing: CGFloat = 37.0
     
-    private static let indentationRatio: CGFloat = 0.35
+    private static let distancePerIndent: CGFloat = 12.0
     
     /*==========================================================================*/
     private var attributedStringValue: NSAttributedString {
