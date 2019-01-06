@@ -95,6 +95,10 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
         }
         
         self.displayMenuItem(menuItem)
+        
+        if let target = self.target, let action = self.action {
+            _ = target.perform(action, with: self.controlView)
+        }
     }
     
     /*==========================================================================*/
