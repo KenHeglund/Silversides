@@ -51,6 +51,9 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let subviewArrowImageView = NSImageView(frame: OBWFilteringMenuActionItemView.subviewArrowFrame)
         self.subviewArrowImageView = subviewArrowImageView
         
+        let statusImageView = NSImageView(frame: .zero)
+        self.statusImageView = statusImageView
+        
         super.init(menuItem: menuItem)
         
         itemTitleField.cell = OBWTextFieldCell()
@@ -86,6 +89,12 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         subviewArrowImageView.isHidden = (menuItem.submenu == nil)
         
         self.addSubview(subviewArrowImageView)
+        
+        statusImageView.cell = OBWImageCell()
+        statusImageView.imageFrameStyle = .none
+        statusImageView.isEditable = false
+        
+        self.addSubview(statusImageView)
         
         NotificationCenter.default.addObserver(self, selector: #selector(OBWFilteringMenuActionItemView.highlightedItemDidChange(_:)), name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: nil)
     }
@@ -131,6 +140,48 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         arrowImageFrame.origin.y = itemViewBounds.origin.y + round((itemViewBounds.size.height - arrowImageFrame.size.height) / 2.0)
         arrowImageFrame.origin.x = itemViewBounds.maxX - arrowImageFrame.size.width - interiorMargins.right
         self.subviewArrowImageView.setFrameOrigin(arrowImageFrame.origin)
+        
+        let statusToTitleRatio: CGFloat = 0.6
+        let statusImageSize = titleSize.height * statusToTitleRatio
+        
+        let statusImageFrame = NSRect(
+            x: imageFrame.origin.x - OBWFilteringMenuActionItemView.statusImageRightMargin - statusImageSize,
+            y: titleFrame.origin.y + ((titleSize.height - statusImageSize) / 2.0),
+            width: statusImageSize,
+            height: statusImageSize
+        )
+        
+        self.statusImageView.frame = statusImageFrame
+    }
+    
+    /*==========================================================================*/
+    override func viewWillDraw() {
+        
+        super.viewWillDraw()
+        
+        guard let templateImage = self.menuItem.stateTemplateImage else {
+            return
+        }
+        
+        let statusImage = NSImage(size: templateImage.size)
+        statusImage.withLockedFocus {
+            
+            NSAppearance.withAppearance(self.effectiveAppearance) {
+                
+                if self.menuItem.isHighlighted {
+                    NSColor.selectedMenuItemTextColor.set()
+                }
+                else {
+                    NSColor.labelColor.set()
+                }
+                
+                NSRect(origin: .zero, size: templateImage.size).fill()
+                
+                templateImage.draw(at: .zero, from: .zero, operation: .destinationIn, fraction: 1.0)
+            }
+        }
+        
+        self.statusImageView.image = statusImage
     }
     
     /*==========================================================================*/
@@ -382,8 +433,10 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     
     unowned private let itemTitleField: NSTextField
     unowned private let itemImageView: NSImageView
+    unowned private let statusImageView: NSImageView
     unowned private let subviewArrowImageView: NSImageView
     
+    private static let statusImageRightMargin: CGFloat = 5.0
     private static let subviewArrowFrame = NSRect(width: 9.0, height: 10.0)
     private static let interiorMargins = NSEdgeInsets(top: 0.0, left: 19.0, bottom: 0.0, right: 10.0)
     private static let imageMargins = NSEdgeInsets(top: 0.0, left: 2.0, bottom: 0.0, right: 2.0)

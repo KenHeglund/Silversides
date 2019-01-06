@@ -31,6 +31,8 @@ public class OBWFilteringMenuItem {
         }
     }
     
+    public var state: NSControl.StateValue = .off
+    
     public var keyEquivalentModifierMask: NSEvent.ModifierFlags = []
     
     public var enabled = true
@@ -140,6 +142,19 @@ public class OBWFilteringMenuItem {
     
     var font: NSFont {
         return self.menu?.displayFont ?? NSFont.menuFont(ofSize: 0.0)
+    }
+    
+    /*==========================================================================*/
+    var stateTemplateImage: NSImage? {
+        
+        switch self.state {
+        case .on:
+            return NSImage(named: NSImage.menuOnStateTemplateName)
+        case .mixed:
+            return NSImage(named: NSImage.menuMixedStateTemplateName)
+        default:
+            return nil
+        }
     }
     
     /*==========================================================================*/

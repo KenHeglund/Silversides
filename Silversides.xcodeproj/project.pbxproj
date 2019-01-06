@@ -38,6 +38,7 @@
 		BE9CB0BA1D86AA3300323D09 /* OBWFilteringMenuItemFilterStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0B91D86AA3300323D09 /* OBWFilteringMenuItemFilterStatusTests.swift */; };
 		BE9CB0BC1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0BB1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift */; };
 		BE9CB0BE1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0BD1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift */; };
+		BEBD932321E258DD00CC1679 /* NSAppearance+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEBD932221E258DD00CC1679 /* NSAppearance+OBWExtension.swift */; };
 		BEBEECC81D77E59A0050D277 /* OBWFilteringMenuBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEBEECC71D77E59A0050D277 /* OBWFilteringMenuBackground.swift */; };
 		BEC2CD4821D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC2CD4721D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift */; };
 		BEC489BF1D4C173500CE7AB8 /* Silversides.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC489BE1D4C173500CE7AB8 /* Silversides.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -131,6 +132,7 @@
 		BE9CB0B91D86AA3300323D09 /* OBWFilteringMenuItemFilterStatusTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuItemFilterStatusTests.swift; sourceTree = "<group>"; };
 		BE9CB0BB1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuItemView.swift; sourceTree = "<group>"; };
 		BE9CB0BD1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuActionItemView.swift; sourceTree = "<group>"; };
+		BEBD932221E258DD00CC1679 /* NSAppearance+OBWExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAppearance+OBWExtension.swift"; sourceTree = "<group>"; };
 		BEBEECC71D77E59A0050D277 /* OBWFilteringMenuBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuBackground.swift; sourceTree = "<group>"; };
 		BEC2CD4721D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringPopUpButtonCell.swift; sourceTree = "<group>"; };
 		BEC489BB1D4C173500CE7AB8 /* OBWControls.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OBWControls.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -328,6 +330,7 @@
 				BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */,
 				BEFDC94D1D6FB01C0005ACFF /* OBWFilteringMenuWindowGeometry.swift */,
 				BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */,
+				BEBD932221E258DD00CC1679 /* NSAppearance+OBWExtension.swift */,
 				BEF9D5661DC28B4000EA6FE0 /* NSEdgeInsets+OBWExtension.swift */,
 				BE4685AF1D8CC6B800AC4B6F /* NSEvent+OBWExtension.swift */,
 				BEF9D5621DC2881300EA6FE0 /* NSImage+OBWExtension.swift */,
@@ -512,6 +515,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE4685B41D8F3A3000AC4B6F /* OBWFilteringMenuEventSource.swift in Sources */,
+				BEBD932321E258DD00CC1679 /* NSAppearance+OBWExtension.swift in Sources */,
 				BE9CB0B01D84665B00323D09 /* OBWFilteringMenuFieldEditor.swift in Sources */,
 				BEFDC94E1D6FB01C0005ACFF /* OBWFilteringMenuWindowGeometry.swift in Sources */,
 				BE9CB0B81D8656DE00323D09 /* OBWFilteringMenuItemFilterStatus.swift in Sources */,

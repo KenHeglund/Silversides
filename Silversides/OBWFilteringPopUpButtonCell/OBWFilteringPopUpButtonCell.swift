@@ -26,6 +26,15 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
         
         let menuItem = self.visibleFilteringItem
         
+        for item in menu.itemArray {
+            if item === menuItem {
+                item.state = .on
+            }
+            else {
+                item.state = .off
+            }
+        }
+        
         let itemLocation: NSPoint
         switch controlSize {
         case .regular:
