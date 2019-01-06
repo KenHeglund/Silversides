@@ -121,17 +121,32 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         let indentation = CGFloat(self.menuItem.indentationLevel) * self.bounds.height * OBWFilteringMenuActionItemView.indentationRatio
         
+        let imageFrameOffsetY: CGFloat
+        let titleFrameOffsetY: CGFloat
+        
+        let attributedTitleLength = self.menuItem.attributedTitle?.length ?? 0
+        let fontHeight = self.menuItem.font.pointSize
+        if attributedTitleLength == 0 && fontHeight == NSFont.systemFontSize(for: .mini) {
+            // Special cases for the standard Regular control size
+            imageFrameOffsetY = 1.0
+            titleFrameOffsetY = 1.0
+        }
+        else {
+            imageFrameOffsetY = 0.0
+            titleFrameOffsetY = 0.0
+        }
+        
         let imageSize = self.menuItem.image?.size ?? NSZeroSize
         let imageFrame = NSRect(
             x: interiorMargins.left + indentation + imageMargins.left,
-            y: floor((itemViewBounds.size.height - imageSize.height) / 2.0),
+            y: floor((itemViewBounds.size.height - imageSize.height) / 2.0) + imageFrameOffsetY,
             size: imageSize
         )
         
         let titleSize = OBWFilteringMenuActionItemView.preferredViewSizeForTitleOfMenuItem(self.menuItem)
         let titleFrame = NSRect(
             x: (imageFrame.size.width > 0 ? imageFrame.maxX + imageMargins.right : interiorMargins.left + indentation),
-            y: floor((itemViewBounds.size.height - titleSize.height) / 2.0),
+            y: floor((itemViewBounds.size.height - titleSize.height) / 2.0) + titleFrameOffsetY,
             size: titleSize
         )
         
@@ -445,7 +460,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     private static let statusImageRightMargin: CGFloat = 5.0
     private static let subviewArrowFrame = NSRect(width: 9.0, height: 10.0)
     private static let interiorMargins = NSEdgeInsets(top: 0.0, left: 19.0, bottom: 0.0, right: 10.0)
-    private static let imageMargins = NSEdgeInsets(top: 0.0, left: 2.0, bottom: 0.0, right: 2.0)
+    private static let imageMargins = NSEdgeInsets(top: 2.0, left: 2.0, bottom: 2.0, right: 2.0)
     private static let titleToSubmenuArrowSpacing: CGFloat = 37.0
     
     private static let indentationRatio: CGFloat = 0.35
