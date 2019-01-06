@@ -448,7 +448,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     private static let imageMargins = NSEdgeInsets(top: 0.0, left: 2.0, bottom: 0.0, right: 2.0)
     private static let titleToSubmenuArrowSpacing: CGFloat = 37.0
     
-    private static let indentationRatio: CGFloat = 0.5
+    private static let indentationRatio: CGFloat = 0.35
     
     /*==========================================================================*/
     private var attributedStringValue: NSAttributedString {
