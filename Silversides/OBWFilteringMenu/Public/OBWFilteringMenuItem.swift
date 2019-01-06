@@ -37,7 +37,7 @@ public class OBWFilteringMenuItem {
     public var keyEquivalentModifierMask: NSEvent.ModifierFlags = []
     
     public var enabled = true
-    public var representedObject: AnyObject? = nil
+    public var representedObject: Any? = nil
     public var actionHandler: ( (OBWFilteringMenuItem) -> Void )? = nil
     
     public var titleOffset: NSSize {

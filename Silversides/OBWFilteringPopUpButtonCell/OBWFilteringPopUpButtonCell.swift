@@ -69,6 +69,16 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
     }
     
     /*==========================================================================*/
+    public func select(_ filteringItem: OBWFilteringMenuItem?) {
+        self.displayMenuItem(filteringItem)
+    }
+    
+    /*==========================================================================*/
+    public var selectedFilteringItem: OBWFilteringMenuItem? {
+        return self.visibleFilteringItem
+    }
+    
+    /*==========================================================================*/
     // MARK: - OBWFilteringPopUpButtonCell private
     
     private var visibleFilteringItem: OBWFilteringMenuItem? = nil
@@ -88,7 +98,7 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
     }
     
     /*==========================================================================*/
-    private func displayMenuItem(_ filteringMenuItem: OBWFilteringMenuItem) {
+    private func displayMenuItem(_ filteringMenuItem: OBWFilteringMenuItem?) {
         
         if self.menu == nil {
             self.menu = NSMenu(title: "Placeholder")
@@ -98,10 +108,18 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
         
         self.menu?.removeAllItems()
         
-        let standardMenuItem = NSMenuItem(title: filteringMenuItem.title ?? "", action: nil, keyEquivalent: "")
-        standardMenuItem.image = filteringMenuItem.image
-        self.menu?.addItem(standardMenuItem)
+        if let item = filteringMenuItem {
+            
+            let standardMenuItem = NSMenuItem(title: item.title ?? "", action: nil, keyEquivalent: "")
+            standardMenuItem.image = item.image
+            self.menu?.addItem(standardMenuItem)
+            
+            self.setTitle(standardMenuItem.title)
+        }
+        else {
+            
+            self.setTitle("")
+        }
         
-        self.setTitle(standardMenuItem.title)
     }
 }

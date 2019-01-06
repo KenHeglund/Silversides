@@ -241,8 +241,16 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let subviewArrowFrame = OBWFilteringMenuActionItemView.subviewArrowFrame
         let titleToSubmenuArrowSpacing = OBWFilteringMenuActionItemView.titleToSubmenuArrowSpacing
         
-        var imageSize = menuItem.image?.size ?? NSZeroSize
-        imageSize.height += imageMargins.height
+        let imageSize: NSSize
+        if let image = menuItem.image {
+            imageSize = NSSize(
+                width: image.size.width,
+                height: image.size.height + imageMargins.height
+            )
+        }
+        else {
+            imageSize = .zero
+        }
         
         let titleSize = OBWFilteringMenuActionItemView.preferredViewSizeForTitleOfMenuItem(menuItem)
         
@@ -272,9 +280,9 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             // Special cases for non-attributed titles with standard control font sizes
             let fontHeight = menuItem.font.pointSize
             
-            let standardMiniControlMenuItemHeight: CGFloat = 15.0
-            let standardSmallControlMenuItemHeight: CGFloat = 18.0
-            let standardRegularControlMenuItemHeight: CGFloat = 21.0
+            let standardMiniControlMenuItemHeight: CGFloat = 13.0
+            let standardSmallControlMenuItemHeight: CGFloat = 16.0
+            let standardRegularControlMenuItemHeight: CGFloat = 18.0
             
             if NSFont.systemFontSize(for: .mini) == fontHeight {
                 preferredSize.height = max(preferredSize.height, standardMiniControlMenuItemHeight)
