@@ -119,16 +119,18 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         let interiorMargins = OBWFilteringMenuActionItemView.interiorMargins
         let imageMargins = OBWFilteringMenuActionItemView.imageMargins
         
+        let indentation = CGFloat(self.menuItem.indentationLevel) * self.bounds.height * OBWFilteringMenuActionItemView.indentationRatio
+        
         let imageSize = self.menuItem.image?.size ?? NSZeroSize
         let imageFrame = NSRect(
-            x: interiorMargins.left + imageMargins.left,
+            x: interiorMargins.left + indentation + imageMargins.left,
             y: floor((itemViewBounds.size.height - imageSize.height) / 2.0),
             size: imageSize
         )
         
         let titleSize = OBWFilteringMenuActionItemView.preferredViewSizeForTitleOfMenuItem(self.menuItem)
         let titleFrame = NSRect(
-            x: (imageFrame.size.width > 0 ? imageFrame.maxX + imageMargins.right : interiorMargins.left),
+            x: (imageFrame.size.width > 0 ? imageFrame.maxX + imageMargins.right : interiorMargins.left + indentation),
             y: floor((itemViewBounds.size.height - titleSize.height) / 2.0),
             size: titleSize
         )
@@ -250,26 +252,28 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         preferredSize.height = max(imageSize.height, titleSize.height)
         preferredSize.height = max(preferredSize.height, subviewArrowFrame.size.height)
         
-        if menuItem.attributedTitle != nil {
-            return preferredSize
+        if menuItem.attributedTitle == nil {
+        
+            // Special cases for non-attributed titles with standard control font sizes
+            let fontHeight = menuItem.font.pointSize
+            
+            let standardMiniControlMenuItemHeight: CGFloat = 15.0
+            let standardSmallControlMenuItemHeight: CGFloat = 18.0
+            let standardRegularControlMenuItemHeight: CGFloat = 21.0
+            
+            if NSFont.systemFontSize(for: .mini) == fontHeight {
+                preferredSize.height = max(preferredSize.height, standardMiniControlMenuItemHeight)
+            }
+            else if NSFont.systemFontSize(for: .small) == fontHeight {
+                preferredSize.height = max(preferredSize.height, standardSmallControlMenuItemHeight)
+            }
+            else if NSFont.systemFontSize(for: .regular) == fontHeight {
+                preferredSize.height = max(preferredSize.height, standardRegularControlMenuItemHeight)
+            }
         }
         
-        // Special cases for non-attributed titles with standard control font sizes
-        let fontHeight = menuItem.font.pointSize
-        
-        let standardMiniControlMenuItemHeight: CGFloat = 15.0
-        let standardSmallControlMenuItemHeight: CGFloat = 18.0
-        let standardRegularControlMenuItemHeight: CGFloat = 21.0
-        
-        if NSFont.systemFontSize(for: .mini) == fontHeight {
-            preferredSize.height = max(preferredSize.height, standardMiniControlMenuItemHeight)
-        }
-        else if NSFont.systemFontSize(for: .small) == fontHeight {
-            preferredSize.height = max(preferredSize.height, standardSmallControlMenuItemHeight)
-        }
-        else if NSFont.systemFontSize(for: .regular) == fontHeight {
-            preferredSize.height = max(preferredSize.height, standardRegularControlMenuItemHeight)
-        }
+        let indentation = CGFloat(menuItem.indentationLevel) * preferredSize.height * OBWFilteringMenuActionItemView.indentationRatio
+        preferredSize.width += indentation
         
         return preferredSize
     }
@@ -386,11 +390,13 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         let menuItemSize = OBWFilteringMenuActionItemView.preferredSizeForMenuItem(menuItem)
         
+        let indentation = CGFloat(menuItem.indentationLevel) * menuItemSize.height * OBWFilteringMenuActionItemView.indentationRatio
+        
         // Offset from top-left of item view to bottom-left of text field
         
         let imageSize = menuItem.image?.size ?? NSZeroSize
         let imageFrame = NSRect(
-            x: interiorMargins.left + imageMargins.left,
+            x: interiorMargins.left + indentation + imageMargins.left,
             y: floor((menuItemSize.height - imageSize.height) / 2.0),
             size: imageSize
         )
@@ -415,7 +421,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         let titleSize = OBWFilteringMenuActionItemView.preferredViewSizeForTitleOfMenuItem(menuItem)
         let titleFrame = NSRect(
-            x: (imageFrame.size.width > 0.0 ? imageFrame.maxX + imageMargins.right : interiorMargins.left),
+            x: (imageFrame.size.width > 0.0 ? imageFrame.maxX + imageMargins.right : interiorMargins.left + indentation),
             y: floor((menuItemSize.height - titleSize.height) / 2.0) + titleFrameOffsetY,
             size: titleSize
         )
@@ -441,6 +447,8 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     private static let interiorMargins = NSEdgeInsets(top: 0.0, left: 19.0, bottom: 0.0, right: 10.0)
     private static let imageMargins = NSEdgeInsets(top: 0.0, left: 2.0, bottom: 0.0, right: 2.0)
     private static let titleToSubmenuArrowSpacing: CGFloat = 37.0
+    
+    private static let indentationRatio: CGFloat = 0.5
     
     /*==========================================================================*/
     private var attributedStringValue: NSAttributedString {

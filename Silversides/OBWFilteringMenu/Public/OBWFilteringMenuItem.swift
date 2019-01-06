@@ -32,6 +32,7 @@ public class OBWFilteringMenuItem {
     }
     
     public var state: NSControl.StateValue = .off
+    public var indentationLevel: Int = 0
     
     public var keyEquivalentModifierMask: NSEvent.ModifierFlags = []
     

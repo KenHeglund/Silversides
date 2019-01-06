@@ -273,8 +273,14 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             let menu = OBWFilteringMenu(title: "")
             if self.populateFilteringMenu(menu, withContentsAtURL: popupButtonBaseURL, subdirectories: false) {
                 
+                var itemIndex = 0
+                
                 for menuItem in menu.itemArray {
+                    
                     menuItem.image?.size = OBWFilteringMenu.iconSize(for: cell.controlSize)
+                    
+                    menuItem.indentationLevel = itemIndex % 3
+                    itemIndex += 1
                 }
                 
                 cell.filteringMenu = menu
@@ -866,18 +872,19 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         filterItem.view = parentView
         standardMenu.addItem(filterItem)
         
-        let itemMap: [(String, String)] = [
-            ("First", NSImage.computerName),
-            ("Second", NSImage.folderName),
-            ("Third", NSImage.folderSmartName),
-            ("Fourth", NSImage.trashEmptyName),
-            ("Fifth", NSImage.trashFullName),
+        let itemMap: [(String, String, Int)] = [
+            ("First", NSImage.computerName, 0),
+            ("Second", NSImage.folderName, 1),
+            ("Third", NSImage.folderSmartName, 2),
+            ("Fourth", NSImage.trashEmptyName, 1),
+            ("Fifth", NSImage.trashFullName, 0),
         ]
         
-        for (title, imageName) in itemMap {
+        for (title, imageName, indentationLevel) in itemMap {
             
             let menuItem = NSMenuItem(title: title, action: nil, keyEquivalent: "")
             menuItem.image = NSImage(named: imageName)
+            menuItem.indentationLevel = indentationLevel
             standardMenu.addItem(menuItem)
         }
         
