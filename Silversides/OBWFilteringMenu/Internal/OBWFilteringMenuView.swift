@@ -29,13 +29,12 @@ private func OBWStandardHeightForControlSize(_ controlSize: NSControl.ControlSiz
 
 class OBWFilteringMenuView: NSView {
     
-    init(menu: OBWFilteringMenu) {
+    init(menu: OBWFilteringMenu, minimumWidth: CGFloat?) {
         
         self.filteringMenu = menu
         
-        let initialMenuItemWidth: CGFloat = 100.0
         let initialFrame = NSRect(
-            width: OBWFilteringMenuView.filterMargins.width + initialMenuItemWidth,
+            width: OBWFilteringMenuView.filterMargins.width + OBWFilteringMenuItemView.minimumWidth,
             height: 0.0
         )
         
@@ -65,7 +64,7 @@ class OBWFilteringMenuView: NSView {
         filterField.cell?.setAccessibilityTitle(filterFieldTitle)
         filterField.cell?.setAccessibilityHelp(filterFieldHelp)
         
-        let scrollView = OBWFilteringMenuItemScrollView(menu: menu)
+        let scrollView = OBWFilteringMenuItemScrollView(menu: menu, minimumWidth: minimumWidth)
         self.scrollView = scrollView
         
         super.init(frame: initialFrame)

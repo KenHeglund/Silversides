@@ -39,6 +39,8 @@ class OBWFilteringMenuItemView: NSView {
     /*==========================================================================*/
     // MARK: - OBWFilteringMenuItemView implementation
     
+    static let minimumWidth: CGFloat = 100.0
+    
     let menuItem: OBWFilteringMenuItem
     private(set) var alternateViews: [String:OBWFilteringMenuItemView]? = nil
     private(set) var filterStatus: OBWFilteringMenuItemFilterStatus? = nil

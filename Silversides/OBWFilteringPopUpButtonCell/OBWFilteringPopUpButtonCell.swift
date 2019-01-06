@@ -36,7 +36,7 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
             itemLocation = NSPoint(x: cellFrame.origin.x - 10.0, y: cellFrame.origin.y + 0.0)
         }
         
-        _ = menu.popUpMenuPositioningItem(menuItem, atLocation: itemLocation, inView: controlView, withEvent: event, highlightMenuItem: true)
+        _ = menu.popUpMenuPositioningItem(menuItem, atLocation: itemLocation, inView: controlView, matchingHostViewWidth: true, withEvent: event, highlightMenuItem: true)
         
         return true
     }

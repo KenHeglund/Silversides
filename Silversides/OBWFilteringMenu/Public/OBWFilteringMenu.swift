@@ -86,21 +86,7 @@ public class OBWFilteringMenu {
     /*==========================================================================*/
     public func popUpMenuPositioningItem(_ item: OBWFilteringMenuItem?, atLocation locationInView: NSPoint, inView view: NSView?, withEvent event: NSEvent?, highlightMenuItem: Bool?) -> Bool {
         
-        // A menu delegate is allowed to populate menu items at this point
-        self.willBeginTracking()
-        
-        guard var menuItem = self.itemArray.first else {
-            return false
-        }
-        
-        if let item = item {
-            
-            if self.itemArray.contains(where: { $0 === item }) {
-                menuItem = item
-            }
-        }
-        
-        return OBWFilteringMenuController.popUpMenuPositioningItem(menuItem, atLocation: locationInView, inView: view, withEvent: event, highlighted: highlightMenuItem)
+        return self.popUpMenuPositioningItem(item, atLocation: locationInView, inView: view, matchingHostViewWidth: false, withEvent: event, highlightMenuItem: highlightMenuItem)
     }
     
     /*==========================================================================*/
@@ -165,6 +151,26 @@ public class OBWFilteringMenu {
     
     var displayFont: NSFont {
         return self.font ?? self.parentItem?.menu?.displayFont ?? NSFont.menuFont(ofSize: 0.0)
+    }
+    
+    /*==========================================================================*/
+    func popUpMenuPositioningItem(_ item: OBWFilteringMenuItem?, atLocation locationInView: NSPoint, inView view: NSView?, matchingHostViewWidth matchWidth: Bool, withEvent event: NSEvent?, highlightMenuItem: Bool?) -> Bool {
+        
+        // A menu delegate is allowed to populate menu items at this point
+        self.willBeginTracking()
+        
+        guard var menuItem = self.itemArray.first else {
+            return false
+        }
+        
+        if let item = item {
+            
+            if self.itemArray.contains(where: { $0 === item }) {
+                menuItem = item
+            }
+        }
+        
+        return OBWFilteringMenuController.popUpMenuPositioningItem(menuItem, atLocation: locationInView, inView: view, matchingHostViewWidth: matchWidth, withEvent: event, highlighted: highlightMenuItem)
     }
     
     /*==========================================================================*/

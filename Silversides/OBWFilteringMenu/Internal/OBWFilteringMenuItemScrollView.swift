@@ -29,14 +29,10 @@ private class OBWColorView: NSView {
 class OBWFilteringMenuItemScrollView: NSView {
     
     /*==========================================================================*/
-    init(menu: OBWFilteringMenu) {
-        
-        let initialFrame = NSRect(
-            width: OBWFilteringMenuItemScrollView.minimumItemWidth,
-            height: 0.0
-        )
+    init(menu: OBWFilteringMenu, minimumWidth: CGFloat?) {
         
         self.filteringMenu = menu
+        self.minimumItemWidth = minimumWidth ?? OBWFilteringMenuItemView.minimumWidth
         
         let itemParentView: NSView
         #if DEBUG_MENU_TINTING
@@ -58,7 +54,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         let downArrowView = NSImageView()
         self.downArrowView = downArrowView
         
-        super.init(frame: initialFrame)
+        super.init(frame: .zero)
         
         self.buildItemViews()
         _ = self.repositionItemViews()
@@ -430,7 +426,6 @@ class OBWFilteringMenuItemScrollView: NSView {
     private static let arrowEdgeMargin: CGFloat = 0.0
     private static let arrowContentMargin: CGFloat = 5.0
     private static let arrowSize = NSSize(width: 10.0, height: 9.0)
-    private static let minimumItemWidth: CGFloat = 100.0
     
     unowned private let filteringMenu: OBWFilteringMenu
     private var filteringMenuWindow: OBWFilteringMenuWindow? { return self.window as? OBWFilteringMenuWindow }
@@ -440,6 +435,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     unowned private let downArrowView: NSImageView
     private var primaryItemViews: [OBWFilteringMenuItemView] = []
     private var currentModifierFlags: NSEvent.ModifierFlags = []
+    private let minimumItemWidth: CGFloat
     
     /*==========================================================================*/
     private func buildItemViews() {
@@ -474,7 +470,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         let itemParentBounds = itemParentView.bounds
         
         var itemViewOrigin = NSPoint(x: self.bounds.origin.x, y: 0.0)
-        var parentViewWidth = max(OBWFilteringMenuItemScrollView.minimumItemWidth, itemParentBounds.size.width)
+        var parentViewWidth = max(self.minimumItemWidth, itemParentBounds.size.width)
         
         for primaryItemView in self.primaryItemViews.reversed() {
             

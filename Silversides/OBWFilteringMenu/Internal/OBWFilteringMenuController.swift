@@ -35,13 +35,13 @@ let OBWFilteringMenuItemKey = "OBWFilteringMenuItemKey"
 class OBWFilteringMenuController {
     
     /*==========================================================================*/
-    private init?(menuItem: OBWFilteringMenuItem, atLocation locationInScreen: NSPoint, inScreen screen: NSScreen, highlighted: Bool?) {
+    private init?(menuItem: OBWFilteringMenuItem, atLocation locationInScreen: NSPoint, inScreen screen: NSScreen, minimumWidth: CGFloat?, highlighted: Bool?) {
         
         guard let rootMenu = menuItem.menu else {
             return nil
         }
         
-        let rootMenuWindow = OBWFilteringMenuWindow(menu: rootMenu, screen: screen)
+        let rootMenuWindow = OBWFilteringMenuWindow(menu: rootMenu, screen: screen, minimumWidth: minimumWidth)
         let menuView = rootMenuWindow.menuView
         
         guard let itemView = menuView.viewForMenuItem(menuItem) else {
@@ -100,7 +100,7 @@ class OBWFilteringMenuController {
     // MARK: - OBWFilteringMenuController internal
     
     /*==========================================================================*/
-    class func popUpMenuPositioningItem(_ menuItem: OBWFilteringMenuItem, atLocation locationInView: NSPoint, inView view: NSView?, withEvent event: NSEvent? = nil, highlighted: Bool?) -> Bool {
+    class func popUpMenuPositioningItem(_ menuItem: OBWFilteringMenuItem, atLocation locationInView: NSPoint, inView view: NSView?, matchingHostViewWidth matchWidth: Bool, withEvent event: NSEvent? = nil, highlighted: Bool?) -> Bool {
         
         guard let menu = menuItem.menu else {
             return false
@@ -111,8 +111,9 @@ class OBWFilteringMenuController {
         }
         
         let locationInScreen = view?.convertPointToScreen(locationInView) ?? locationInView
+        let minimumWidth = (matchWidth ? view?.frame.width : nil)
         
-        guard let controller = OBWFilteringMenuController(menuItem: menuItem, atLocation: locationInScreen, inScreen: screen, highlighted: highlighted) else {
+        guard let controller = OBWFilteringMenuController(menuItem: menuItem, atLocation: locationInScreen, inScreen: screen, minimumWidth: minimumWidth, highlighted: highlighted) else {
             return false
         }
         
@@ -690,7 +691,7 @@ class OBWFilteringMenuController {
             return
         }
         
-        let newWindow = OBWFilteringMenuWindow(menu: newMenu, screen: screen)
+        let newWindow = OBWFilteringMenuWindow(menu: newMenu, screen: screen, minimumWidth: nil)
         let newMenuView = newWindow.menuView
         
         self.menuWindowArray.append(newWindow)

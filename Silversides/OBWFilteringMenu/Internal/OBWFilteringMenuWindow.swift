@@ -27,11 +27,11 @@ enum OBWFilteringMenuPart {
 class OBWFilteringMenuWindow: NSWindow {
     
     /*==========================================================================*/
-    init(menu: OBWFilteringMenu, screen: NSScreen) {
+    init(menu: OBWFilteringMenu, screen: NSScreen, minimumWidth: CGFloat?) {
         
         self.filteringMenu = menu
         
-        let menuView = OBWFilteringMenuView(menu: menu)
+        let menuView = OBWFilteringMenuView(menu: menu, minimumWidth: minimumWidth)
         self.menuView = menuView
         
         let menuViewOrigin = NSPoint(x: 0.0, y: OBWFilteringMenuWindow.interiorMargins.bottom)
