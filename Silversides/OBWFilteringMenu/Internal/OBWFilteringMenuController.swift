@@ -260,6 +260,7 @@ class OBWFilteringMenuController {
                     self.handleMouseMovedEvent(event)
                     
                 case .scrollWheel:
+                    self.scrollWindow = currentMenuWindow
                     currentMenuWindow?.scrollTracking.scrollEvent(event)
                     
                 case .mouseEntered, .mouseExited:
@@ -548,17 +549,13 @@ class OBWFilteringMenuController {
         let locationInWindow = currentMenuWindow?.convertFromScreen(eventLocationInScreen) ?? NSZeroPoint
         let currentMenuItem = currentMenuWindow?.menuItemAtLocation(locationInWindow)
         
-        let previousMenuItem = self.lastHitMenuItem
-        let previousMenu = previousMenuItem?.menu
-        let previousMenuWindow = previousMenu.flatMap({ self.menuWindowForMenu($0) })
-        
         self.lastHitMenuItem = currentMenuItem
         
         if let currentMenuWindow = currentMenuWindow {
             self.menuWindowWithKeyboardFocus = currentMenuWindow
         }
         
-        if currentMenuWindow !== previousMenuWindow {
+        if currentMenuWindow !== self.scrollWindow {
             currentMenuWindow?.resetScrollTracking()
         }
         
@@ -989,7 +986,6 @@ class OBWFilteringMenuController {
     @objc private func scrollTrackingBoundsChanged(_ notification: Notification) {
         
         guard
-            let scrollTracking = notification.object as? OBWFilteringMenuScrollTracking,
             let boundsValue = notification.userInfo?[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
         else {
             assertionFailure()
@@ -998,11 +994,10 @@ class OBWFilteringMenuController {
         
         let menuItemBounds = boundsValue.rectValue
         
-        guard let windowIndex = self.menuWindowArray.index(where: { $0.scrollTracking === scrollTracking }) else {
+        guard let window = self.scrollWindow else {
             return
         }
         
-        let window = self.menuWindowArray[windowIndex]
         _ = window.displayMenuItemBounds(menuItemBounds)
         
         guard let pseudoEvent = NSEvent.mouseEvent(
@@ -1023,6 +1018,7 @@ class OBWFilteringMenuController {
     
     // MARK: - Scrolling
     
+    private var scrollWindow: OBWFilteringMenuWindow? = nil
     weak private var scrollTimer: Timer? = nil
     private var scrollStartInterval: TimeInterval = 0.0
     
