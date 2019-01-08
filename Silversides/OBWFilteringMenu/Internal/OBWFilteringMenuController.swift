@@ -260,9 +260,7 @@ class OBWFilteringMenuController {
                     self.handleMouseMovedEvent(event)
                     
                 case .scrollWheel:
-                    if let menu = self.lastHitMenuItem?.menu {
-                        self.menuWindowForMenu(menu)?.scrollTracking.scrollEvent(event)
-                    }
+                    currentMenuWindow?.scrollTracking.scrollEvent(event)
                     
                 case .mouseEntered, .mouseExited:
                     break
