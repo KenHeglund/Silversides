@@ -273,14 +273,8 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             let menu = OBWFilteringMenu(title: "")
             if self.populateFilteringMenu(menu, withContentsAtURL: popupButtonBaseURL, subdirectories: false) {
                 
-                var itemIndex = 0
-                
                 for menuItem in menu.itemArray {
-                    
                     menuItem.image?.size = OBWFilteringMenu.iconSize(for: cell.controlSize)
-                    
-                    menuItem.indentationLevel = itemIndex % 3
-                    itemIndex += 1
                 }
                 
                 cell.filteringMenu = menu
@@ -713,11 +707,22 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         
         if descendantURLs.isEmpty == false {
             
+            var urlCount = 0
+            
             for url in descendantURLs {
+                
+                if urlCount % 5 == 0 {
+                    let menuItem = OBWFilteringMenuItem(title: "Group \(urlCount / 5 + 1)")
+                    menuItem.enabled = false
+                    menuItem.isHeading = true
+                    menu.addItem(menuItem)
+                }
                 
                 if let menuItem = self.filteringMenuItem(withURL: url as NSURL, subdirectories: subdirectories) {
                     menu.addItem(menuItem)
                 }
+                
+                urlCount += 1
             }
             
             return true

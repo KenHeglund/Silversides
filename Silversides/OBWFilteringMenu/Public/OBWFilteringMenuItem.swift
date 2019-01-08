@@ -37,6 +37,7 @@ public class OBWFilteringMenuItem {
     public var keyEquivalentModifierMask: NSEvent.ModifierFlags = []
     
     public var enabled = true
+    public var isHeading = false
     public var representedObject: Any? = nil
     public var actionHandler: ( (OBWFilteringMenuItem) -> Void )? = nil
     

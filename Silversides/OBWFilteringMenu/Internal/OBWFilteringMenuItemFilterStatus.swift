@@ -43,9 +43,30 @@ class OBWFilteringMenuItemFilterStatus {
         
         var statusArray: [OBWFilteringMenuItemFilterStatus] = []
         
+        // First pass - filter items by filterString, keep all headings
         for menuItem in menu.itemArray {
             statusArray.append(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: filterString))
         }
+        
+        // Second pass - filter headings that do not have any visible items following them
+        var headingStatusToHide: OBWFilteringMenuItemFilterStatus? = nil
+        
+        for status in statusArray {
+            
+            if status.menuItem.isHeading == false {
+                
+                if status.matchScore > 0 {
+                    headingStatusToHide = nil
+                }
+            }
+            else {
+                
+                headingStatusToHide?.matchScore = 0
+                headingStatusToHide = status
+            }
+        }
+        
+        headingStatusToHide?.matchScore = 0
         
         return statusArray
     }
@@ -65,6 +86,11 @@ class OBWFilteringMenuItemFilterStatus {
         
         guard menuItem.isSeparatorItem == false && status.searchableTitle.isEmpty == false else {
             status.matchScore = worstScore
+            return status
+        }
+        
+        guard menuItem.isHeading == false else {
+            status.matchScore = bestScore
             return status
         }
         

@@ -235,23 +235,14 @@ class OBWFilteringMenuView: NSView {
         NSAccessibility.post(element: currentEditor, notification: NSAccessibility.Notification.focusedUIElementChanged)
         
         let filterString = filterField.stringValue
-        let menuItemArray = self.filteringMenu.itemArray
+        let menu = self.filteringMenu
         
         let filterEventNumber = self.lastFilterEventNumber + 1
         self.lastFilterEventNumber = filterEventNumber
         
         DispatchQueue.global(qos: .default).async {
             
-            var statusArray: [OBWFilteringMenuItemFilterStatus] = []
-            
-            for menuItem in menuItemArray {
-                
-                guard self.lastFilterEventNumber == filterEventNumber else {
-                    return
-                }
-                
-                statusArray.append(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: filterString))
-            }
+            let statusArray = OBWFilteringMenuItemFilterStatus.filterStatus(menu, filterString: filterString)
             
             DispatchQueue.main.async {
                 
