@@ -97,19 +97,19 @@ class OBWFilteringMenuWindow: NSWindow {
     
     /*==========================================================================*/
     override func accessibilitySubrole() -> NSAccessibility.Subrole? {
-        self.accessibilityActive = true
+        self.accessibilityActivePre10_13 = true
         return NSAccessibility.Subrole.standardWindow
     }
     
     /*==========================================================================*/
     override func accessibilityRoleDescription() -> String? {
-        self.accessibilityActive = true
+        self.accessibilityActivePre10_13 = true
         return NSAccessibility.Role.window.description(with: NSAccessibility.Subrole.standardWindow)
     }
     
     /*==========================================================================*/
     override func accessibilityValueDescription() -> String? {
-        self.accessibilityActive = true
+        self.accessibilityActivePre10_13 = true
         let title = self.filteringMenu.title as NSString
         return title.lastPathComponent
     }
@@ -130,7 +130,17 @@ class OBWFilteringMenuWindow: NSWindow {
     let scrollTracking: OBWFilteringMenuScrollTracking = OBWFilteringMenuScrollTracking()
     var screenAnchor: NSRect? = nil
     var filterFieldEditor: OBWFilteringMenuFieldEditor? = nil
-    var accessibilityActive = false
+    
+    var accessibilityActive: Bool {
+        if #available(macOS 10.13, *) {
+            return NSWorkspace.shared.isVoiceOverEnabled
+        }
+        else {
+            return self.accessibilityActivePre10_13
+        }
+    }
+    
+    private var accessibilityActivePre10_13 = false
     
     var roundedCorners: OBWFilteringMenuCorners {
         
