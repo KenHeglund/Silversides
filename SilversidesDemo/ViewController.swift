@@ -712,6 +712,11 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             for url in descendantURLs {
                 
                 if urlCount % 5 == 0 {
+                    
+                    if menu.itemArray.count > 0 {
+                        menu.addItem(OBWFilteringMenuItem.separatorItem)
+                    }
+                    
                     let menuItem = OBWFilteringMenuItem(title: "Group \(urlCount / 5 + 1)")
                     menuItem.enabled = false
                     menuItem.isHeading = true

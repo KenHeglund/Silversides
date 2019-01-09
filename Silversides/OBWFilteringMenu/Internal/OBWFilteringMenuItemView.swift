@@ -111,7 +111,17 @@ class OBWFilteringMenuSeparatorItemView: OBWFilteringMenuItemView {
             height: 1.0
         )
         
-        NSColor.tertiaryLabelColor.set()
+        NSColor.secondaryLabelColor.withAlphaComponent(0.25).set()
+        
+        if #available(macOS 10.14, *) {
+            
+            let knownAppearanceNames: [NSAppearance.Name] = [.darkAqua, .aqua]
+            
+            if NSAppearance.current.bestMatch(from: knownAppearanceNames) == .darkAqua {
+                NSColor.secondaryLabelColor.withAlphaComponent(0.5).set()
+            }
+        }
+        
         drawRect.fill()
     }
     
