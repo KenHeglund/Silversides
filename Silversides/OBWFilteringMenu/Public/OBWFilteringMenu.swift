@@ -139,6 +139,9 @@ public class OBWFilteringMenu {
     }
     
     /*==========================================================================*/
+    var showSeparatorsWhileFiltered = false
+    
+    /*==========================================================================*/
     // MARK: - OBWFilteringMenu internal
     
     static let allowedModifierFlags: NSEvent.ModifierFlags = [.shift, .control, .option, .command]

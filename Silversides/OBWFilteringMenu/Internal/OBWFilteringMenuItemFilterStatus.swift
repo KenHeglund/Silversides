@@ -49,24 +49,24 @@ class OBWFilteringMenuItemFilterStatus {
         }
         
         // Second pass - filter headings that do not have any visible items following them
-        var headingStatusToHide: OBWFilteringMenuItemFilterStatus? = nil
+        var statusToHide: OBWFilteringMenuItemFilterStatus? = nil
         
         for status in statusArray {
             
-            if status.menuItem.isHeading == false {
-                
-                if status.matchScore > 0 {
-                    headingStatusToHide = nil
-                }
+            if status.menuItem.isSeparatorItem || status.menuItem.isHeading {
+
+                statusToHide?.matchScore = 0
+                statusToHide = status
             }
             else {
                 
-                headingStatusToHide?.matchScore = 0
-                headingStatusToHide = status
+                if status.matchScore > 0 {
+                    statusToHide = nil
+                }
             }
         }
         
-        headingStatusToHide?.matchScore = 0
+        statusToHide?.matchScore = 0
         
         return statusArray
     }
@@ -84,13 +84,18 @@ class OBWFilteringMenuItemFilterStatus {
             return status
         }
         
-        guard menuItem.isSeparatorItem == false && status.searchableTitle.isEmpty == false else {
-            status.matchScore = worstScore
+        if menuItem.isHeading {
+            status.matchScore = bestScore
             return status
         }
         
-        guard menuItem.isHeading == false else {
-            status.matchScore = bestScore
+        if menuItem.isSeparatorItem {
+            if menuItem.menu?.showSeparatorsWhileFiltered == true {
+                status.matchScore = bestScore
+            }
+            else {
+                status.matchScore = worstScore
+            }
             return status
         }
         
