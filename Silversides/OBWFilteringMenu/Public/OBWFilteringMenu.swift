@@ -1,64 +1,54 @@
 /*===========================================================================
  OBWFilteringMenu.swift
  Silversides
- Copyright (c) 2016 Ken Heglund. All rights reserved.
+ Copyright (c) 2016, 2019 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-
-public enum OBWFilteringMenuError: Error {
-    case invalidAlternateItem(message: String)
-}
-
-/*==========================================================================*/
-
-public protocol OBWFilteringMenuDelegate {
-    func willBeginTrackingFilteringMenu(_ menu: OBWFilteringMenu)
-    func filteringMenu(_ menu: OBWFilteringMenu, accessibilityHelpForItem: OBWFilteringMenuItem) -> String?
-}
-
-/*==========================================================================*/
-// MARK: -
-
+/// The OBWFilteringMenu class.
 public class OBWFilteringMenu {
-    
-    public static let willBeginSessionNotification = Notification.Name(rawValue: "OBWFilteringMenuWillBeginSessionNotification")
-    public static let didEndSessionNotification = Notification.Name(rawValue: "OBWFilteringMenuDidEndSessionNotification")
-    public static let didBeginTrackingNotification = Notification.Name(rawValue: "OBWFilteringMenuDidBeginTrackingNotification")
-    public static let willEndTrackingNotification = Notification.Name(rawValue: "OBWFilteringMenuWillEndTrackingNotification")
-    public static let didSelectItem = Notification.Name(rawValue: "OBWFilteringMenuDidSelectItem")
-    
-    public static let rootKey = "OBWFilteringMenuRootKey"
-    public static let itemKey = "OBWFilteringMenuItemKey"
     
     // MARK: - OBWFilteringMenu public
     
-    public init(title: String) {
+    public init(title: String = "") {
         self.title = title
     }
     
-    public convenience init() {
-        self.init(title: "")
-    }
     
     // MARK: -
     
+    /// The current title of the filtering menu.
     public var title: String
-    public var font: NSFont? = nil
-    public var representedObject: AnyObject? = nil
     
-    public var actionHandler: ( (OBWFilteringMenuItem) -> Void )? = nil
+    /// The font used to display filtering menu items.  If `nil`, then the system menu font is used.
+    public var font: NSFont? = nil
+    
+    /// When true, menu item separators may be shown when the menu is filtered.
+    public var showSeparatorsWhileFiltered = false
+    
+    /// An object that may be associated with the menu.  The menu does not get or set this value.
+    public var representedObject: Any? = nil
+    
+    /// An action that is performed when a menu item is selected and that item does not have its own action.
+    public var actionHandler: ((OBWFilteringMenuItem) -> Void )? = nil
+    
+    /// The filtering menu's delegate.
     public var delegate: OBWFilteringMenuDelegate? = nil
     
+    /// The menu's filtering menu items.
     public private(set) var itemArray: [OBWFilteringMenuItem] = []
     
+    /// The total number of items in the menu.
     public var numberOfItems: Int {
         return self.itemArray.count
     }
     
-    public internal(set) var highlightedItem: OBWFilteringMenuItem? = nil {
+    /// The parent filtering menu item (if any).  Will be non-nil only if the receiver is a submenu.
+    public internal(set) var parentItem: OBWFilteringMenuItem? = nil
+    
+    /// The currently highlighted menu item (if any).
+    public var highlightedItem: OBWFilteringMenuItem? = nil {
         
         didSet (oldValue) {
             
@@ -66,44 +56,76 @@ public class OBWFilteringMenu {
                 return
             }
             
-            var userInfo: [String:AnyObject] = [:]
+            var userInfo: [OBWFilteringMenu.Key:Any] = [:]
             
             if let currentItem = self.highlightedItem {
-                userInfo[OBWFilteringMenu.currentHighlightedItemKey] = currentItem
+                userInfo[.currentHighlightedItem] = currentItem
             }
             if let previousItem = oldValue {
-                userInfo[OBWFilteringMenu.previousHighlightedItemKey] = previousItem
+                userInfo[.previousHighlightedItem] = previousItem
             }
             
             NotificationCenter.default.post(name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: self, userInfo: userInfo)
         }
     }
     
-    var description: String {
+    /// Instance debug description.
+    public var description: String {
         return "OBWFilteringMenu: \(self.title)"
     }
     
-    /*==========================================================================*/
-    public func popUpMenuPositioningItem(_ item: OBWFilteringMenuItem?, atLocation locationInView: NSPoint, inView view: NSView?, withEvent event: NSEvent?, highlightMenuItem: Bool?) -> Bool {
+    /// Programmatically display the menu, optionally positioning an item at a specific location.
+    /// - parameter menuItem: The filtering menu item to position.  May be nil.
+    /// - parameter alignment: The location within the menu item to position at `locationInView`.
+    /// - parameter locationInView: The origin of the filtering menu item to position.
+    /// - parameter view: The view that defines the coordinate system for `atLocation`.  If nil, then the `at` parameter is interpreted as screen coordinates.
+    /// - parameter matchWidth: If `true`, the menu will be at least as wide as `view`.
+    /// - parameter event: The event causing the filtering menu's appearance.  May be nil.
+    /// - parameter highlightTarget: A HighlightTarget that identifies the menu item to initially highlight after the menu appears.
+    /// - returns: true if a menu item was closed by selecting an item, false if no selection was made.
+    @discardableResult
+    public func popUpMenuPositioningItem(_ menuItem: OBWFilteringMenuItem?, aligning alignment: OBWFilteringMenuItem.Alignment, atPoint locationInView: NSPoint, inView view: NSView?, matchingWidth: Bool, withEvent event: NSEvent?, highlighting highlightTarget: OBWFilteringMenu.HighlightTarget) -> Bool {
         
-        return self.popUpMenuPositioningItem(item, atLocation: locationInView, inView: view, matchingHostViewWidth: false, withEvent: event, highlightMenuItem: highlightMenuItem)
+        self.finalMenuItemsAreNeededNow()
+        
+        // Sanity check to make sure the given item isn't used unless it is actually in the receiver.
+        guard let itemToDisplay = self.itemArray.first(where: { $0 === menuItem }) ?? self.itemArray.first else {
+            return false
+        }
+        
+        return OBWFilteringMenuController.popUpMenuPositioningItem(itemToDisplay, aligning: alignment, atPoint: locationInView, inView: view, matchingWidth: matchingWidth, with: event, highlighting: highlightTarget)
     }
     
-    /*==========================================================================*/
+    /// Add a filtering item to the menu.
     public func addItem(_ item: OBWFilteringMenuItem) {
         item.menu = self
         self.itemArray.append(item)
     }
     
-    /*==========================================================================*/
+    /// Add multiple filtering items to the menu.
     public func addItems(_ items: [OBWFilteringMenuItem]) {
-        
         for item in items {
             self.addItem(item)
         }
     }
     
-    /*==========================================================================*/
+    /// Adds a heading menu item with the given title to the menu.
+    @discardableResult
+    public func addHeadingItem(withTitle title: String) -> OBWFilteringMenuItem {
+        let item = OBWFilteringMenuItem(headingTitled: title)
+        self.addItem(item)
+        return item
+    }
+    
+    /// Adds a separator item to the menu.
+    @discardableResult
+    public func addSeparatorItem() -> OBWFilteringMenuItem {
+        let item = OBWFilteringMenuItem.separatorItem
+        self.addItem(item)
+        return item
+    }
+    
+    /// Remove all filtering menus from the menu.
     public func removeAllItems() {
         
         self.highlightedItem = nil
@@ -115,69 +137,24 @@ public class OBWFilteringMenu {
         self.itemArray = []
     }
     
-    /*==========================================================================*/
+    /// Returns the filtering item with the given title (if any).
     public func itemWithTitle(_ title: String) -> OBWFilteringMenuItem? {
-        
-        if let index = self.itemArray.index(where: { $0.title == title }) {
-            return self.itemArray[index]
-        }
-        
-        return nil
+        return self.itemArray.first(where: { $0.title == title })
     }
     
-    /*==========================================================================*/
+    /// Returns the preferred icon point size for the given control size.
     public static func iconSize(for controlSize: NSControl.ControlSize) -> NSSize {
         
         switch controlSize {
-        case .regular:
-            return NSSize(width: 17.0, height: 17.0)
         case .small:
             return NSSize(width: 15.0, height: 15.0)
         case .mini:
             return NSSize(width: 13.0, height: 13.0)
+        case .regular:
+            fallthrough
+        @unknown default:
+            return NSSize(width: 17.0, height: 17.0)
         }
     }
     
-    /*==========================================================================*/
-    var showSeparatorsWhileFiltered = false
-    
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenu internal
-    
-    static let allowedModifierFlags: NSEvent.ModifierFlags = [.shift, .control, .option, .command]
-    
-    static let highlightedItemDidChangeNotification = Notification.Name(rawValue: "OBWFilteringMenuHighlightedItemDidChangeNotification")
-    static let currentHighlightedItemKey = "OBWFilteringMenuCurrentHighlightedItemKey"
-    static let previousHighlightedItemKey = "OBWFilteringMenuPreviousHighlightedItemKey"
-    
-    var parentItem: OBWFilteringMenuItem? = nil
-    
-    var displayFont: NSFont {
-        return self.font ?? self.parentItem?.menu?.displayFont ?? NSFont.menuFont(ofSize: 0.0)
-    }
-    
-    /*==========================================================================*/
-    func popUpMenuPositioningItem(_ item: OBWFilteringMenuItem?, atLocation locationInView: NSPoint, inView view: NSView?, matchingHostViewWidth matchWidth: Bool, withEvent event: NSEvent?, highlightMenuItem: Bool?) -> Bool {
-        
-        // A menu delegate is allowed to populate menu items at this point
-        self.willBeginTracking()
-        
-        guard var menuItem = self.itemArray.first else {
-            return false
-        }
-        
-        if let item = item {
-            
-            if self.itemArray.contains(where: { $0 === item }) {
-                menuItem = item
-            }
-        }
-        
-        return OBWFilteringMenuController.popUpMenuPositioningItem(menuItem, atLocation: locationInView, inView: view, matchingHostViewWidth: matchWidth, withEvent: event, highlighted: highlightMenuItem)
-    }
-    
-    /*==========================================================================*/
-    func willBeginTracking() {
-        self.delegate?.willBeginTrackingFilteringMenu(self)
-    }
 }

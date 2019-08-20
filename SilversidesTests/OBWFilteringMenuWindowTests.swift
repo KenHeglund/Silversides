@@ -7,25 +7,19 @@
 import XCTest
 @testable import OBWControls
 
-/*==========================================================================*/
-
 class OBWFilteringMenuWindowTests: XCTestCase {
     
-    /*==========================================================================*/
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
-    /*==========================================================================*/
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
     
-    /*==========================================================================*/
     func testGeometryApplication_MenuSizeChanges() {
-        
         
         // Setup
         
@@ -33,19 +27,19 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         let screenFrame = screen.frame
         
         let menu = OBWFilteringMenu()
-        menu.addItem( OBWFilteringMenuItem( title: "A" ) )
-        menu.addItem( OBWFilteringMenuItem( title: "B" ) )
+        menu.addItem(OBWFilteringMenuItem(title: "A"))
+        menu.addItem(OBWFilteringMenuItem(title: "B"))
         
-        let longMenuItem = OBWFilteringMenuItem( title: "A menu item with a really long name" )
-        longMenuItem.keyEquivalentModifierMask = [ .command ]
-        menu.addItem( longMenuItem )
+        let longMenuItem = OBWFilteringMenuItem(title: "A menu item with a really long name")
+        longMenuItem.keyEquivalentModifierMask = [.command]
+        menu.addItem(longMenuItem)
         
-        let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
+        let window = OBWFilteringMenuWindow(menu: menu, onScreen: screen, minimumWidth: nil)
         
-        let geometry = OBWFilteringMenuWindowGeometry( window: window )
-        let screenCenter = NSPoint( x: screenFrame.midX, y: screenFrame.midY )
-        if geometry.updateGeometryToDisplayMenuLocation( NSZeroPoint, atScreenLocation: screenCenter, allowWindowToGrowUpward: true ) {
-            window.applyWindowGeometry( geometry )
+        let geometry = OBWFilteringMenuWindowGeometry(window: window)
+        let screenCenter = NSPoint(x: screenFrame.midX, y: screenFrame.midY)
+        if geometry.updateGeometryToDisplayMenuLocation(.zero, atScreenLocation: screenCenter, allowWindowToGrowUpward: true) {
+            window.applyWindowGeometry(geometry)
         }
         
         let menuView = window.menuView
@@ -56,61 +50,60 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         
         guard let commandEvent = NSEvent.keyEvent(
             with: .flagsChanged,
-            location: NSZeroPoint,
-            modifierFlags: [ .command ],
+            location: .zero,
+            modifierFlags: [.command],
             timestamp: ProcessInfo().systemUptime,
             windowNumber: 0,
             context: nil,
             characters: "",
             charactersIgnoringModifiers: "",
             isARepeat: false,
-            keyCode: 0 )
+            keyCode: 0)
         else {
             XCTFail()
             return
         }
         
-        menuView.handleFlagsChangedEvent( commandEvent )
+        menuView.handleKeyboardModifiersChangedEvent(commandEvent)
         
-        _ = geometry.updateGeometryWithResizedMenu()
-        window.applyWindowGeometry( geometry )
+        geometry.updateGeometryWithResizedMenu()
+        window.applyWindowGeometry(geometry)
         
         let largerWindowFrame = window.frame
         
-        XCTAssertGreaterThan( largerWindowFrame.size.width, initialWindowFrame.size.width )
-        XCTAssertGreaterThan( largerWindowFrame.size.height, initialWindowFrame.size.height )
+        XCTAssertGreaterThan(largerWindowFrame.width, initialWindowFrame.width)
+        XCTAssertGreaterThan(largerWindowFrame.height, initialWindowFrame.height)
         
         // Smaller menu width, window with remains unchanged
         // Smaller menu height, window height returns to inital height
         
         guard let shiftEvent = NSEvent.keyEvent(
             with: .flagsChanged,
-            location: NSZeroPoint,
-            modifierFlags: [ .shift ],
+            location: .zero,
+            modifierFlags: [.shift],
             timestamp: ProcessInfo().systemUptime,
             windowNumber: 0,
             context: nil,
             characters: "",
             charactersIgnoringModifiers: "",
             isARepeat: false,
-            keyCode: 0 )
+            keyCode: 0)
         else {
             XCTFail()
             return
         }
         
-        menuView.handleFlagsChangedEvent( shiftEvent )
+        menuView.handleKeyboardModifiersChangedEvent(shiftEvent)
         
-        _ = geometry.updateGeometryWithResizedMenu()
-        window.applyWindowGeometry( geometry )
+        geometry.updateGeometryWithResizedMenu()
+        window.applyWindowGeometry(geometry)
         
         let reducedWindowFrame = window.frame
         
-        XCTAssertEqual( reducedWindowFrame.size.width, largerWindowFrame.size.width )
-        XCTAssertEqual( reducedWindowFrame.size.height, initialWindowFrame.size.height )
+        XCTAssertEqual(reducedWindowFrame.width, largerWindowFrame.width)
+        XCTAssertEqual(reducedWindowFrame.height, initialWindowFrame.height)
     }
     
-    /*==========================================================================*/
     func testGeometryApplication_MenuScrolling() {
         
         // Setup
@@ -120,16 +113,16 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         
         let menu = OBWFilteringMenu()
         for index in 1...10 {
-            menu.addItem( OBWFilteringMenuItem( title: "menu item \(index)" ) )
+            menu.addItem(OBWFilteringMenuItem(title: "menu item \(index)"))
         }
         
-        let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
+        let window = OBWFilteringMenuWindow(menu: menu, onScreen: screen, minimumWidth: nil)
         
-        let geometry = OBWFilteringMenuWindowGeometry( window: window )
-        let screenLocation = NSPoint( x: screenFrame.midX, y: screenFrame.origin.y + 40.0 )
-        let menuLocation = NSPoint( x: 0.0, y: geometry.totalMenuItemSize.height )
-        if geometry.updateGeometryToDisplayMenuLocation( menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false ) {
-            window.applyWindowGeometry( geometry )
+        let geometry = OBWFilteringMenuWindowGeometry(window: window)
+        let screenLocation = NSPoint(x: screenFrame.midX, y: screenFrame.minY + 40.0)
+        let menuLocation = NSPoint(x: 0.0, y: geometry.totalMenuItemSize.height)
+        if geometry.updateGeometryToDisplayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false) {
+            window.applyWindowGeometry(geometry)
         }
         
         // Test
@@ -139,36 +132,36 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         let distanceToScroll: CGFloat = 25.0
         
         // Sanity check to verify that not all of the menu's contents are visible in the window, ie. there is room to scroll
-        XCTAssertLessThan( geometry.initialBounds.size.height + distanceToScroll, geometry.totalMenuItemSize.height )
+        XCTAssertLessThan(geometry.initialBounds.height + distanceToScroll, geometry.totalMenuItemSize.height)
         
         let scrolledBounds = NSRect(
-            x: geometry.initialBounds.origin.x,
-            y: geometry.initialBounds.origin.y - distanceToScroll,
-            width: geometry.initialBounds.size.width,
-            height: geometry.initialBounds.size.height + distanceToScroll
-        )
+            x: geometry.initialBounds.minX,
+            y: geometry.initialBounds.minY - distanceToScroll,
+            width: geometry.initialBounds.width,
+            height: geometry.initialBounds.height + distanceToScroll
+       )
         
-        if geometry.updateGeometryToDisplayMenuItemBounds( scrolledBounds ) {
-            window.applyWindowGeometry( geometry )
+        if geometry.updateGeometryToDisplayMenuItemBounds(scrolledBounds) {
+            window.applyWindowGeometry(geometry)
         }
         
-        XCTAssertEqual( geometry.finalBounds.size.height, geometry.totalMenuItemSize.height )
+        XCTAssertEqual(geometry.finalBounds.height, geometry.totalMenuItemSize.height)
         
         let scrolledWindowFrame = window.frame
         
-        XCTAssertEqual( scrolledWindowFrame.size.height, initialWindowFrame.size.height + distanceToScroll )
+        XCTAssertEqual(scrolledWindowFrame.height, initialWindowFrame.height + distanceToScroll)
         
         // Sanity check to verify that there is still menu content outside of the visible bounds
-        XCTAssertLessThan( geometry.initialBounds.size.height, geometry.totalMenuItemSize.height )
+        XCTAssertLessThan(geometry.initialBounds.height, geometry.totalMenuItemSize.height)
     }
     
-    /*==========================================================================*/
     func testMinimumWindowSize() {
         
         let screen = NSScreen.screens[0]
-        let menu = OBWFilteringMenu( title: "menu" )
+        let menu = OBWFilteringMenu(title: "menu")
         
-        let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
-        XCTAssertFalse( window.frame.isEmpty )
+        let window = OBWFilteringMenuWindow(menu: menu, onScreen: screen, minimumWidth: nil)
+        XCTAssertFalse(window.frame.isEmpty)
     }
+    
 }

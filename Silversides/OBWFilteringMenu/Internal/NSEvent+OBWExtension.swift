@@ -4,13 +4,11 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
-
-/*==========================================================================*/
+import AppKit
 
 extension NSEvent {
     
-    /*==========================================================================*/
+    /// The screen containing the receiver's location, if any.
     var screen: NSScreen? {
         
         guard let locationInScreen = self.locationInScreen else {
@@ -22,7 +20,7 @@ extension NSEvent {
         })
     }
     
-    /*==========================================================================*/
+    /// The receiver's location in screen coordinates.
     var locationInScreen: NSPoint? {
         
         guard NSEvent.isLocationPropertyValid(self.type) else {
@@ -39,7 +37,7 @@ extension NSEvent {
         return rectInScreen.origin
     }
     
-    /*==========================================================================*/
+    /// Returns the location of the receiver in the given view's coordinate system.  Returns `nil` if the view is not in a window or if the event does not have a valid location.
     func locationInView(_ view: NSView) -> NSPoint? {
         
         guard NSEvent.isLocationPropertyValid(self.type) else {
@@ -77,24 +75,58 @@ extension NSEvent {
         return view.convert(locationInViewWindow, from: nil)
     }
     
-    /*==========================================================================*/
+    /// Returns `true` if the VoiceOver key combination (Control-Option) is pressed.
+    var voiceOverModifiersPressed: Bool {
+        let modifierKeyMask: ModifierFlags = [.shift, .control, .option, .command]
+        let voiceOverKeyMask: ModifierFlags = [.control, .option]
+        let eventModifierFlags = self.modifierFlags
+        return (eventModifierFlags.intersection(modifierKeyMask) == voiceOverKeyMask)
+    }
+    
+    /// Returns `true` if the location property of the given event is valid.
     private class func isLocationPropertyValid(_ type: NSEvent.EventType) -> Bool {
         
-        let locationValidMask: [NSEvent.EventType] = [
-            .leftMouseDown,
-            .leftMouseUp,
-            .rightMouseDown,
-            .rightMouseUp,
-            .mouseMoved,
-            .leftMouseDragged,
-            .rightMouseDragged,
-            .scrollWheel,
-            .otherMouseDown,
-            .otherMouseUp,
-            .otherMouseDragged,
-            .cursorUpdate
-        ]
-        
-        return locationValidMask.contains(type)
+        switch type {
+        case .leftMouseDown,
+             .leftMouseUp,
+             .rightMouseDown,
+             .rightMouseUp,
+             .mouseMoved,
+             .leftMouseDragged,
+             .rightMouseDragged,
+             .scrollWheel,
+             .otherMouseDown,
+             .otherMouseUp,
+             .otherMouseDragged,
+             .cursorUpdate:
+            return true
+
+        case .mouseEntered,
+             .mouseExited,
+             .keyDown,
+             .keyUp,
+             .flagsChanged,
+             .appKitDefined,
+             .systemDefined,
+             .applicationDefined,
+             .periodic,
+             .tabletPoint,
+             .tabletProximity,
+             .gesture,
+             .magnify,
+             .swipe,
+             .rotate,
+             .beginGesture,
+             .endGesture,
+             .smartMagnify,
+             .quickLook,
+             .pressure,
+             .directTouch:
+            return false
+            
+        @unknown default:
+            return false
+        }
     }
+    
 }

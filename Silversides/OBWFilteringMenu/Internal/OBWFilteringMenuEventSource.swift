@@ -4,78 +4,32 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-
-struct OBWApplicationEventSubtype: OptionSet {
-    
-    init(rawValue: Int16) {
-        self.rawValue = rawValue
-    }
-    
-    var rawValue: Int16
-    
-    static let applicationDidBecomeActive   = OBWApplicationEventSubtype(rawValue: 1 << 0)
-    static let applicationDidResignActive   = OBWApplicationEventSubtype(rawValue: 1 << 1)
-    static let periodic                     = OBWApplicationEventSubtype(rawValue: 1 << 2)
-    static let accessibleItemSelection      = OBWApplicationEventSubtype(rawValue: 1 << 3)
-}
-
-/*==========================================================================*/
-// MARK: -
-
+/// Coordinates the generation of application-specific events.
 class OBWFilteringMenuEventSource: NSObject {
     
-    /*==========================================================================*/
+    /// The shared OBWFilteringMenuEventSource instance.
+    static let shared: OBWFilteringMenuEventSource = {
+        return OBWFilteringMenuEventSource()
+    }()
+    
+    /// Clean up resources.
     deinit {
-        
-        let previousMask = self.eventMask
-        self.eventMask = []
-        self.updateObservation(fromPrevious: previousMask)
-        
+        self.activeEvents = []
         self.eventTimer?.invalidate()
     }
     
-    /*==========================================================================*/
-    var eventMask: OBWApplicationEventSubtype = [] {
-        
-        didSet (oldMask) {
-            self.updateObservation(fromPrevious: oldMask)
-        }
-    }
     
-    /*==========================================================================*/
-    private func updateObservation(fromPrevious previousMask: OBWApplicationEventSubtype) {
-        
-        let activeMask: OBWApplicationEventSubtype = [.applicationDidBecomeActive, .applicationDidResignActive]
-        let wasObservingActive = previousMask.intersection(activeMask).isEmpty == false
-        let shouldObserveActive = self.eventMask.intersection(activeMask).isEmpty == false
-        
-        if shouldObserveActive == wasObservingActive {
-            return
-        }
-        
-        if shouldObserveActive {
-            
-            self.currentApplication.addObserver(self, forKeyPath: "active", options: [.new, .old], context: &OBWFilteringMenuEventSource.kvoContext)
-        }
-        else {
-            
-            self.currentApplication.removeObserver(self, forKeyPath: "active", context: &OBWFilteringMenuEventSource.kvoContext)
-        }
-    }
+    // MARK: - NSKeyValueObserving
     
-    /*==========================================================================*/
-    // MARK: - NSKeyValueObserving implementation
-    
+    /// Observe a changed value.
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
-        guard context == &OBWFilteringMenuEventSource.kvoContext else {
-            return
-        }
-        
-        guard keyPath == "active" else {
+        guard
+            context == &OBWFilteringMenuEventSource.kvoContext,
+            keyPath == "active"
+        else {
             return
         }
         
@@ -90,51 +44,47 @@ class OBWFilteringMenuEventSource: NSObject {
             return
         }
         
-        let cocoaEvent: NSEvent?
-        
-        if isActive && self.eventMask.contains(.applicationDidBecomeActive) {
-            
-            cocoaEvent = NSEvent.otherEvent(
-                with: .applicationDefined,
-                location: .zero,
-                modifierFlags: [],
-                timestamp: ProcessInfo().systemUptime,
-                windowNumber: 0,
-                context: nil,
-                subtype: OBWApplicationEventSubtype.applicationDidBecomeActive.rawValue,
-                data1: 0,
-                data2: 0
-            )
+        if isActive && self.activeEvents.contains(.applicationDidBecomeActive) {
+            OBWFilteringMenuEventSubtype.applicationDidBecomeActive.post(atStart: false)
         }
-        else if isActive == false && self.eventMask.contains(.applicationDidResignActive) {
-            
-            cocoaEvent = NSEvent.otherEvent(
-                with: .applicationDefined,
-                location: .zero,
-                modifierFlags: [],
-                timestamp: ProcessInfo().systemUptime,
-                windowNumber: 0,
-                context: nil,
-                subtype: OBWApplicationEventSubtype.applicationDidResignActive.rawValue,
-                data1: 0,
-                data2: 0
-            )
-        }
-        else {
-            return
-        }
-        
-        if let event = cocoaEvent {
-            NSApp.postEvent(event, atStart: false)
+        else if isActive == false && self.activeEvents.contains(.applicationDidResignActive) {
+            OBWFilteringMenuEventSubtype.applicationDidResignActive.post(atStart: false)
         }
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuEventSource implementation
     
-    func startPeriodicApplicationEventsAfterDelay(_ delayInSeconds: TimeInterval, withPeriod periodInSeconds: TimeInterval) {
+    // MARK: - OBWFilteringMenuEventSource
+    
+    /// `true` if .applicationDidBecomeActive events should be posted.
+    var isApplicationDidBecomeActiveEventEnabled = false {
+        didSet {
+            if self.isApplicationDidBecomeActiveEventEnabled {
+                self.activeEvents.insert(.applicationDidBecomeActive)
+            }
+            else {
+                self.activeEvents.remove(.applicationDidBecomeActive)
+            }
+        }
+    }
+    
+    /// `true` if .applicationDidResignActive events should be posted.
+    var isApplicationDidResignActiveEventEnabled = false {
+        didSet {
+            if self.isApplicationDidResignActiveEventEnabled {
+                self.activeEvents.insert(.applicationDidResignActive)
+            }
+            else {
+                self.activeEvents.remove(.applicationDidResignActive)
+            }
+        }
+    }
+    
+    /// Start periodic application events.  If periodic events are already being posted, the new period replaces the old.
+    /// - parameter afterDelay: The delay before the first event is posted.
+    /// - parameter withPeriod: The interval between succesive events.
+    func startPeriodicApplicationEvents(afterDelay delayInSeconds: TimeInterval, withPeriod periodInSeconds: TimeInterval) {
         
-        if let _ = self.eventTimer {
+        if self.activeEvents.contains(.periodic) {
             self.stopPeriodicApplicationEvents()
         }
         
@@ -150,13 +100,13 @@ class OBWFilteringMenuEventSource: NSObject {
         RunLoop.current.add(timer, forMode: .common)
         
         self.eventTimer = timer
-        self.eventMask.insert(.periodic)
+        self.activeEvents.insert(.periodic)
     }
     
-    /*==========================================================================*/
+    /// Stop periodic application events.
     func stopPeriodicApplicationEvents() {
         
-        self.eventMask.remove(.periodic)
+        self.activeEvents.remove(.periodic)
         
         self.eventTimer?.invalidate()
         self.eventTimer = nil
@@ -165,36 +115,55 @@ class OBWFilteringMenuEventSource: NSObject {
     }
     
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuEventSource private
+    // MARK: - Private
     
+    /// An NSRunningApplication instance representing the current application.  This is stored in a property to retain the instance, it is not a persistent singleton.
     lazy private var currentApplication = NSRunningApplication.current
+    
+    /// The current periodic event timer, if any.
     weak private var eventTimer: Timer? = nil
     
+    /// A unique context object for KVO observations.
     private static var kvoContext = "OBWApplicationObservingContext"
     
-    /*==========================================================================*/
+    /// The currently active events.
+    private var activeEvents: Set<OBWFilteringMenuEventSubtype> = [] {
+        willSet {
+            self.removeApplicationActiveObservation(for: self.activeEvents)
+        }
+        didSet {
+            self.addApplicationActiveObservation(for: self.activeEvents)
+        }
+    }
+    
+    /// The periodic event timer fired.
     @objc private func periodicApplicationEventTimerDidFire(_ timer: Timer) {
         
-        guard self.eventMask.contains(.periodic) else {
+        guard self.activeEvents.contains(.periodic) else {
             return
         }
         
-        guard let cocoaEvent = NSEvent.otherEvent(
-            with: .applicationDefined,
-            location: .zero,
-            modifierFlags: [],
-            timestamp: ProcessInfo().systemUptime,
-            windowNumber: 0,
-            context: nil,
-            subtype: OBWApplicationEventSubtype.periodic.rawValue,
-            data1: 0,
-            data2: 0
-            )
-        else {
-            return
-        }
-        
-        NSApp.postEvent(cocoaEvent, atStart: false)
+        OBWFilteringMenuEventSubtype.periodic.post(atStart: false)
     }
+    
+    /// Add an observation of NSRunningApplication.active if the given event subtypes require it.
+    private func addApplicationActiveObservation(for activeEventSubtypes: Set<OBWFilteringMenuEventSubtype>) {
+        
+        if activeEventSubtypes.contains(.applicationDidBecomeActive) == false, activeEventSubtypes.contains(.applicationDidResignActive) == false {
+            return
+        }
+        
+        self.currentApplication.addObserver(self, forKeyPath: "active", options: [.new, .old], context: &OBWFilteringMenuEventSource.kvoContext)
+    }
+    
+    /// Remove an observation of NSRunningApplication.active if the given event subtypes required it.
+    private func removeApplicationActiveObservation(for activeEventSubtypes: Set<OBWFilteringMenuEventSubtype>) {
+        
+        if activeEventSubtypes.contains(.applicationDidBecomeActive) == false, activeEventSubtypes.contains(.applicationDidResignActive) == false {
+            return
+        }
+        
+        self.currentApplication.removeObserver(self, forKeyPath: "active", context: &OBWFilteringMenuEventSource.kvoContext)
+    }
+    
 }

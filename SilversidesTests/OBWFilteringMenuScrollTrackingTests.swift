@@ -7,23 +7,26 @@
 import XCTest
 @testable import OBWControls
 
-/*==========================================================================*/
-
 class OBWFilteringMenuScrollTrackingTests: XCTestCase {
     
-    /*==========================================================================*/
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
-    /*==========================================================================*/
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
     
-    /*==========================================================================*/
+    // This "test" exists to allow scroll wheel events to printed as a string.  In normal circumstances it should be disabled.  It can be re-enabled if new scroll events need to be recorded.
+    #if false
+    func testPrintingScrollEvents() {
+        scrollTrackingEventPrinter = PrintEventDataAsEncodedString
+        self.waitForInterval(milliseconds: 10 * 1000)
+    }
+    #endif
+    
     func testWhenEntireMenuIsAlreadyVisible() {
         
         // Setup
@@ -31,33 +34,28 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
-        var notificationCount = 0
-        let observation = NotificationCenter.default.addObserver( forName: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil, queue: nil) { ( notification: Notification ) in
-            notificationCount += 1
-        }
-        
-        let menu = OBWFilteringMenu( title: "menu" )
+        let menu = OBWFilteringMenu(title: "menu")
         for index in 1...20 {
-            menu.addItem( OBWFilteringMenuItem( title: "item \(index)" ) )
+            menu.addItem(OBWFilteringMenuItem(title: "item \(index)"))
         }
         
-        let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
-        let geometry = OBWFilteringMenuWindowGeometry( window: window )
+        let window = OBWFilteringMenuWindow(menu: menu, onScreen: screen, minimumWidth: nil)
+        let geometry = OBWFilteringMenuWindowGeometry(window: window)
         
         let menuLocation = NSPoint(
-            x: floor( geometry.totalMenuItemSize.width / 2.0 ),
-            y: floor( geometry.totalMenuItemSize.height / 2.0 )
+            x: (geometry.totalMenuItemSize.width / 2.0).rounded(.down),
+            y: (geometry.totalMenuItemSize.height / 2.0).rounded(.down)
         )
         
         let screenLocation = NSPoint(
-            x: floor( screenFrame.midX ),
-            y: floor( screenFrame.midY )
+            x: floor(screenFrame.midX),
+            y: floor(screenFrame.midY)
         )
         
-        _ = geometry.updateGeometryToDisplayMenuLocation( menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false )
+        geometry.updateGeometryToDisplayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false)
         
         let scrollTracking = OBWFilteringMenuScrollTracking()
-        scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
+        scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
         
         guard
             let scrollContentUpEvent = self.scrollContentUpEvent,
@@ -69,18 +67,23 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         
         // Test
         
-        scrollTracking.scrollEvent( scrollContentUpEvent )
-        RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.25 ) )
-        XCTAssertEqual( notificationCount, 0 )
+        let boundsChangedNotification = OBWFilteringMenuScrollTracking.boundsChangedNotification
         
-        scrollTracking.scrollEvent( scrollContentDownEvent )
-        RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.25 ) )
-        XCTAssertEqual( notificationCount, 0 )
+        // Notification should not be sent when scrolling up.
+        let upExpectation = self.expectation(forNotification: boundsChangedNotification, object: nil, handler: nil)
+        upExpectation.isInverted = true
         
-        NotificationCenter.default.removeObserver( observation )
+        scrollTracking.scrollEvent(scrollContentUpEvent)
+        self.wait(for: [upExpectation], timeout: 0.25)
+        
+        // Notification should not be sent when scrolling down.
+        let downExpectation = self.expectation(forNotification: boundsChangedNotification, object: nil, handler: nil)
+        downExpectation.isInverted = true
+        
+        scrollTracking.scrollEvent(scrollContentDownEvent)
+        self.wait(for: [downExpectation], timeout: 0.25)
     }
     
-    /*==========================================================================*/
     func testScrollingDownWhenMenuOverlapsBottomOfScreen() {
         
         // When scrolling down while the menu overlaps the bottom of the screen, the content bounds origin should increase while the bounds height remains the same.  This is elastic movement of the menu content.
@@ -90,58 +93,57 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
-        var notificationBounds = NSZeroRect
-        let observation = NotificationCenter.default.addObserver( forName: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil, queue: nil) {
-            ( notification: Notification ) in
-            
-            guard
-                notificationBounds.isEmpty,
-                let userInfo = notification.userInfo,
-                let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
-            else {
-                return
-            }
-            
-            notificationBounds = boundsAsValue.rectValue
-        }
-        
-        let menu = OBWFilteringMenu( title: "menu" )
+        let menu = OBWFilteringMenu(title: "menu")
         for index in 1...20 {
-            menu.addItem( OBWFilteringMenuItem( title: "item \(index)" ) )
+            menu.addItem(OBWFilteringMenuItem(title: "item \(index)"))
         }
         
-        let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
-        let geometry = OBWFilteringMenuWindowGeometry( window: window )
+        let window = OBWFilteringMenuWindow(menu: menu, onScreen: screen, minimumWidth: nil)
+        let geometry = OBWFilteringMenuWindowGeometry(window: window)
         
-        let menuLocation = NSPoint( x: 0.0, y: geometry.totalMenuItemSize.height )
+        let menuLocation = NSPoint(x: 0.0, y: geometry.totalMenuItemSize.height)
         let screenLocation = NSPoint(
             x: screenFrame.midX,
-            y: screenFrame.origin.y + floor( geometry.totalMenuItemSize.height / 5.0 )
-        )
+            y: screenFrame.minY + (geometry.totalMenuItemSize.height / 5.0).rounded(.down)
+       )
         
-        _ = geometry.updateGeometryToDisplayMenuLocation( menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false )
+        geometry.updateGeometryToDisplayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false)
         
         let scrollTracking = OBWFilteringMenuScrollTracking()
-        scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
+        scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
         
-        guard
-            let scrollContentDownEvent = self.scrollContentDownEvent
-        else {
+        guard let scrollContentDownEvent = self.scrollContentDownEvent else {
             XCTFail()
             return
         }
         
+        // Record
+        
+        var originYMax = geometry.initialBounds.minY
+        let observation = NotificationCenter.default.addObserver(forName: OBWFilteringMenuScrollTracking.boundsChangedNotification, object: nil, queue: nil) {
+            (notification: Notification) in
+            
+            guard let bounds = notification.userInfo?[OBWFilteringMenuScrollTracking.Key.bounds] as? NSRect else {
+                return
+            }
+            
+            originYMax = max(originYMax, bounds.minY)
+        }
+        defer {
+            NotificationCenter.default.removeObserver(observation)
+        }
+        
         // Test
         
-        scrollTracking.scrollEvent( scrollContentDownEvent )
-        RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.100 ) )
-        XCTAssertGreaterThan( notificationBounds.origin.y, geometry.initialBounds.origin.y )
-        XCTAssertEqual( notificationBounds.size.height, geometry.initialBounds.size.height )
+        scrollTracking.scrollEvent(scrollContentDownEvent)
+        scrollTracking.scrollEvent(scrollContentDownEvent)
+        scrollTracking.scrollEvent(scrollContentDownEvent)
+        scrollTracking.scrollEvent(scrollContentDownEvent)
+        scrollTracking.scrollEvent(scrollContentDownEvent)
         
-        NotificationCenter.default.removeObserver( observation )
+        XCTAssertGreaterThan(originYMax, geometry.initialBounds.minY)
     }
     
-    /*==========================================================================*/
     func testScrollingUpWhenMenuOverlapsBottomOfScreen() {
         
         // When scrolling up while the menu overlaps the bottom of the screen, the content bounds origin should decrease while the bounds height increases.  This is the menu content resizing upward.
@@ -151,57 +153,57 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
-        var notificationBounds = NSZeroRect
-        let observation = NotificationCenter.default.addObserver( forName: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil, queue: nil) { ( notification: Notification ) in
-            
-            guard
-                notificationBounds.isEmpty,
-                let userInfo = notification.userInfo,
-                let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
-            else {
-                return
-            }
-            
-            notificationBounds = boundsAsValue.rectValue
-        }
-        
-        let menu = OBWFilteringMenu( title: "menu" )
+        let menu = OBWFilteringMenu(title: "menu")
         for index in 1...20 {
-            menu.addItem( OBWFilteringMenuItem( title: "item \(index)" ) )
+            menu.addItem(OBWFilteringMenuItem(title: "item \(index)"))
         }
         
-        let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
-        let geometry = OBWFilteringMenuWindowGeometry( window: window )
+        let window = OBWFilteringMenuWindow(menu: menu, onScreen: screen, minimumWidth: nil)
+        let geometry = OBWFilteringMenuWindowGeometry(window: window)
         
-        let menuLocation = NSPoint( x: 0.0, y: geometry.totalMenuItemSize.height )
+        let menuLocation = NSPoint(x: 0.0, y: geometry.totalMenuItemSize.height)
         let screenLocation = NSPoint(
             x: screenFrame.midX,
-            y: screenFrame.origin.y + floor( geometry.totalMenuItemSize.height / 5.0 )
-        )
+            y: screenFrame.minY + (geometry.totalMenuItemSize.height / 5.0).rounded(.down)
+       )
         
-        _ = geometry.updateGeometryToDisplayMenuLocation( menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false )
+        geometry.updateGeometryToDisplayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false)
         
         let scrollTracking = OBWFilteringMenuScrollTracking()
-        scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
+        scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
         
-        guard
-            let scrollContentUpEvent = self.scrollContentUpEvent
-        else {
+        guard let scrollContentUpEvent = self.scrollContentUpEvent else {
             XCTFail()
             return
         }
         
+        // Record
+        
+        var notificationBounds = NSZeroRect
+        let observation = NotificationCenter.default.addObserver(forName: OBWFilteringMenuScrollTracking.boundsChangedNotification, object: nil, queue: nil) { (notification: Notification) in
+            
+            guard let bounds = notification.userInfo?[OBWFilteringMenuScrollTracking.Key.bounds] as? NSRect else {
+                return
+            }
+            
+            notificationBounds = bounds
+        }
+        defer {
+            NotificationCenter.default.removeObserver(observation)
+        }
+        
         // Test
         
-        scrollTracking.scrollEvent( scrollContentUpEvent )
-        RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.500 ) )
-        XCTAssertLessThan( notificationBounds.origin.y, geometry.initialBounds.origin.y )
-        XCTAssertGreaterThan( notificationBounds.size.height, geometry.initialBounds.size.height )
+        scrollTracking.scrollEvent(scrollContentUpEvent)
+        scrollTracking.scrollEvent(scrollContentUpEvent)
+        scrollTracking.scrollEvent(scrollContentUpEvent)
+        scrollTracking.scrollEvent(scrollContentUpEvent)
+        scrollTracking.scrollEvent(scrollContentUpEvent)
         
-        NotificationCenter.default.removeObserver( observation )
+        XCTAssertLessThan(notificationBounds.minY, geometry.initialBounds.minY)
+        XCTAssertGreaterThan(notificationBounds.height, geometry.initialBounds.height)
     }
     
-    /*==========================================================================*/
     func testScrollingUpWhenMenuOverlapsTopOfScreen() {
         
         // When scrolling up while the menu overlaps the top of the screen, the content bounds origin should decrease while the bounds height remains the same.  This is elastic movement of the menu content.
@@ -211,38 +213,24 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
-        var notificationBounds = NSZeroRect
-        let observation = NotificationCenter.default.addObserver( forName: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil, queue: nil) { ( notification: Notification ) in
-            
-            guard
-                notificationBounds.isEmpty,
-                let userInfo = notification.userInfo,
-                let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
-            else {
-                return
-            }
-            
-            notificationBounds = boundsAsValue.rectValue
-        }
-        
-        let menu = OBWFilteringMenu( title: "menu" )
+        let menu = OBWFilteringMenu(title: "menu")
         for index in 1...20 {
-            menu.addItem( OBWFilteringMenuItem( title: "item \(index)" ) )
+            menu.addItem(OBWFilteringMenuItem(title: "item \(index)"))
         }
         
-        let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
-        let geometry = OBWFilteringMenuWindowGeometry( window: window )
+        let window = OBWFilteringMenuWindow(menu: menu, onScreen: screen, minimumWidth: nil)
+        let geometry = OBWFilteringMenuWindowGeometry(window: window)
         
         let menuLocation = NSZeroPoint
         let screenLocation = NSPoint(
             x: screenFrame.midX,
-            y: screenFrame.maxY - floor( geometry.totalMenuItemSize.height / 5.0 )
-        )
+            y: screenFrame.maxY - (geometry.totalMenuItemSize.height / 5.0).rounded(.down)
+       )
         
-        _ = geometry.updateGeometryToDisplayMenuLocation( menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false )
+        _ = geometry.updateGeometryToDisplayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false)
         
         let scrollTracking = OBWFilteringMenuScrollTracking()
-        scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
+        scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
         
         guard
             let scrollContentUpEvent = self.scrollContentUpEvent
@@ -251,17 +239,33 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
             return
         }
         
+        // Record
+        
+        var notificationBounds = NSZeroRect
+        let observation = NotificationCenter.default.addObserver(forName: OBWFilteringMenuScrollTracking.boundsChangedNotification, object: nil, queue: nil) { (notification: Notification) in
+            
+            guard  let bounds = notification.userInfo?[OBWFilteringMenuScrollTracking.Key.bounds] as? NSRect else {
+                return
+            }
+            
+            notificationBounds = bounds
+        }
+        defer {
+            NotificationCenter.default.removeObserver(observation)
+        }
+        
         // Test
         
-        scrollTracking.scrollEvent( scrollContentUpEvent )
-        RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.25 ) )
-        XCTAssertLessThan( notificationBounds.origin.y, geometry.initialBounds.origin.y )
-        XCTAssertEqual( notificationBounds.size.height, geometry.initialBounds.size.height )
+        scrollTracking.scrollEvent(scrollContentUpEvent)
+        scrollTracking.scrollEvent(scrollContentUpEvent)
+        scrollTracking.scrollEvent(scrollContentUpEvent)
+        scrollTracking.scrollEvent(scrollContentUpEvent)
+        scrollTracking.scrollEvent(scrollContentUpEvent)
         
-        NotificationCenter.default.removeObserver( observation )
+        XCTAssertLessThan(notificationBounds.minY, geometry.initialBounds.minY)
+        XCTAssertEqual(notificationBounds.height, geometry.initialBounds.height)
     }
     
-    /*==========================================================================*/
     func testScrollingDownWhenMenuOverlapsTopOfScreen() {
         
         // When scrolling down while the menu overlaps the top of the screen, the content bounds origin should remain the same while the bounds height increases.  This is the menu content resizing downward.
@@ -271,38 +275,24 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
         let screen = NSScreen.screens[0]
         let screenFrame = screen.frame
         
-        var notificationBounds = NSZeroRect
-        let observation = NotificationCenter.default.addObserver( forName: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil, queue: nil) { ( notification: Notification ) in
-            
-            guard
-                notificationBounds.isEmpty,
-                let userInfo = notification.userInfo,
-                let boundsAsValue = userInfo[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
-            else {
-                return
-            }
-            
-            notificationBounds = boundsAsValue.rectValue
-        }
-        
-        let menu = OBWFilteringMenu( title: "menu" )
+        let menu = OBWFilteringMenu(title: "menu")
         for index in 1...20 {
-            menu.addItem( OBWFilteringMenuItem( title: "item \(index)" ) )
+            menu.addItem(OBWFilteringMenuItem(title: "item \(index)"))
         }
         
-        let window = OBWFilteringMenuWindow( menu: menu, screen: screen )
-        let geometry = OBWFilteringMenuWindowGeometry( window: window )
+        let window = OBWFilteringMenuWindow(menu: menu, onScreen: screen, minimumWidth: nil)
+        let geometry = OBWFilteringMenuWindowGeometry(window: window)
         
         let menuLocation = NSZeroPoint
         let screenLocation = NSPoint(
             x: screenFrame.midX,
-            y: screenFrame.maxY - floor( geometry.totalMenuItemSize.height / 5.0 )
-        )
+            y: screenFrame.maxY - (geometry.totalMenuItemSize.height / 5.0).rounded(.down)
+       )
         
-        _ = geometry.updateGeometryToDisplayMenuLocation( menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false )
+        geometry.updateGeometryToDisplayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false)
         
         let scrollTracking = OBWFilteringMenuScrollTracking()
-        scrollTracking.reset( geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds )
+        scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
         
         guard
             let scrollContentDownEvent = self.scrollContentDownEvent
@@ -311,41 +301,55 @@ class OBWFilteringMenuScrollTrackingTests: XCTestCase {
             return
         }
         
+        // Record
+        
+        var notificationBounds = NSZeroRect
+        let observation = NotificationCenter.default.addObserver(forName: OBWFilteringMenuScrollTracking.boundsChangedNotification, object: nil, queue: nil) { (notification: Notification) in
+            
+            guard let bounds = notification.userInfo?[OBWFilteringMenuScrollTracking.Key.bounds] as? NSRect else {
+                return
+            }
+            
+            notificationBounds = bounds
+        }
+        defer {
+            NotificationCenter.default.removeObserver(observation)
+        }
+        
         // Test
         
-        scrollTracking.scrollEvent( scrollContentDownEvent )
-        RunLoop.current.run( until: Date( timeIntervalSinceNow: 0.25 ) )
-        XCTAssertEqual( notificationBounds.origin.y, geometry.initialBounds.origin.y )
-        XCTAssertGreaterThan( notificationBounds.size.height, geometry.initialBounds.size.height )
+        scrollTracking.scrollEvent(scrollContentDownEvent)
+        scrollTracking.scrollEvent(scrollContentDownEvent)
+        scrollTracking.scrollEvent(scrollContentDownEvent)
+        scrollTracking.scrollEvent(scrollContentDownEvent)
+        scrollTracking.scrollEvent(scrollContentDownEvent)
         
-        NotificationCenter.default.removeObserver( observation )
+        XCTAssertEqual(notificationBounds.origin.y, geometry.initialBounds.origin.y)
+        XCTAssertGreaterThan(notificationBounds.size.height, geometry.initialBounds.size.height)
     }
     
-    /*==========================================================================*/
     private let scrollContentUpEvent: NSEvent? = {
         
-        // Recorded from the trackpad
-        let encodedContentUpEvent = "AAAAAgABQDUAAAADAAFANgAAAAAAAUA3AAAAFgACwDhEdkAARI6gAAACwDlByAAAQjgAAAABADpFSWCOAACUVgABQDsAAAEAAAFAMwAAI70AAUA0AAHH4wABQJIAAAAAAAFAagAAAGMAAUBrAAAEsAABQAv////8AAFADAAAAAAAAUANAAAAAAABQFgAAAABAAFAiQAAAAEAAUBd//szIAABQF4AAAAAAAFAXwAAAAAAAUBg////0AABQGEAAAADAAFAYgAAAAAAAUB7AAAAAAABQGMAAAACAAFAZAAAAAA="
+        // Recorded from the trackpad, scroll delta = -20.0
+        let encodedContentUpEvent = "AAAAAgABQDUAAAADAAFANgAAAAAAAUA3AAAAFgACwDhDiVwAQw2wAAACwDlBG4AAQqFgAAABADos9I93AAAGmgABQDsAAAAAAAFAMwAAA0sAAUA0AALPQwABAKks9I93AAAGmgABQGoAAADyAAFAawAABBoAAUAL/////wABQAwAAAAAAAFADQAAAAAAAUBYAAAAAQABQIkAAAABAAFAXf/+GZkAAUBeAAAAAAABQF8AAAAAAAFAYP///+wAAUBhAAAAAgABQGIAAAAAAAFAewAAAAAAAUBjAAAAAgABQGQAAAAA"
         
-        return OBWFilteringMenuScrollTrackingTests.eventWithString( base64EncodedString: encodedContentUpEvent )
+        return OBWFilteringMenuScrollTrackingTests.eventWithString(base64EncodedString: encodedContentUpEvent)
     }()
     
-    /*==========================================================================*/
     private let scrollContentDownEvent: NSEvent? = {
         
-        // Recorded from the trackpad
-        let encodedContentDownEvent = "AAAAAgABQDUAAAADAAFANgAAAAAAAUA3AAAAFgACwDhEeEAARI0AAAACwDlCBAAAQgAAAAABADpKU4eYAACUdQABQDsAAAEAAAFAMwAAI+MAAUA0AAHg5wABQJIAAAAAAAFAagAAAGIAAUBrAAAEsAABQAsAAAA1AAFADP////8AAUANAAAAAAABQFgAAAABAAFAiQAAAAEAAUBdADVnPAABQF7//xmWAAFAXwAAAAAAAUBgAAACFgABQGH////4AAFAYgAAAAAAAUB7AAAAAAABQGMAAAACAAFAZAAAAAE="
+        // Recorded from the trackpad, scroll delta = 20.0
+        let encodedContentDownEvent =  "AAAAAgABQDUAAAADAAFANgAAAAAAAUA3AAAAFgACwDhDiLCAQvkEAAACwDlBBhAAQn4IAAABADrFfmWeAAAGjwABQDsAAAAAAAFAMwAAAzkAAUA0AAkdnwABAKnFfmWeAAAGjwABQGoAAADyAAFAawAABBoAAUALAAAAAgABQAwAAAAAAAFADQAAAAAAAUBYAAAAAQABQIkAAAABAAFAXQACAAAAAUBeAAAAAAABQF8AAAAAAAFAYAAAABQAAUBh/////gABQGIAAAAAAAFAewAAAAAAAUBjAAAAAgABQGQAAAAA"
         
-        return OBWFilteringMenuScrollTrackingTests.eventWithString( base64EncodedString: encodedContentDownEvent )
+        return OBWFilteringMenuScrollTrackingTests.eventWithString(base64EncodedString: encodedContentDownEvent)
     }()
     
-    /*==========================================================================*/
-    private class func eventWithString( base64EncodedString encodedString: String ) -> NSEvent? {
+    private class func eventWithString(base64EncodedString encodedString: String) -> NSEvent? {
         
         guard
-            let scrollEventData = Data( base64Encoded: encodedString, options: [] ),
-            let cgEvent = CGEvent( withDataAllocator: kCFAllocatorDefault, data: scrollEventData as CFData ),
-            let nsEvent = NSEvent( cgEvent: cgEvent )
+            let scrollEventData = Data(base64Encoded: encodedString, options: []),
+            let cgEvent = CGEvent(withDataAllocator: kCFAllocatorDefault, data: scrollEventData as CFData),
+            let nsEvent = NSEvent(cgEvent: cgEvent)
         else {
             return nil
         }

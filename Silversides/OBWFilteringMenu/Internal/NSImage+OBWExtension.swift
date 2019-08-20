@@ -4,20 +4,18 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
-
-/*==========================================================================*/
+import AppKit
 
 extension NSImage {
     
-    /*==========================================================================*/
+    /// Executes the given closure while focus is locked on the receiver.
     func withLockedFocus(_ handler: () -> Void) {
         self.lockFocus()
         handler()
         self.unlockFocus()
     }
     
-    /*==========================================================================*/
+    /// Returns an image formed by trimming transparent edges from the receiver.
     func imageByTrimmingTransparentEdges() -> NSImage? {
         
         let sourceFrame = NSRect(size: self.size)
@@ -110,4 +108,5 @@ extension NSImage {
         
         return trimmedImage
     }
+    
 }

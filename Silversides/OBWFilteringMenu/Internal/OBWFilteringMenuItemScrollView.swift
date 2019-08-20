@@ -4,43 +4,20 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-
-private class OBWColorView: NSView {
-    
-    var color: NSColor? = nil
-    
-    override func draw(_ dirtyRect: NSRect) {
-        
-        guard let color = self.color else {
-            return
-        }
-        
-        color.set()
-        dirtyRect.fill(using: .sourceOver)
-    }
-}
-
-/*==========================================================================*/
-// MARK: -
-
+/// A view that acts as a parent to all of the menu-specific content in a menu window.  The up arrow, the down arrow, and the scrollable menu item area.
 class OBWFilteringMenuItemScrollView: NSView {
     
-    /*==========================================================================*/
+    /// Initialize with a menu and a minimum menu width.
     init(menu: OBWFilteringMenu, minimumWidth: CGFloat?) {
         
         self.filteringMenu = menu
         self.minimumItemWidth = minimumWidth ?? OBWFilteringMenuItemView.minimumWidth
         
-        let itemParentView: NSView
+        let itemParentView = OBWColorFilledView(frame: .zero)
         #if DEBUG_MENU_TINTING
-            let colorParentView = OBWColorView(frame: .zero)
-            colorParentView.color = NSColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.1)
-            itemParentView = colorParentView
-        #else
-            itemParentView = NSView(frame: .zero)
+        itemParentView.fillColor = NSColor.black.withAlphaComponent(0.1)
         #endif
         itemParentView.autoresizesSubviews = true
         self.itemParentView = itemParentView
@@ -102,34 +79,34 @@ class OBWFilteringMenuItemScrollView: NSView {
         self.autoresizesSubviews = true
     }
     
-    /*==========================================================================*/
+    /// Required initializer.  Unused.
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    /*==========================================================================*/
+    
     // MARK: - NSView overrides
     
-    /*==========================================================================*/
+    /// When resizing subviews, adjust the bounds of the menu item area to keep the content at the same location on the screen.
     override func resizeSubviews(withOldSize oldSize: NSSize) {
         
         super.resizeSubviews(withOldSize: oldSize)
         
-        let heightDelta = self.frame.size.height - oldSize.height
+        let changeInHeight = self.frame.height - oldSize.height
         let itemClipView = self.itemClipView
         
         let newClipBoundsOrigin = NSPoint(
             x: 0.0,
-            y: itemClipView.bounds.origin.y - heightDelta
+            y: itemClipView.bounds.minY - changeInHeight
         )
         
         itemClipView.setBoundsOrigin(newClipBoundsOrigin)
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuItemScrollView implementation
     
-    /*==========================================================================*/
+    // MARK: - OBWFilteringMenuItemScrollView Implementation
+    
+    /// The minimum height at the top of the menu is the minimum height of the first item.
     var minimumHeightAtTop: CGFloat {
         
         guard let itemView = allItemViews.first else {
@@ -139,7 +116,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         return self.minimumHeightForView(itemView)
     }
     
-    /*==========================================================================*/
+    /// The minimum height at the bottom of the menu is the minimum height of the last item.
     var minimumHeightAtBottom: CGFloat {
         
         guard let itemView = allItemViews.last else {
@@ -149,17 +126,19 @@ class OBWFilteringMenuItemScrollView: NSView {
         return self.minimumHeightForView(itemView)
     }
     
-    /*==========================================================================*/
+    /// Returns the size of the area occupied by all of the menu items.
     var totalMenuItemSize: NSSize {
         return self.itemParentView.frame.size
     }
     
-    /*==========================================================================*/
+    /// Returns the bounds of the visible menu items.
     var menuItemBounds: NSRect {
         return self.convert(self.bounds, to: self.itemClipView)
     }
     
-    /*==========================================================================*/
+    /// Returns the menu item at the given point.
+    /// - parameter locationInView: The point in the receiver's coordinate system.
+    /// - returns: A menu item, if any.
     func menuItemAtLocation(_ locationInView: NSPoint) -> OBWFilteringMenuItem? {
         
         let itemClipView = self.itemClipView
@@ -195,8 +174,10 @@ class OBWFilteringMenuItemScrollView: NSView {
         return nil
     }
     
-    /*==========================================================================*/
-    func menuPartAtLocation(_ locationInView: NSPoint) -> OBWFilteringMenuPart {
+    /// Returns the menu part at the given location.
+    /// - parameter locationInView: The point in the receiver's coordinate system.
+    /// - returns: A menu part.
+    func menuPartAtLocation(_ locationInView: NSPoint) -> OBWFilteringMenu.MenuPart {
         
         let itemClipFrame = self.itemClipView.frame
         
@@ -213,7 +194,9 @@ class OBWFilteringMenuItemScrollView: NSView {
         return .item
     }
     
-    /*==========================================================================*/
+    /// Returns the item view for the given menu item.
+    /// - parameter menuItem: The menu item.
+    /// - returns: An item view.  Returns `nil` if the menu item is a separator or is not in the menu.
     func viewForMenuItem(_ menuItem: OBWFilteringMenuItem) -> OBWFilteringMenuItemView? {
         
         guard menuItem.isSeparatorItem == false else {
@@ -223,17 +206,22 @@ class OBWFilteringMenuItemScrollView: NSView {
         return self.allItemViews.first(where: { $0.menuItem === menuItem })
     }
     
-    /*==========================================================================*/
+    /// Returns the item view for the menu item following the given menu item.
+    /// - parameter menuItem: The menu item.
+    /// - returns: An item view, if a menu item follows the given menu item.
     func nextViewAfterItem(_ menuItem: OBWFilteringMenuItem?) -> OBWFilteringMenuItemView? {
         return self.nextViewAfterItem(menuItem, inViews: self.allItemViews)
     }
     
-    /*==========================================================================*/
+    /// Returns the item view for the menu item preceeding the given menu item.
+    /// - parameter menuItem: The menu item.
+    /// - returns: An item view, if a menu item preceeds the given menu item.
     func previousViewBeforeItem(_ menuItem: OBWFilteringMenuItem?) -> OBWFilteringMenuItemView? {
         return self.nextViewAfterItem(menuItem, inViews: self.allItemViews.reversed())
     }
     
-    /*==========================================================================*/
+    /// Scrolls the given menu item into view.
+    /// - parameter menuItem: The menu item to become visible.
     func scrollItemToVisible(_ menuItem: OBWFilteringMenuItem) {
         
         guard let itemView = self.viewForMenuItem(menuItem) else {
@@ -243,7 +231,8 @@ class OBWFilteringMenuItemScrollView: NSView {
         self.scrollItemViewIntoFrame(itemView)
     }
     
-    /*==========================================================================*/
+    /// Scroll menu items downward with the given acceleration multiplier.
+    /// - parameter acceleration: A factor by which to multiply the scroll distance.
     func scrollItemsDownWithAcceleration(_ acceleration: Double) -> Bool {
         
         let itemClipView = self.itemClipView
@@ -251,12 +240,12 @@ class OBWFilteringMenuItemScrollView: NSView {
         
         let itemParentView = self.itemParentView
         let itemParentFrame = itemParentView.frame
-        let averageItemHeight = itemParentFrame.size.height / CGFloat(itemParentView.subviews.count)
+        let averageItemHeight = itemParentFrame.height / CGFloat(itemParentView.subviews.count)
         let scrollDelta = floor(averageItemHeight * CGFloat(acceleration))
         
         let hitPoint = NSPoint(
             x: itemClipViewBounds.origin.x,
-            y: min(itemClipViewBounds.maxY + scrollDelta, itemParentFrame.size.height)
+            y: min(itemClipViewBounds.maxY + scrollDelta, itemParentFrame.height)
         )
         
         guard let itemView = self.menuItemViewAtLocation(hitPoint) ?? self.nextViewAfterItem(nil) else {
@@ -268,7 +257,8 @@ class OBWFilteringMenuItemScrollView: NSView {
         return self.upArrowView.isHidden
     }
     
-    /*==========================================================================*/
+    /// Scroll menu items upward with the given acceleration multiplier.
+    /// - parameter acceleration: A factor by which to multiply the scroll distance.
     func scrollItemsUpWithAcceleration(_ acceleration: Double) -> Bool {
         
         let itemClipView = self.itemClipView
@@ -292,7 +282,8 @@ class OBWFilteringMenuItemScrollView: NSView {
         return self.downArrowView.isHidden
     }
     
-    /*==========================================================================*/
+    /// Scroll menu items downward by the height of the currently visible menu items.
+    /// - returns: The topmost newly visible menu item.
     func scrollItemsDownOnePage() -> OBWFilteringMenuItemView? {
         
         let itemClipView = self.itemClipView
@@ -304,7 +295,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         
         let hitPoint = NSPoint(
             x: itemClipViewBounds.minX,
-            y: topItemView.frame.maxY + (itemClipViewBounds.size.height - 1.0)
+            y: topItemView.frame.maxY + (itemClipViewBounds.height - 1.0)
         )
         
         guard let itemView = self.menuItemViewAtLocation(hitPoint) ?? self.nextViewAfterItem(nil) else {
@@ -316,7 +307,8 @@ class OBWFilteringMenuItemScrollView: NSView {
         return itemView
     }
     
-    /*==========================================================================*/
+    /// Scroll menu items upward by the height of the currently visible menu items.
+    /// - returns: The bottommost newly visible menu item.
     func scrollItemsUpOnePage() -> OBWFilteringMenuItemView? {
         
         let itemClipView = self.itemClipView
@@ -340,7 +332,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         return itemView
     }
     
-    /*==========================================================================*/
+    /// Sets the vertical value of the menu item bounds.
     func setMenuItemBoundsOriginY(_ boundsOriginY: CGFloat) {
         
         let arrowAreaHeight = OBWFilteringMenuItemScrollView.arrowEdgeMargin + OBWFilteringMenuItemScrollView.arrowContentMargin + OBWFilteringMenuItemScrollView.arrowSize.height
@@ -388,7 +380,9 @@ class OBWFilteringMenuItemScrollView: NSView {
         itemClipView.scroll(to: itemClipBounds.origin)
     }
     
-    /*==========================================================================*/
+    /// Applies the given filter results to the current menu items.
+    /// - parameter filterResults: The filter result array.
+    /// - returns: Returns `true` if the overall size of the menu changed.
     func applyFilterResults(_ filterResults: [OBWFilteringMenuItemFilterStatus]) -> Bool {
         
         let itemViewArray = self.primaryItemViews
@@ -408,7 +402,9 @@ class OBWFilteringMenuItemScrollView: NSView {
         return self.repositionItemViews(modifierFlags: self.currentModifierFlags)
     }
     
-    /*==========================================================================*/
+    /// Applies keyboard modifier flags to the menu.
+    /// - parameter modifierFlags: The modifier flags to apply.
+    /// - returns: Returns `true` if the overall size of the menu changed.
     func applyModifierFlags(_ modifierFlags: NSEvent.ModifierFlags) -> Bool {
         
         if modifierFlags == self.currentModifierFlags {
@@ -420,24 +416,48 @@ class OBWFilteringMenuItemScrollView: NSView {
         return self.repositionItemViews(modifierFlags: modifierFlags)
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuItemScrollView private
     
+    // MARK: - Private
+    
+    /// Margin between an arrow and the edge of the scroll view.
     private static let arrowEdgeMargin: CGFloat = 0.0
+    
+    /// Margin between an arrow and the menu item content.
     private static let arrowContentMargin: CGFloat = 5.0
+    
+    /// Size of the arrow images.
     private static let arrowSize = NSSize(width: 10.0, height: 9.0)
     
+    /// The menu being displayed.
     unowned private let filteringMenu: OBWFilteringMenu
-    private var filteringMenuWindow: OBWFilteringMenuWindow? { return self.window as? OBWFilteringMenuWindow }
+    
+    /// Returns the current window.
+    private var filteringMenuWindow: OBWFilteringMenuWindow? {
+        return self.window as? OBWFilteringMenuWindow
+    }
+    
+    /// The view that is the immediate superview of menu item views.
     unowned private let itemParentView: NSView
+    
+    /// The clip view that is the superview of the item parent view.
     unowned private let itemClipView: NSClipView
+    
+    /// A view to display the up arrow at the top of the menu when truncated.
     unowned private let upArrowView: NSImageView
+    
+    /// A view to display the down arrow at the bottom of the menu when truncated.
     unowned private let downArrowView: NSImageView
+    
+    /// The menu item views that are shown when no filter is applied to the menu.
     private var primaryItemViews: [OBWFilteringMenuItemView] = []
+    
+    /// The modifier flags that are currently applied to the menu.
     private var currentModifierFlags: NSEvent.ModifierFlags = []
+    
+    /// The minimum width of the menu.
     private let minimumItemWidth: CGFloat
     
-    /*==========================================================================*/
+    /// Build item views for the current menu's items.
     private func buildItemViews() {
         
         let itemParentView = self.itemParentView
@@ -447,15 +467,11 @@ class OBWFilteringMenuItemScrollView: NSView {
         
         for menuItem in self.filteringMenu.itemArray {
             
-            let itemView = OBWFilteringMenuItemView.viewWithMenuItem(menuItem)
+            let itemView = OBWFilteringMenuItemView.makeViewWithMenuItem(menuItem)
             primaryItemViews.append(itemView)
             itemParentView.addSubview(itemView)
             
-            guard let alternateViews = itemView.alternateViews else {
-                continue
-            }
-            
-            for (_,alternateItemView) in alternateViews {
+            for (_,alternateItemView) in itemView.alternateViews {
                 itemParentView.addSubview(alternateItemView)
             }
         }
@@ -463,7 +479,9 @@ class OBWFilteringMenuItemScrollView: NSView {
         self.primaryItemViews = primaryItemViews
     }
     
-    /*==========================================================================*/
+    /// Positions the menu item views that are visible after applying the given keyboard modifier flags.
+    /// - parameter modifierFlags: The keyboard modifier flags.
+    /// - returns: Returns `true` if the overall size of the menu changed.
     private func repositionItemViews(modifierFlags: NSEvent.ModifierFlags = []) -> Bool {
         
         let itemParentView = self.itemParentView
@@ -514,7 +532,7 @@ class OBWFilteringMenuItemScrollView: NSView {
             
             var visibleItemView: OBWFilteringMenuItemView? = (primaryViewVisible ? primaryItemView : nil)
             
-            for (_, alternateItemView) in (primaryItemView.alternateViews ?? [:]) {
+            for (_, alternateItemView) in primaryItemView.alternateViews {
                 
                 let alternateMenuItem = alternateItemView.menuItem
                 let alternateFilterStatus = alternateItemView.filterStatus
@@ -587,15 +605,15 @@ class OBWFilteringMenuItemScrollView: NSView {
         return totalMenuItemSizeChanged
     }
     
-    /*==========================================================================*/
+    /// Returns the currently visible menu item views.
     private var allItemViews: [OBWFilteringMenuItemView] {
         return self.itemParentView.subviews as? [OBWFilteringMenuItemView] ?? []
     }
     
-    /*==========================================================================*/
+    /// Returns the minimum height necessary to display the given item view.
     private func minimumHeightForView(_ itemView: NSView) -> CGFloat {
         
-        let minimumHeight = itemView.frame.size.height
+        let minimumHeight = itemView.frame.height
         
         if self.allItemViews.count == 1 {
             return minimumHeight
@@ -604,7 +622,10 @@ class OBWFilteringMenuItemScrollView: NSView {
         return minimumHeight + OBWFilteringMenuItemScrollView.arrowEdgeMargin + OBWFilteringMenuItemScrollView.arrowContentMargin + OBWFilteringMenuItemScrollView.arrowSize.height
     }
     
-    /*==========================================================================*/
+    /// Returns the item view following the given menu item from the given array of views.
+    /// - parameter menuItem: The menu item.
+    /// - parameter itemViewArray: The array of views to search.
+    /// - returns: The item view following the given menu item, if any.
     private func nextViewAfterItem(_ menuItem: OBWFilteringMenuItem?, inViews itemViewArray: [OBWFilteringMenuItemView]) -> OBWFilteringMenuItemView? {
         
         let accessibilityActive = self.filteringMenuWindow?.accessibilityActive ?? false
@@ -635,77 +656,8 @@ class OBWFilteringMenuItemScrollView: NSView {
         return currentMenuItemView
     }
     
-    /*==========================================================================*/
-    private func nextViewAfterItemAtIndex(_ itemIndex: Int) -> OBWFilteringMenuItemView {
-        
-        let itemViews = self.allItemViews
-        let currentItemView = itemViews[itemIndex]
-        
-        guard let window = self.filteringMenuWindow else {
-            return currentItemView
-        }
-        
-        let accessibilityActive = window.accessibilityActive
-        
-        let startIndex = itemIndex + 1
-        let range = itemViews.indices.suffix(from: startIndex)
-        for index in range {
-            
-            let itemView = itemViews[index]
-            
-            if itemView.isHidden {
-                continue
-            }
-            
-            let item = itemView.menuItem
-            
-            if
-                item.enabled || accessibilityActive,
-                item.canHighlight
-            {
-                return itemView
-            }
-        }
-        
-        return currentItemView
-    }
-    
-    /*==========================================================================*/
-    private func previousViewBeforeItemAtIndex(_ itemIndex: Int) -> OBWFilteringMenuItemView {
-        
-        let itemViews = self.allItemViews
-        let currentItemView = itemViews[itemIndex]
-        
-        guard let window = self.filteringMenuWindow else {
-            return currentItemView
-        }
-        
-        let accessibilityActive = window.accessibilityActive
-        
-        let endIndex = itemIndex
-        let range = itemViews.startIndex ..< endIndex
-        for index in range.reversed() {
-            
-            let itemView = itemViews[index]
-            
-            if itemView.isHidden {
-                continue
-            }
-            
-            let item = itemView.menuItem
-            
-            if
-                item.enabled || accessibilityActive,
-                item.canHighlight
-            {
-                return itemView
-            }
-        }
-        
-        return currentItemView
-    }
-    
-    /*==========================================================================*/
+    /// Returns the menu item view at the given location.
+    /// - parameter locationInItemClipView: The location in item clip view coordinates.
     private func menuItemViewAtLocation(_ locationInItemClipView: NSPoint) -> OBWFilteringMenuItemView? {
         
         return self.allItemViews.first(where: {
@@ -713,7 +665,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         })
     }
     
-    /*==========================================================================*/
+    /// Returns the topmost item view that is not clipped.
     private func firstFullyVisibleMenuItemView() -> OBWFilteringMenuItemView? {
         
         let itemClipViewBounds = self.itemClipView.bounds
@@ -739,7 +691,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         return self.menuItemViewAtLocation(testPoint)
     }
     
-    /*==========================================================================*/
+    /// Returns the bottommost item view that is not clipped.
     private func lastFullyVisibleMenuItemView() -> OBWFilteringMenuItemView? {
         
         let itemClipViewBounds = self.itemClipView.bounds
@@ -760,7 +712,7 @@ class OBWFilteringMenuItemScrollView: NSView {
         return self.menuItemViewAtLocation(testPoint)
     }
     
-    /*==========================================================================*/
+    /// Scrolls the item clip view the minimum amount to make the given item view visible.
     private func scrollItemViewIntoFrame(_ itemView: OBWFilteringMenuItemView) {
         
         let itemViewFrame = itemView.frame

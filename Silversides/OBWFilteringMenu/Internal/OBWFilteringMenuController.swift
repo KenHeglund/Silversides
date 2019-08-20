@@ -4,142 +4,182 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 import Carbon.HIToolbox.Events
 
-/*==========================================================================*/
-
-enum OBWFilteringMenuEventResult {
-    case unhandled
-    case `continue`
-    case cancel
-    case interrupt
-    case guiSelection
-    case accessibleSelection
-    case highlight
-    case changeFilter
-}
-
-/*==========================================================================*/
-
-private let OBWFilteringMenuWindowKey = "OBWFilteringMenuWindowKey"
-private let OBWFilteringMenuScrollUpTimerKey = "OBWFilteringMenuScrollUpTimerKey"
-private let OBWFilteringMenuScrollDownTimerKey = "OBWFilteringMenuScrollDownTimerKey"
-
-let OBWFilteringMenuAXDidOpenMenuItemNotification = Notification.Name(rawValue: "OBWFilteringMenuAXDidOpenMenuItemNotification")
-let OBWFilteringMenuKey = "OBWFilteringMenuKey"
-let OBWFilteringMenuItemKey = "OBWFilteringMenuItemKey"
-
-/*==========================================================================*/
-
+/// A class that controls the modal session of a OBWFilteringMenu.
 class OBWFilteringMenuController {
     
-    /*==========================================================================*/
-    private init?(menuItem: OBWFilteringMenuItem, atLocation locationInScreen: NSPoint, inScreen screen: NSScreen, minimumWidth: CGFloat?, highlighted: Bool?) {
+    /// Programmatically display the menu, optionally positioning an item at a specific location.
+    /// - parameter menuItem: The filtering menu item to position.  May be nil.
+    /// - parameter alignment: The location within the menu item to position at `locationInView`.
+    /// - parameter locationInView: The origin of the filtering menu item to position.
+    /// - parameter view: The view that defines the coordinate system for `atLocation`.  If nil, then the `at` parameter is interpreted as screen coordinates.
+    /// - parameter matchWidth: If `true`, the menu will be at least as wide as `view`.
+    /// - parameter event: The event causing the filtering menu's appearance.  May be nil.
+    /// - parameter highlightTarget: A HighlightTarget that identifies the menu item to initially highlight after the menu appears.
+    /// - returns: true if a menu item was closed by selecting an item, false if no selection was made.
+    class func popUpMenuPositioningItem(_ menuItem: OBWFilteringMenuItem, aligning alignment: OBWFilteringMenuItem.Alignment, atPoint locationInView: NSPoint, inView view: NSView?, matchingWidth matchWidth: Bool, with event: NSEvent?, highlighting highlightTarget: OBWFilteringMenu.HighlightTarget) -> Bool {
         
-        guard let rootMenu = menuItem.menu else {
-            return nil
+        guard let menu = menuItem.menu else {
+            return false
         }
         
-        let rootMenuWindow = OBWFilteringMenuWindow(menu: rootMenu, screen: screen, minimumWidth: minimumWidth)
-        let menuView = rootMenuWindow.menuView
-        
-        guard let itemView = menuView.viewForMenuItem(menuItem) else {
-            return nil
+        guard let screen = view?.window?.screen ?? event?.screen ?? NSScreen.screens.first else {
+            return false
         }
         
-        let itemViewFrame = itemView.frame
+        let locationInScreen = view?.convertPointToScreen(locationInView) ?? locationInView
+        let minimumWidth = (matchWidth ? view?.frame.width : nil)
+        let controller = OBWFilteringMenuController(rootMenu: menu, onScreen: screen, minimumWidth: minimumWidth)
         
-        rootMenuWindow.alignmentFromPrevious = .right
-        rootMenuWindow.screenAnchor = NSRect(
-            x: locationInScreen.x,
-            y: locationInScreen.y - itemViewFrame.size.height,
-            size: itemViewFrame.size
-        )
-        
-        let menuLocation = NSPoint(x: itemViewFrame.minX, y: itemViewFrame.maxY)
-        rootMenuWindow.displayMenuLocation(menuLocation, atScreenLocation: locationInScreen, allowWindowToGrowUpward: false)
-        
-        let locationInWindow = rootMenuWindow.mouseLocationOutsideOfEventStream
-        let locationInView = menuView.convert(locationInWindow, from: nil)
-        let menuItemUnderCursor = menuView.menuItemAtLocation(locationInView)
-        
-        self.lastHitMenuItem = menuItemUnderCursor
-        
-        if highlighted == true {
-            rootMenu.highlightedItem = menuItem
+        switch alignment {
+        case .baseline:
+            controller.positionBaseline(of: menuItem, at: locationInScreen)
+        case .topLeft:
+            controller.positionTopLeftCorner(of: menuItem, at: locationInScreen)
         }
-        else if highlighted == nil {
-            rootMenu.highlightedItem = menuItemUnderCursor
+        
+        controller.setupLastHitItemBasedOnCurrentCursorLocation()
+        
+        switch highlightTarget {
+        case .none:
+            break
+        case .item:
+            menu.highlightedItem = menuItem
+        case .underCursor:
+            menu.highlightedItem = controller.lastHitMenuItem
         }
+        
+        return controller.runModalSession()
+    }
+    
+    /// Private initialization.
+    /// - parameter rootMenu: The first menu opened during the controller's session.
+    /// - parameter screen: The screen that menus will be confined to.
+    /// - parameter minimumWidth: The minimum width of the root menu.  If `nil`, the menu will be its natural width.
+    private init(rootMenu: OBWFilteringMenu, onScreen screen: NSScreen, minimumWidth: CGFloat?) {
+        
+        let rootMenuWindow = OBWFilteringMenuWindow(menu: rootMenu, onScreen: screen, minimumWidth: minimumWidth)
         
         self.rootMenu = rootMenu
         self.menuWindowArray = [rootMenuWindow]
         self.menuWindowWithKeyboardFocus = rootMenuWindow
         
         let notificationCenter = NotificationCenter.default
-        notificationCenter.addObserver(self, selector: #selector(OBWFilteringMenuController.axDidOpenMenuItem(_:)), name: OBWFilteringMenuAXDidOpenMenuItemNotification, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(OBWFilteringMenuController.menuViewTotalItemSizeDidChange(_:)), name: OBWFilteringMenuTotalItemSizeChangedNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(OBWFilteringMenuController.axDidOpenMenuItem(_:)), name: OBWFilteringMenuController.axDidOpenMenuItemNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(OBWFilteringMenuController.menuViewTotalItemSizeDidChange(_:)), name: OBWFilteringMenuWindow.totalItemSizeChangedNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(OBWFilteringMenuController.externalMenuDidBeginTracking(_:)), name: NSMenu.didBeginTrackingNotification, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(OBWFilteringMenuController.scrollTrackingBoundsChanged(_:)), name: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(OBWFilteringMenuController.scrollTrackingBoundsChanged(_:)), name: OBWFilteringMenuScrollTracking.boundsChangedNotification, object: nil)
     }
     
-    /*==========================================================================*/
+    /// Deinitialize.
     deinit {
         
         let notificationCenter = NotificationCenter.default
-        notificationCenter.removeObserver(self, name: OBWFilteringMenuAXDidOpenMenuItemNotification, object: nil)
-        notificationCenter.removeObserver(self, name: OBWFilteringMenuTotalItemSizeChangedNotification, object: nil)
+        notificationCenter.removeObserver(self, name: OBWFilteringMenuController.axDidOpenMenuItemNotification, object: nil)
+        notificationCenter.removeObserver(self, name: OBWFilteringMenuWindow.totalItemSizeChangedNotification, object: nil)
         notificationCenter.removeObserver(self, name: NSMenu.didBeginTrackingNotification, object: nil)
-        notificationCenter.removeObserver(self, name: OBWFilteringMenuScrollTrackingBoundsChangedNotification, object: nil)
-        
-        OBWFilteringMenuCursorTracking.hideDebugWindow()
+        notificationCenter.removeObserver(self, name: OBWFilteringMenuScrollTracking.boundsChangedNotification, object: nil)
     }
     
-    /*==========================================================================*/
+    
     // MARK: - OBWFilteringMenuController internal
     
-    /*==========================================================================*/
-    class func popUpMenuPositioningItem(_ menuItem: OBWFilteringMenuItem, atLocation locationInView: NSPoint, inView view: NSView?, matchingHostViewWidth matchWidth: Bool, withEvent event: NSEvent? = nil, highlighted: Bool?) -> Bool {
+    /// Runs a menu modal session.
+    /// - returns: `true` if the session ended with a menu item selection, `false` if it ended without a menu item selection.
+    private func runModalSession() -> Bool {
         
-        guard let menu = menuItem.menu else {
-            return false
-        }
+        NotificationCenter.default.post(name: OBWFilteringMenu.willBeginSessionNotification, object: self.rootMenu)
         
-        guard let screen = event?.screen ?? view?.window?.screen ?? NSScreen.screens.first else {
-            return false
-        }
+        #if DEBUG_CURSOR_TRACKING
+        _ = OBWFilteringMenuDebugWindow.shared
+        #endif
         
-        let locationInScreen = view?.convertPointToScreen(locationInView) ?? locationInView
-        let minimumWidth = (matchWidth ? view?.frame.width : nil)
+        OBWFilteringMenuDebugWindow.orderFront(self)
         
-        guard let controller = OBWFilteringMenuController(menuItem: menuItem, atLocation: locationInScreen, inScreen: screen, minimumWidth: minimumWidth, highlighted: highlighted) else {
-            return false
-        }
+        let menuItemSelected = self.runEventLoop()
         
-        let notificationCenter = NotificationCenter.default
-        notificationCenter.post(name: OBWFilteringMenu.willBeginSessionNotification, object: menu)
+        OBWFilteringMenuDebugWindow.removeAllDrawingHandlers()
+        OBWFilteringMenuDebugWindow.orderOut(self)
         
-        let menuItemSelected = controller.runEventLoop()
-        
-        notificationCenter.post(name: OBWFilteringMenu.didEndSessionNotification, object: menu)
+        NotificationCenter.default.post(name: OBWFilteringMenu.didEndSessionNotification, object: self.rootMenu)
         
         return menuItemSelected
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuController private
     
-    private let eventSource = OBWFilteringMenuEventSource()
+    // MARK: - Private
     
-    // These were all determined experimentally by "feel"
-    private static let scrollAccelerationFactor = 1.1
-    private static let scrollInterval = 0.050
-    private static let periodicEventInterval = 0.025
+    /// Positions the menu such that the baseline of the title in the given menu item is located at the given location on the screen.
+    /// - parameter menuItem: The menu item to position.
+    /// - parameter locationInScreen: The location in screen coordinates where the baseline of `menuItem`'s title should be positioned.
+    private func positionBaseline(of menuItem: OBWFilteringMenuItem, at locationInScreen: NSPoint) {
+        
+        guard
+            let rootMenuWindow = self.menuWindowArray.first,
+            let itemView = rootMenuWindow.menuView.viewForMenuItem(menuItem)
+        else {
+            assertionFailure()
+            return
+        }
+        
+        let itemViewFrame = itemView.frame
+        let itemBaselineOffset = itemView.firstBaselineOffsetFromTop
+        let screenAnchor = NSRect(
+            x: locationInScreen.x,
+            y: locationInScreen.y - itemViewFrame.height + itemBaselineOffset,
+            size: itemViewFrame.size
+        )
+        
+        rootMenuWindow.screenAnchor = screenAnchor
+        
+        let menuLocation = NSPoint(x: itemViewFrame.minX, y: itemViewFrame.maxY)
+        let screenLocation = NSPoint(x: locationInScreen.x, y: locationInScreen.y + itemBaselineOffset)
+        rootMenuWindow.displayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false)
+    }
+    
+    /// Positions the menu such that the top-left corner of the given menu item is located at the given location on the screen.
+    /// - parameter menuItem: The menu item to position.
+    /// - parameter locationInScreen: The location in screen coordinates where the `menuItem` should be positioned.
+    private func positionTopLeftCorner(of menuItem: OBWFilteringMenuItem, at locationInScreen: NSPoint) {
+        
+        guard
+            let rootMenuWindow = self.menuWindowArray.first,
+            let itemView = rootMenuWindow.menuView.viewForMenuItem(menuItem)
+        else {
+            assertionFailure()
+            return
+        }
+        
+        let adjustedLocationInScreen = NSPoint(
+            x: locationInScreen.x,
+            y: locationInScreen.y - itemView.firstBaselineOffsetFromTop
+        )
+        
+        self.positionBaseline(of: menuItem, at: adjustedLocationInScreen)
+    }
+    
+    /// Assigns the menu item currently under the cursor as the controller's `lastHitMenuItem`.
+    private func setupLastHitItemBasedOnCurrentCursorLocation() {
+        
+        guard let rootMenuWindow = self.menuWindowArray.first else {
+            assertionFailure()
+            return
+        }
+        
+        let locationInWindow = rootMenuWindow.mouseLocationOutsideOfEventStream
+        let locationInView = rootMenuWindow.menuView.convert(locationInWindow, from: nil)
+        let menuItemUnderCursor = rootMenuWindow.menuView.menuItemAtLocation(locationInView)
+        
+        self.lastHitMenuItem = menuItemUnderCursor
+    }
+    
     
     // MARK: - Run Loop
     
-    /*==========================================================================*/
+    /// Process application events.
+    /// - returns: `true` if the event loop ended when a menu item was selected, `false` if the event loop ends for any other reason.
     private func runEventLoop() -> Bool {
         
         guard let rootMenuWindow = self.menuWindowArray.first else {
@@ -149,18 +189,18 @@ class OBWFilteringMenuController {
         let notificationCenter = NotificationCenter.default
         
         let initialMenu = self.rootMenu
-        let userInfo = [OBWFilteringMenu.rootKey : initialMenu]
+        let userInfo = [OBWFilteringMenu.Key.root : initialMenu]
         notificationCenter.post(name: OBWFilteringMenu.didBeginTrackingNotification, object: initialMenu, userInfo: userInfo)
         
         rootMenuWindow.makeKeyAndOrderFront(nil)
         
-        self.eventSource.eventMask = .applicationDidResignActive
+        OBWFilteringMenuEventSource.shared.isApplicationDidResignActiveEventEnabled = true
         
         let startDate = Date()
         var terminatingEvent: NSEvent? = nil
         
-        var result: OBWFilteringMenuEventResult = .continue
-        var lastLeftMouseDownResult: OBWFilteringMenuEventResult = .unhandled
+        var result = OBWFilteringMenu.SessionState.continue
+        var lastLeftMouseDownResult = OBWFilteringMenu.SessionState.unhandled
         
         while true {
             
@@ -173,7 +213,7 @@ class OBWFilteringMenuController {
                 #endif
                 
                 let timeoutDate = Date(timeIntervalSinceNow: timeoutInterval)
-                guard let event = NSApp.nextEvent(matching: NSEvent.EventTypeMask.any, until: timeoutDate, inMode: RunLoop.Mode.default, dequeue: true) else {
+                guard let event = NSApp.nextEvent(matching: .any, until: timeoutDate, inMode: .default, dequeue: true) else {
                     result = .cancel
                     return
                 }
@@ -197,7 +237,7 @@ class OBWFilteringMenuController {
                     self.scrollTimer?.fireDate = Date.distantFuture
                     self.endCursorTracking()
                     
-                    result = self.handleKeyboardEvent(event)
+                    result = self.handleKeyDownEvent(event)
                     
                     self.lastHitMenuItem = nil
                     
@@ -205,7 +245,7 @@ class OBWFilteringMenuController {
                     break
                     
                 case .flagsChanged:
-                    result = self.handleFlagsChangedEvent(event)
+                    result = self.handleKeyboardModifiersChangedEvent(event)
                     
                 case .leftMouseDown:
                     
@@ -216,7 +256,7 @@ class OBWFilteringMenuController {
                     
                     lastLeftMouseDownResult = currentMenuWindow.menuView.handleLeftMouseButtonDownEvent(event)
                     
-                    self.makeTopmostMenuWindow(currentMenuWindow, withFade: true)
+                    self.makeTopmostMenuWindow(currentMenuWindow, withAnimation: true)
                     
                 case .rightMouseDown:
                     
@@ -226,7 +266,7 @@ class OBWFilteringMenuController {
                         break
                     }
                     
-                    self.makeTopmostMenuWindow(currentMenuWindow, withFade: true)
+                    self.makeTopmostMenuWindow(currentMenuWindow, withAnimation: true)
                     
                 case .otherMouseDown:
                     
@@ -235,7 +275,7 @@ class OBWFilteringMenuController {
                         break
                     }
                     
-                    self.makeTopmostMenuWindow(currentMenuWindow, withFade: true)
+                    self.makeTopmostMenuWindow(currentMenuWindow, withAnimation: true)
                     
                 case .leftMouseUp:
                     
@@ -260,7 +300,7 @@ class OBWFilteringMenuController {
                     self.handleMouseMovedEvent(event)
                     
                 case .scrollWheel:
-                    self.scrollWindow = currentMenuWindow
+                    self.menuWindowWithScrollFocus = currentMenuWindow
                     currentMenuWindow?.scrollTracking.scrollEvent(event)
                     
                 case .mouseEntered, .mouseExited:
@@ -306,14 +346,16 @@ class OBWFilteringMenuController {
         self.scrollTimer = nil
         
         self.endCursorTracking()
-        self.eventSource.eventMask = []
-        self.makeTopmostMenuWindow(nil, withFade: result != .interrupt)
+        OBWFilteringMenuEventSource.shared.isApplicationDidResignActiveEventEnabled = false
+        self.makeTopmostMenuWindow(nil, withAnimation: result != .interrupt)
         
         return (result == .guiSelection || result == .accessibleSelection)
     }
     
-    /*==========================================================================*/
-    private func handleKeyboardEvent(_ event: NSEvent) -> OBWFilteringMenuEventResult {
+    /// Handle a keyDown keyboard event.
+    /// - parameter event: The event.
+    /// - returns: The modal session state that results from handling the event.
+    private func handleKeyDownEvent(_ event: NSEvent) -> OBWFilteringMenu.SessionState {
         
         let keyCode = Int(event.keyCode)
         
@@ -325,18 +367,13 @@ class OBWFilteringMenuController {
                 return .cancel
             }
             
-            if topmostMenuWindow.accessibilityActive && menuWindowArray.count > 1 {
-                
-                guard let previousWindow = self.menuWindowBefore(menuWindow: topmostMenuWindow) else {
-                    return .cancel
-                }
-                
-                self.makeTopmostMenuWindow(previousWindow, withFade: false)
-                return .continue
-            }
-            else {
+            guard topmostMenuWindow.accessibilityActive, menuWindowArray.count > 1 else {
                 return .cancel
             }
+            
+            self.removeTopmostNonRootMenuWindow(withAnimation: false)
+            
+            return .continue
         }
         
         guard let targetMenuWindow = self.menuWindowWithKeyboardFocus else {
@@ -346,18 +383,19 @@ class OBWFilteringMenuController {
         let targetMenu = targetMenuWindow.filteringMenu
         let menuView = targetMenuWindow.menuView
         
-        let result = menuView.handleKeyboardEvent(event)
-        switch result {
+        let viewKeyDownResult = menuView.handleKeyDownEvent(event)
+        
+        switch viewKeyDownResult {
             
         case .continue, .cancel:
-            return result
+            return viewKeyDownResult
             
         case .highlight:
-            self.makeTopmostMenuWindow(targetMenuWindow, withFade: false)
+            self.makeTopmostMenuWindow(targetMenuWindow, withAnimation: false)
             return .continue
             
         case .changeFilter:
-            self.makeTopmostMenuWindow(targetMenuWindow, withFade: false)
+            self.makeTopmostMenuWindow(targetMenuWindow, withAnimation: false)
             targetMenuWindow.resetScrollTracking()
             return .continue
             
@@ -367,21 +405,20 @@ class OBWFilteringMenuController {
         
         let highlightedItem = targetMenu.highlightedItem
         
-        if keyCode == kVK_ANSI_KeypadEnter {
+        switch keyCode {
             
+        case kVK_ANSI_KeypadEnter:
             if let highlightedItem = highlightedItem {
                 self.performSelectionOfItem(highlightedItem)
             }
             
             return .guiSelection
-        }
-        
-        if [kVK_Space, kVK_Return, kVK_RightArrow].contains(keyCode) {
             
+        case kVK_Space, kVK_Return, kVK_RightArrow:
             if let highlightedItem = highlightedItem, highlightedItem.submenu != nil {
                 
                 self.endCursorTracking()
-                self.showSubmenu( ofMenuItem: highlightedItem, highlightFirstVisibleItem: true )
+                self.showSubmenu(ofMenuItem: highlightedItem, highlightFirstVisibleItem: true)
                 self.menuWindowWithKeyboardFocus = self.menuWindowArray.last
                 
                 return .continue
@@ -396,24 +433,20 @@ class OBWFilteringMenuController {
             }
             
             return .guiSelection
-        }
-        
-        if keyCode == kVK_LeftArrow {
             
-            if targetMenu !== self.rootMenu {
-                self.makeTopmostMenuWindow(self.menuWindowBefore(menuWindow: targetMenuWindow), withFade: false)
-            }
+        case kVK_LeftArrow:
+            self.removeTopmostNonRootMenuWindow(withAnimation: false)
+            return .continue
             
+        default:
             return .continue
         }
-        
-//        Swift.print( "keyCode: \(keyCode)" )
-        
-        return .continue
     }
     
-    /*==========================================================================*/
-    private func handleFlagsChangedEvent(_ event: NSEvent) -> OBWFilteringMenuEventResult {
+    /// Handle a flagsChanged (modifiers changed) keyboard event.
+    /// - parameter event: The event.
+    /// - returns: The modal session state that results from handling the event.
+    private func handleKeyboardModifiersChangedEvent(_ event: NSEvent) -> OBWFilteringMenu.SessionState {
         
         self.scrollTimer?.fireDate = Date.distantFuture
         
@@ -421,7 +454,7 @@ class OBWFilteringMenuController {
             return .cancel
         }
         
-        targetMenuWindow.menuView.handleFlagsChangedEvent(event)
+        targetMenuWindow.menuView.handleKeyboardModifiersChangedEvent(event)
         
         guard targetMenuWindow.accessibilityActive == false else {
             return .continue
@@ -429,25 +462,24 @@ class OBWFilteringMenuController {
         
         let locationInScreen = NSEvent.mouseLocation
         
-        if let menuWindowWithKeyboardFocus = self.menuWindowWithKeyboardFocus {
+        if
+            let menuWindowWithKeyboardFocus = self.menuWindowWithKeyboardFocus,
+            self.menuWindowAtScreenLocation(locationInScreen) === menuWindowWithKeyboardFocus {
             
-            if self.menuWindowAtScreenLocation(locationInScreen) === menuWindowWithKeyboardFocus {
-                
-                self.lastHitMenuItem = nil
-                
-                if let pseudoEvent = NSEvent.mouseEvent(
-                    with: .mouseMoved,
-                    location: locationInScreen,
-                    modifierFlags: [],
-                    timestamp: ProcessInfo().systemUptime,
-                    windowNumber: 0,
-                    context: nil,
-                    eventNumber: 0,
-                    clickCount: 0,
-                    pressure: 0.0
-                    ) {
-                    self.updateCurrentMenuItem(pseudoEvent, continueCursorTracking: false)
-                }
+            self.lastHitMenuItem = nil
+            
+            if let pseudoEvent = NSEvent.mouseEvent(
+                with: .mouseMoved,
+                location: locationInScreen,
+                modifierFlags: [],
+                timestamp: ProcessInfo().systemUptime,
+                windowNumber: 0,
+                context: nil,
+                eventNumber: 0,
+                clickCount: 0,
+                pressure: 0.0
+                ) {
+                self.updateMenuWindowsBasedOnCursorLocation(in: pseudoEvent, continueCursorTracking: false)
             }
         }
         
@@ -456,24 +488,16 @@ class OBWFilteringMenuController {
         return .continue
     }
     
-    /*==========================================================================*/
+    /// Handle a mouseMoved mouse event.
+    /// - parameter event: The event.
     private func handleMouseMovedEvent(_ event: NSEvent) {
         
         guard let topmostMenuWindow = self.menuWindowArray.last else {
             return
         }
         
-        if topmostMenuWindow.accessibilityActive {
-            
-            let modifierKeyMask: NSEvent.ModifierFlags = [.shift, .control, .option, .command]
-            let voiceOverKeyMask: NSEvent.ModifierFlags = [.control, .option]
-            
-            let eventModifierFlags = event.modifierFlags
-            let voiceOverKeysPressed = (eventModifierFlags.intersection(modifierKeyMask) == voiceOverKeyMask)
-            
-            if voiceOverKeysPressed {
-                return
-            }
+        if topmostMenuWindow.accessibilityActive, event.voiceOverModifiersPressed {
+            return
         }
         
         guard let eventLocationInScreen = event.locationInScreen else {
@@ -486,154 +510,155 @@ class OBWFilteringMenuController {
         switch topmostMenuPart {
             
         case .down:
-            
-            self.setupAutoscroll(directionKey: OBWFilteringMenuScrollUpTimerKey)
+            self.setupAutoscroll(directionKey: .scrollUp)
             
         case .up:
-            
-            self.setupAutoscroll(directionKey: OBWFilteringMenuScrollDownTimerKey)
+            self.setupAutoscroll(directionKey: .scrollDown)
             
         case .item, .filter, .none:
-            
             self.scrollTimer?.invalidate()
             self.scrollTimer = nil
             
             topmostMenuWindow.menuView.cursorUpdate(with: event)
-            self.updateCurrentMenuItem(event, continueCursorTracking: true)
+            self.updateMenuWindowsBasedOnCursorLocation(in: event, continueCursorTracking: true)
         }
     }
     
-    /*==========================================================================*/
-    private func handleApplicationEvent(_ event: NSEvent) -> OBWFilteringMenuEventResult {
+    /// Handle an application-defined event.
+    /// - parameter event: The event.
+    /// - returns: The modal session state that results from handling the event.
+    private func handleApplicationEvent(_ event: NSEvent) -> OBWFilteringMenu.SessionState {
         
-        switch event.subtype.rawValue {
+        guard let subtype = OBWFilteringMenuEventSubtype(event) else {
+            print("Unhandled application-defined event subtype: \(event.subtype.rawValue)")
+            return .continue
+        }
+        
+        switch subtype {
             
-        case OBWApplicationEventSubtype.applicationDidResignActive.rawValue:
-            #if CONTINUE_ON_RESIGN_ACTIVE
-                return .Continue
-            #else
-                return .interrupt
-            #endif
-            
-        case OBWApplicationEventSubtype.accessibleItemSelection.rawValue:
-            return .accessibleSelection
-            
-        case OBWApplicationEventSubtype.periodic.rawValue:
-            self.updateCurrentMenuItem(event, continueCursorTracking: true)
+        case .applicationDidBecomeActive:
             return .continue
             
-        default:
-            Swift.print("Unhandled application-defined event subtype: \(event.subtype.rawValue)")
+        case .applicationDidResignActive:
+            return .interrupt
+            
+        case .accessibleItemSelection:
+            return .accessibleSelection
+            
+        case .periodic:
+            self.updateMenuWindowsBasedOnCursorLocation(in: event, continueCursorTracking: true)
             return .continue
         }
     }
+    
     
     // MARK: - Menu
     
+    /// The first menu opened during the menu session.
     private let rootMenu: OBWFilteringMenu
     
-    /*==========================================================================*/
+    /// The most recent menu opened during the menu session.
     var topmostMenu: OBWFilteringMenu? {
         return self.menuWindowArray.last?.filteringMenu
     }
     
+    /// The menu item that was most recently found to be under the cursor.
     weak private var lastHitMenuItem: OBWFilteringMenuItem? = nil
     
-    /*==========================================================================*/
-    private func updateCurrentMenuItem(_ event: NSEvent, continueCursorTracking: Bool) {
+    /// Updates the menu window state based on the current cursor location.
+    /// - parameter event: The event containing the current cursor location.
+    /// - parameter continueCursorTracking: If `true`, continue tracking cursor movement toward a submenu; if `false` interrupt cursor tracking and close the topmost submenu.
+    private func updateMenuWindowsBasedOnCursorLocation(in event: NSEvent, continueCursorTracking: Bool) {
         
-        let eventLocationInScreen = event.locationInScreen ?? NSEvent.mouseLocation
+        let cursorLocationInScreen = event.locationInScreen ?? NSEvent.mouseLocation
         
-        let currentMenuWindow = self.menuWindowAtScreenLocation(eventLocationInScreen)
-        let currentMenu = currentMenuWindow?.filteringMenu
-        let locationInWindow = currentMenuWindow?.convertFromScreen(eventLocationInScreen) ?? NSZeroPoint
-        let currentMenuItem = currentMenuWindow?.menuItemAtLocation(locationInWindow)
+        let menuWindowUnderCursor = self.menuWindowAtScreenLocation(cursorLocationInScreen)
+        let menuUnderCursor = menuWindowUnderCursor?.filteringMenu
+        let cursorLocationInWindow = menuWindowUnderCursor?.convertFromScreen(cursorLocationInScreen) ?? NSPoint.zero
+        let menuItemUnderCursor = menuWindowUnderCursor?.menuItemAtLocation(cursorLocationInWindow)
         
-        self.lastHitMenuItem = currentMenuItem
+        self.lastHitMenuItem = menuItemUnderCursor
         
-        if let currentMenuWindow = currentMenuWindow {
+        if let currentMenuWindow = menuWindowUnderCursor {
             self.menuWindowWithKeyboardFocus = currentMenuWindow
         }
         
-        if currentMenuWindow !== self.scrollWindow {
-            currentMenuWindow?.resetScrollTracking()
+        if menuWindowUnderCursor !== self.menuWindowWithScrollFocus {
+            menuWindowUnderCursor?.resetScrollTracking()
         }
         
         if let cursorTracking = self.cursorTracking {
             
-            if currentMenu === cursorTracking.sourceMenuItem.submenu {
-                // Cursor has arrived in the submenu
+            if menuUnderCursor === cursorTracking.sourceMenuItem.submenu {
+                // Cursor has arrived in the submenu.
                 self.endCursorTracking()
             }
-            else if currentMenuItem === cursorTracking.sourceMenuItem {
-                // Cursor is still in the source menu item
-                currentMenu?.highlightedItem = currentMenuItem
+            else if menuItemUnderCursor === cursorTracking.sourceMenuItem {
+                // Cursor is still in the source menu item.
+                menuUnderCursor?.highlightedItem = menuItemUnderCursor
                 self.updateCursorTracking()
                 return
             }
             else if continueCursorTracking == false {
-                // The cursor is between source and submenu but must be interrupted
+                // The cursor is between source and submenu but must be interrupted.
                 self.endCursorTracking()
-                self.removeTopmostMenuWindow(withFade: false)
+                self.removeTopmostNonRootMenuWindow(withAnimation: false)
             }
             else if cursorTracking.isCursorProgressingTowardSubmenu(event) {
-                // The cursor continues to make progress toward the submenu
+                // The cursor continues to make progress toward the submenu.
                 return
             }
             else {
-                // The cursor is no longer making progress toward the submenu
+                // The cursor is no longer making progress toward the submenu.
                 self.endCursorTracking()
-                self.removeTopmostMenuWindow(withFade: true)
+                self.removeTopmostNonRootMenuWindow(withAnimation: true)
                 self.delayedShowSubmenu(ofMenuItem: nil)
             }
         }
         
-        if let currentMenu = currentMenu {
+        guard let currentMenu = menuUnderCursor else {
+            // The cursor is outside of all menus
+            self.topmostMenu?.highlightedItem = nil
+            return
+        }
+        
+        if currentMenu === self.topmostMenu {
             
-            if currentMenu === self.topmostMenu {
-                
-                // The cursor is somewhere in the topmost menu
-                
-                currentMenu.highlightedItem = currentMenuItem
-                
+            // The cursor is somewhere in the topmost menu.
+            
+            currentMenu.highlightedItem = menuItemUnderCursor
+            self.delayedShowSubmenu(ofMenuItem: menuItemUnderCursor)
+        }
+        else if let currentMenuItem = menuItemUnderCursor,
+            let submenu = currentMenuItem.submenu,
+            let submenuWindow = self.menuWindowForMenu(submenu) {
+            
+            // The cursor has circled back to an item whose submenu is already open.
+            
+            self.makeTopmostMenuWindow(submenuWindow, withAnimation: false)
+            submenu.highlightedItem = nil
+            self.beginCursorTracking(from: currentMenuItem)
+        }
+        else if let currentMenuWindow = self.menuWindowForMenu(currentMenu) {
+            
+            // The cursor has circled back to an unselected item in a menu that had already been opened.
+            
+            self.makeTopmostMenuWindow(currentMenuWindow, withAnimation: false)
+            
+            if let currentMenuItem = menuItemUnderCursor {
                 self.delayedShowSubmenu(ofMenuItem: currentMenuItem)
             }
-            else {
-                
-                if let currentMenuItem = currentMenuItem, let submenu = currentMenuItem.submenu, let submenuWindow = self.menuWindowForMenu(submenu) {
-                    
-                    // The cursor has circled back to an item whose submenu is already open
-                    
-                    self.makeTopmostMenuWindow(submenuWindow, withFade: false)
-                    
-                    submenu.highlightedItem = nil
-                    
-                    self.beginCursorTracking(currentMenuItem)
-                }
-                else if let currentMenuWindow = self.menuWindowForMenu(currentMenu) {
-                    
-                    // The cursor has circled back to an unselected item in a menu that had already been opened
-                    
-                    self.makeTopmostMenuWindow(currentMenuWindow, withFade: false)
-                    
-                    if let currentMenuItem = currentMenuItem {
-                        self.delayedShowSubmenu(ofMenuItem: currentMenuItem)
-                    }
-                }
-            }
-        }
-        else {
-            
-            // The cursor is outside of all menus
-            
-            self.topmostMenu?.highlightedItem = nil
         }
     }
     
+    /// The generation counter that tracks requests to open a submenu.  Incremented upon each request to open a menu item's submenu.
     private var delayedSubmenuGeneration = 0
+    
+    /// The most recent menu item whose submenu was requested.
     private weak var delayedSubmenuParent: OBWFilteringMenuItem? = nil
     
-    /*==========================================================================*/
+    /// Presents the given menu item's submenu after a delay.
+    /// - parameter menuItem: The menu item whose submenu should be displayed (if any).  If `nil`, a previous request to show a submenu is cancelled.
     private func delayedShowSubmenu(ofMenuItem menuItem: OBWFilteringMenuItem?) {
         
         guard menuItem !== self.delayedSubmenuParent else {
@@ -649,32 +674,35 @@ class OBWFilteringMenuController {
             return
         }
         
-        let delta = 0.100 * Double(NSEC_PER_SEC)
-        let when = DispatchTime.now() + Double(Int64(delta)) / Double(NSEC_PER_SEC)
-        DispatchQueue.main.asyncAfter(deadline: when) {
+        let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(100)
+        DispatchQueue.main.asyncAfter(deadline: deadline) {
+            [weak self] in
             
             guard
-                generation == self.delayedSubmenuGeneration,
-                let menu = menuItem.menu,
-                menu === self.topmostMenu
+                let controller = self,
+                generation == controller.delayedSubmenuGeneration,
+                let submenuParent = controller.delayedSubmenuParent,
+                let menu = submenuParent.menu,
+                menu === controller.topmostMenu
             else {
                 return
             }
             
-            self.showSubmenu(ofMenuItem: menuItem, highlightFirstVisibleItem: false)
-            self.beginCursorTracking(menuItem)
+            controller.showSubmenu(ofMenuItem: submenuParent, highlightFirstVisibleItem: false)
+            controller.beginCursorTracking(from: submenuParent)
         }
     }
     
-    /*==========================================================================*/
+    /// Shows the submenu of the given menu item.
+    /// - parameter menuItem: The parent menu item of the submenu to be shown.
+    /// - parameter highlightFirstVisibleItem: If `true` the first visible item of the submenu will be highlighted.
     private func showSubmenu(ofMenuItem menuItem: OBWFilteringMenuItem, highlightFirstVisibleItem: Bool) {
         
         guard let newMenu = menuItem.submenu else {
             return
         }
         
-        // A menu delegate is allowed to populate menu items at this point
-        newMenu.willBeginTracking()
+        newMenu.finalMenuItemsAreNeededNow()
         
         guard
             newMenu.itemArray.isEmpty == false,
@@ -686,7 +714,7 @@ class OBWFilteringMenuController {
             return
         }
         
-        let newWindow = OBWFilteringMenuWindow(menu: newMenu, screen: screen, minimumWidth: nil)
+        let newWindow = OBWFilteringMenuWindow(menu: newMenu, onScreen: screen, minimumWidth: nil)
         let newMenuView = newWindow.menuView
         
         self.menuWindowArray.append(newWindow)
@@ -698,13 +726,13 @@ class OBWFilteringMenuController {
         let menuItemBounds = newMenuView.menuItemBounds
         let menuLocation = NSPoint(x: menuItemBounds.minX, y: menuItemBounds.maxY)
         
-        newWindow.displayMenuLocation(menuLocation, adjacentToScreenArea: itemView.boundsInScreen, prefrerredAlignment: parentMenuWindow.alignmentFromPrevious)
+        newWindow.displayMenuLocation(menuLocation, adjacentToScreenArea: itemView.boundsInScreen, preferredAlignment: parentMenuWindow.alignmentFromPrevious)
         
         self.updateMenuCorners()
         
         newWindow.makeKeyAndOrderFront(nil)
         
-        let userInfo: [String:AnyObject] = [OBWFilteringMenu.rootKey : self.rootMenu]
+        let userInfo = [OBWFilteringMenu.Key.root : self.rootMenu]
         NotificationCenter.default.post(name: OBWFilteringMenu.didBeginTrackingNotification, object: newMenu, userInfo: userInfo)
     }
     
@@ -719,51 +747,54 @@ class OBWFilteringMenuController {
             return
         }
         
-        let runLoop = RunLoop.current
-        let blinkInterval = 0.025
+        let blinkIntervalInSeconds = 0.025
         let blinkCount = 2
         
         for _ in 1...blinkCount {
+            
+            // It seems that the run loop needs to run at least once to actually get the window to redraw.  Previously, a -display message to the window was sufficient to get an immediate redraw.  This may be a side-effect of running a custom event loop in 10.11 El Capitan?
             
             menu.highlightedItem = nil
             itemView.needsDisplay = true
             menuWindow.display()
             
-            // It seems that the run loop needs to run at least once to actually get the window to redraw.  Previously, a -display message to the window was sufficient to get an immediate redraw.  This may be a side-effect of running a custom event loop in 10.11 El Capitan.
-            
-            runLoop.run(mode: .default, before: Date( timeIntervalSinceNow: blinkInterval))
-            Thread.sleep(forTimeInterval: blinkInterval)
+            RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: blinkIntervalInSeconds))
+            Thread.sleep(forTimeInterval: blinkIntervalInSeconds)
             
             menu.highlightedItem = menuItem
             itemView.needsDisplay = true
             menuWindow.display()
             
-            runLoop.run(mode: .default, before: Date( timeIntervalSinceNow: blinkInterval))
-            Thread.sleep(forTimeInterval: blinkInterval)
+            RunLoop.current.run(mode: .default, before: Date(timeIntervalSinceNow: blinkIntervalInSeconds))
+            Thread.sleep(forTimeInterval: blinkIntervalInSeconds)
         }
         
         menuItem.performAction()
         
-        let userInfo = [OBWFilteringMenu.itemKey : menuItem]
-        NotificationCenter.default.post(name: OBWFilteringMenu.didSelectItem, object: menuItem.menu, userInfo: userInfo)
+        let userInfo = [OBWFilteringMenu.Key.item : menuItem]
+        NotificationCenter.default.post(name: OBWFilteringMenu.didSelectItemNotification, object: menuItem.menu, userInfo: userInfo)
     }
+    
     
     // MARK: - Menu Windows
     
+    /// The array of currently open menu windows.  The first window is associated with the root menu item, the last window is associated with the topmost visible window.
     private var menuWindowArray: [OBWFilteringMenuWindow] = []
+    
+    /// The window that will receive keyboard events.
     weak private var menuWindowWithKeyboardFocus: OBWFilteringMenuWindow? = nil
     
-    /*==========================================================================*/
-    private func makeTopmostMenuWindow(_ topmostMenuWindow: OBWFilteringMenuWindow?, withFade fade: Bool) {
+    /// Makes the given window the topmost window, closing any other windows that may currently be above it.
+    /// - parameter topmostMenuWindow: The new topmost window.
+    /// - parameter animate: If `true`, animate the closing of windows.
+    private func makeTopmostMenuWindow(_ topmostMenuWindow: OBWFilteringMenuWindow?, withAnimation animate: Bool) {
         
         if topmostMenuWindow === self.menuWindowArray.last {
             return
         }
         
         let notificationCenter = NotificationCenter.default
-        let userInfo: [String:AnyObject] = [OBWFilteringMenu.rootKey : self.rootMenu]
-        
-        var terminatedMenuWindows: [OBWFilteringMenuWindow] = []
+        let userInfo = [OBWFilteringMenu.Key.root : self.rootMenu]
         
         for menuWindow in self.menuWindowArray.reversed() {
             
@@ -776,26 +807,10 @@ class OBWFilteringMenuController {
             notificationCenter.post(name: OBWFilteringMenu.willEndTrackingNotification, object: menuWindow, userInfo: userInfo)
             
             menu.highlightedItem = nil
-            
-            if fade == false {
-                menuWindow.animationBehavior = .none
-            }
-            else {
-                menuWindow.animationBehavior = .default
-            }
-            
+            menuWindow.animationBehavior = (animate ? .default : .none)
             menuWindow.close()
             
-            terminatedMenuWindows.append(menuWindow)
-        }
-        
-        for window in terminatedMenuWindows {
-            
-            guard let index = self.menuWindowArray.index( of: window ) else {
-                continue
-            }
-            
-            self.menuWindowArray.remove(at: index)
+            self.menuWindowArray.removeLast()
         }
         
         self.updateMenuCorners()
@@ -804,47 +819,30 @@ class OBWFilteringMenuController {
         topmostMenuWindow?.makeKeyAndOrderFront(nil)
     }
     
-    /*==========================================================================*/
+    /// Returns the window for the given filtering menu.
+    /// - parameter menu: The menu whose window is requested.
     private func menuWindowForMenu(_ menu: OBWFilteringMenu) -> OBWFilteringMenuWindow? {
         return self.menuWindowArray.last(where: { $0.filteringMenu === menu })
     }
     
-    /*==========================================================================*/
+    /// Returns the window at the given screen location.
+    /// - parameter screenLocation: A location in screen coordinates.
     private func menuWindowAtScreenLocation(_ screenLocation: NSPoint) -> OBWFilteringMenuWindow? {
         return self.menuWindowArray.last(where: { NSPointInRect(screenLocation, $0.frame) })
     }
     
-    /*==========================================================================*/
-    private func menuWindowBefore(menuWindow anchorWindow: OBWFilteringMenuWindow) -> OBWFilteringMenuWindow? {
+    /// Removes the topmost menu window unless it is the root menu window.
+    /// - parameter animate: If `true`, animate the removal of the topmost window.
+    private func removeTopmostNonRootMenuWindow(withAnimation animate: Bool) {
         
-        var window: OBWFilteringMenuWindow? = nil
-        
-        for testWindow in self.menuWindowArray {
-            
-            if testWindow === anchorWindow {
-                return window
-            }
-            
-            window = testWindow
-        }
-        
-        return nil
-    }
-    
-    /*==========================================================================*/
-    private func removeTopmostMenuWindow(withFade fade: Bool) {
-        
-        guard
-            let topmostMenuWindow = self.menuWindowArray.last,
-            let newTopMostMenuWindow = self.menuWindowBefore(menuWindow: topmostMenuWindow)
-        else {
+        guard let newTopMostMenuWindow = self.menuWindowArray.dropLast(1).last else {
             return
         }
         
-        self.makeTopmostMenuWindow(newTopMostMenuWindow, withFade: fade)
+        self.makeTopmostMenuWindow(newTopMostMenuWindow, withAnimation: animate)
     }
     
-    /*==========================================================================*/
+    /// Updates the rounded/squared state of the menu windows.
     private func updateMenuCorners() {
         
         guard let firstWindow = self.menuWindowArray.last else {
@@ -871,7 +869,9 @@ class OBWFilteringMenuController {
         }
     }
     
-    /*==========================================================================*/
+    /// Updates the rounded corners of two adjacent windows.
+    /// - parameter leftWindow: The leftmost of two windows.
+    /// - parameter rightWindow: The rightmost of two windows.
     private func updateRoundedCornersBetween(leftWindow: OBWFilteringMenuWindow, rightWindow: OBWFilteringMenuWindow) {
         
         if leftWindow.frame.maxY > rightWindow.frame.maxY {
@@ -903,17 +903,25 @@ class OBWFilteringMenuController {
         }
     }
     
+    
     // MARK: - Cursor Tracking
     
+    /// The time interval in seconds between updating the currently highlighted menu item.
+    private static let periodicEventInterval = 0.025
+    
+    /// Used to track cursor movements between a menu item and its submenu.
     private var cursorTracking: OBWFilteringMenuCursorTracking? = nil
     
-    /*==========================================================================*/
-    private func beginCursorTracking(_ menuItem: OBWFilteringMenuItem) {
+    /// Begin a new cursor tracking session.
+    /// - parameter menuItem: The menu item where tracking begins.
+    private func beginCursorTracking(from menuItem: OBWFilteringMenuItem) {
         
         guard
             let menu = menuItem.menu,
             let window = self.menuWindowForMenu(menu),
-            let itemView = window.menuView.viewForMenuItem(menuItem)
+            let itemView = window.menuView.viewForMenuItem(menuItem),
+            let submenu = menuItem.submenu,
+            let submenuWindow = self.menuWindowForMenu(submenu)
         else {
             return
         }
@@ -927,22 +935,15 @@ class OBWFilteringMenuController {
             height: itemViewBoundsInScreen.size.height
         )
         
-        guard
-            let submenu = menuItem.submenu,
-            let submenuWindow = self.menuWindowForMenu(submenu)
-        else {
-            return
-        }
-        
         let destinationArea = submenuWindow.frame
         
         self.cursorTracking = OBWFilteringMenuCursorTracking(subviewOfItem: menuItem, fromSourceLine: sourceLine, toArea: destinationArea)
         
         let interval = OBWFilteringMenuController.periodicEventInterval
-        self.eventSource.startPeriodicApplicationEventsAfterDelay(interval, withPeriod: interval)
+        OBWFilteringMenuEventSource.shared.startPeriodicApplicationEvents(afterDelay: interval, withPeriod: interval)
     }
     
-    /*==========================================================================*/
+    /// Updates the current cursor tracking session.
     private func updateCursorTracking() {
         
         guard let cursorTracking = self.cursorTracking else {
@@ -971,30 +972,36 @@ class OBWFilteringMenuController {
         cursorTracking.sourceLine = sourceLine
     }
     
-    /*==========================================================================*/
+    /// Ends the current cursor tracking session.
     private func endCursorTracking() {
         
         if self.cursorTracking == nil {
             return
         }
         
-        self.eventSource.stopPeriodicApplicationEvents()
+        OBWFilteringMenuEventSource.shared.stopPeriodicApplicationEvents()
         self.cursorTracking = nil
     }
     
-    /*==========================================================================*/
+    
+    // MARK: - Scroll Tracking
+    
+    /// The offscreen scroll bounds changed.
     @objc private func scrollTrackingBoundsChanged(_ notification: Notification) {
         
         guard
-            let boundsValue = notification.userInfo?[OBWFilteringMenuScrollTrackingBoundsValueKey] as? NSValue
+            let window = self.menuWindowWithScrollFocus,
+            let scrollTracking = notification.object as? OBWFilteringMenuScrollTracking,
+            scrollTracking === window.scrollTracking
         else {
-            assertionFailure()
             return
         }
         
-        let menuItemBounds = boundsValue.rectValue
-        
-        guard let window = self.scrollWindow else {
+        guard
+            let userInfo = notification.userInfo,
+            let menuItemBounds = userInfo[OBWFilteringMenuScrollTracking.Key.bounds] as? NSRect
+        else {
+            assertionFailure()
             return
         }
         
@@ -1012,21 +1019,34 @@ class OBWFilteringMenuController {
             pressure: 0.0
             ) else { return }
         
-        self.updateCurrentMenuItem(pseudoEvent, continueCursorTracking: false)
+        self.updateMenuWindowsBasedOnCursorLocation(in: pseudoEvent, continueCursorTracking: false)
         self.updateMenuCorners()
     }
     
-    // MARK: - Scrolling
     
-    private var scrollWindow: OBWFilteringMenuWindow? = nil
-    weak private var scrollTimer: Timer? = nil
+    // MARK: - Auto Scrolling
+    
+    /// Scalar that defines the rate of scroll acceleration when automatically scrolling a menu.
+    private static let scrollAccelerationFactor = 1.1
+    
+    /// The time interval in seconds at which automatic scrolling occurs.
+    private static let scrollInterval = 0.050
+    
+    /// The window that currently receives auto scrolling events.
+    private weak var menuWindowWithScrollFocus: OBWFilteringMenuWindow? = nil
+    
+    /// The timer that triggers auto scrolling events.
+    private weak var scrollTimer: Timer? = nil
+    
+    /// The timeIntervalSinceReferenceDate when auto scrolling started.
     private var scrollStartInterval: TimeInterval = 0.0
     
-    /*==========================================================================*/
-    private func setupAutoscroll(directionKey: String) {
+    /// Setup autoscrolling in the given direction.
+    /// - parameter directionKey: The notification key identifying the scroll direction.
+    private func setupAutoscroll(directionKey: Key) {
         
         if
-            let userInfo = self.scrollTimer?.userInfo as? [String:Any],
+            let userInfo = self.scrollTimer?.userInfo as? [Key:Any],
             userInfo[directionKey] as? Bool == true
         {
             return
@@ -1042,9 +1062,9 @@ class OBWFilteringMenuController {
         
         self.scrollTimer?.invalidate()
         
-        let userInfo: [String:AnyObject] = [
-            OBWFilteringMenuWindowKey : topmostMenuWindow,
-            directionKey : true as AnyObject
+        let userInfo: [Key:Any] = [
+            .window : topmostMenuWindow,
+            directionKey : true
         ]
         
         self.scrollTimer = Timer.scheduledTimer(
@@ -1063,18 +1083,18 @@ class OBWFilteringMenuController {
         self.scrollTimerDidFire(scrollTimer)
     }
     
-    /*==========================================================================*/
+    /// The auto scroll timer fired, scroll the current window.
     @objc private func scrollTimerDidFire(_ timer: Timer) {
         
         guard
-            let userInfo = timer.userInfo as? [String:Any],
-            let scrolledWindow = userInfo[OBWFilteringMenuWindowKey] as? OBWFilteringMenuWindow
+            let userInfo = timer.userInfo as? [Key:Any],
+            let scrolledWindow = userInfo[.window] as? OBWFilteringMenuWindow
         else {
             return
         }
         
-        let upDirection = userInfo[OBWFilteringMenuScrollUpTimerKey] as? Bool ?? false
-        let downDirection = userInfo[OBWFilteringMenuScrollDownTimerKey] as? Bool ?? false
+        let upDirection = userInfo[.scrollUp] as? Bool ?? false
+        let downDirection = userInfo[.scrollDown] as? Bool ?? false
         assert(upDirection || downDirection)
         
         let scrollDuration = Date.timeIntervalSinceReferenceDate - self.scrollStartInterval
@@ -1100,14 +1120,15 @@ class OBWFilteringMenuController {
         self.updateMenuCorners()
     }
     
+    
     // MARK: - External Notifications
     
-    /*==========================================================================*/
+    /// A menu item was selected via accessibility APIs.
     @objc private func axDidOpenMenuItem(_ notification: Notification) {
         
         guard
-            let userInfo = notification.userInfo,
-            let menuItem = userInfo[OBWFilteringMenuItemKey] as? OBWFilteringMenuItem,
+            let userInfo = notification.userInfo as? [Key:Any],
+            let menuItem = userInfo[.menuItem] as? OBWFilteringMenuItem,
             self.topmostMenu === menuItem.menu
         else {
             return
@@ -1118,32 +1139,18 @@ class OBWFilteringMenuController {
             self.menuWindowWithKeyboardFocus = self.menuWindowArray.last
         }
         else if menuItem.enabled {
-            
             self.performSelectionOfItem(menuItem)
-            
-            if let pseudoEvent = NSEvent.otherEvent(
-                with: .applicationDefined,
-                location: NSZeroPoint,
-                modifierFlags: [],
-                timestamp: ProcessInfo().systemUptime,
-                windowNumber: 0,
-                context: nil,
-                subtype: OBWApplicationEventSubtype.accessibleItemSelection.rawValue,
-                data1: 0,
-                data2: 0
-                ) {
-                NSApp.postEvent(pseudoEvent, atStart: true)
-            }
+            OBWFilteringMenuEventSubtype.accessibleItemSelection.post(atStart: true)
         }
     }
     
-    /*==========================================================================*/
+    /// Filtering caused a menu to change size.
     @objc private func menuViewTotalItemSizeDidChange(_ notification: Notification) {
         self.updateMenuCorners()
     }
     
-    /*==========================================================================*/
+    /// A Cocoa menu began tracking.
     @objc private func externalMenuDidBeginTracking(_ notification: Notification) {
-        self.makeTopmostMenuWindow(nil, withFade: true)
+        self.makeTopmostMenuWindow(nil, withAnimation: true)
     }
 }

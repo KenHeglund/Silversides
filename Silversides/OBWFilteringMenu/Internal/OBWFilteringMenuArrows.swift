@@ -4,15 +4,12 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-
+/// Generates arrow images that are used at the top and bottom of vertically clipped menus, and in the right side of menu items that have subviews.
 class OBWFilteringMenuArrows {
     
-    // MARK: - OBWFilteringMenuArrows implementation
-    
-    /*==========================================================================*/
+    /// Returns an image containing an arrow pointed up.
     static let upArrow: NSImage = {
         
         let frame = NSRect(
@@ -40,7 +37,7 @@ class OBWFilteringMenuArrows {
         return image
     }()
     
-    /*==========================================================================*/
+    /// Returns an image containing an arrow pointed down.
     static let downArrow: NSImage = {
         
         let frame = NSRect(
@@ -68,7 +65,7 @@ class OBWFilteringMenuArrows {
         return image
     }()
     
-    /*==========================================================================*/
+    /// Returns an image containing an arrow pointed to the right, suitable for use in a selected menu item.
     static let selectedRightArrow: NSImage = {
         
         let path = OBWFilteringMenuArrows.rightArrowPath
@@ -86,7 +83,7 @@ class OBWFilteringMenuArrows {
         return image
     }()
     
-    /*==========================================================================*/
+    /// Returns an image containing an arrow pointed to the right, suitable for use in an unselected menu item.
     static let unselectedRightArrow: NSImage = {
         
         let path = OBWFilteringMenuArrows.rightArrowPath
@@ -104,14 +101,19 @@ class OBWFilteringMenuArrows {
         return image
     }()
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuArrows private
     
-    // The long side of each triangle is inset by 1.0 point to deliberately create a partially transparent edge when the image is scaled to the display size.
+    // MARK: - Private
+    
+    /// The long side of each triangle is inset by 1.0 point to deliberately create a partially transparent edge when the image is scaled to the display size.
     private static let longSideInset: CGFloat = 1.0
+    
+    /// The length of the "short" side of an arrow's bounds - the width of left/right arrows, the height of up/down arrows.
     private static let arrowShortSideLength: CGFloat = 87.0
+    
+    /// The length of the "long" size of an arrow's bounds - the height of left/right arrows, the width of up/down arrows.
     private static let arrowLongSideLength: CGFloat = 100.0
     
+    /// Returns a path defining the shape of an arrow pointed to the right.
     private static let rightArrowPath: NSBezierPath = {
         
         let flatSideInset = OBWFilteringMenuArrows.longSideInset
@@ -129,4 +131,5 @@ class OBWFilteringMenuArrows {
         
         return rightArrowPath
     }()
+    
 }

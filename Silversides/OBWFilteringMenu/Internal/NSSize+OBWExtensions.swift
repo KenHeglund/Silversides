@@ -4,9 +4,9 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import Foundation
 
-/*==========================================================================*/
+/// Returns an NSSize containing the maximum width and height from the two given points.
 func max(_ lhs: NSSize, _ rhs: NSSize) -> NSSize {
     
     return NSSize(
@@ -15,7 +15,7 @@ func max(_ lhs: NSSize, _ rhs: NSSize) -> NSSize {
     )
 }
 
-/*==========================================================================*/
+/// Returns a size formed by adding the magnitude of the given edge insets to the given size.  Positive inset distances will result in a smaller size.  This will not return a size with a width or height less than 0.0.
 func +(lhs: NSSize, rhs: NSEdgeInsets) -> NSSize {
     
     let size = lhs
@@ -27,7 +27,7 @@ func +(lhs: NSSize, rhs: NSEdgeInsets) -> NSSize {
     )
 }
 
-/*==========================================================================*/
+/// Returns a size formed by subtracting the magnitude of the given edge insets to the given size.  Positive inset distances will result in a larger size.
 func -(lhs: NSSize, rhs: NSEdgeInsets) -> NSSize {
     
     let size = lhs

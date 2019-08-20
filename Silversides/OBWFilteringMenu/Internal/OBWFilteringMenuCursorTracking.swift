@@ -4,66 +4,78 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
 
+/// A class to facilitate cursor tracking when it is moving from a menu item to its submenu.
 class OBWFilteringMenuCursorTracking {
     
-    /*==========================================================================*/
-    init(subviewOfItem: OBWFilteringMenuItem, fromSourceLine: NSRect, toArea: NSRect) {
+    /// Initialize tracking from the vertical line within the given menu item, to the area occupied by its submenu.
+    /// - parameter menuItem: The menu item from which the cursor is moving.
+    /// - parameter sourceLine: The vertical line in screen coordiates that represents the limit in the "leading" direction that the cursor may move to and still be considered to be moving toward the submenu.
+    /// - parameter submenuArea: The rectangle in screen coordinates occupied by the menu item's submenu.
+    init(subviewOfItem menuItem: OBWFilteringMenuItem, fromSourceLine sourceLine: NSRect, toArea submenuArea: NSRect) {
         
-        self.sourceMenuItem = subviewOfItem
-        self.destinationArea = toArea
+        self.sourceMenuItem = menuItem
+        self.destinationArea = submenuArea
+        self.sourceLine = sourceLine
         
-        OBWFilteringMenuCursorTracking.debugWindow?.trackingView.cursorTracking = self
-        OBWFilteringMenuCursorTracking.debugWindow?.orderFront(nil)
-        
-        self.sourceLine = fromSourceLine
-        
-        self.recalculateLimits()
+        self.recalculateLimitPath()
         self.resetWaypoints()
-    }
-    
-    /*==========================================================================*/
-    deinit {
-        OBWFilteringMenuCursorTracking.debugWindow?.trackingView.cursorTracking = nil
-        OBWFilteringMenuCursorTracking.debugWindow?.orderOut(nil)
-    }
-    
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuCursorTracking implementation
-    
-    unowned let sourceMenuItem: OBWFilteringMenuItem
-    
-    var sourceLine: NSRect = NSZeroRect {
+
+        #if DEBUG_CURSOR_TRACKING
+        self.debugDrawingIdentifier = OBWFilteringMenuDebugWindow.addDrawingHandler({
+            [weak self]
+            view in
+            
+            guard let cursorTracking = self, let path = cursorTracking.cursorLimitPath else {
+                return
+            }
+            
+            NSColor.systemRed.withAlphaComponent(0.15).set()
+            path.fill()
+
+            NSColor.systemRed.withAlphaComponent(0.5).set()
+            path.stroke()
+        })
+        #endif
         
-        didSet {
-            
-            self.recalculateLimits()
-            self.resetWaypoints()
-            
-            OBWFilteringMenuCursorTracking.debugWindow?.trackingView.needsDisplay = true
-            OBWFilteringMenuCursorTracking.debugWindow?.display()
+        OBWFilteringMenuDebugWindow.displayNow()
+    }
+    
+    /// Deinitialization.
+    deinit {
+       
+        if let drawingIdentifier = self.debugDrawingIdentifier { OBWFilteringMenuDebugWindow.removeDrawingHandler(withIdentifier: drawingIdentifier)
         }
     }
     
-    /*==========================================================================*/
-    class func hideDebugWindow() {
-        OBWFilteringMenuCursorTracking.debugWindow?.orderOut(nil)
+    
+    // MARK: - OBWFilteringMenuCursorTracking Interface
+    
+    /// The menu item where the cursor movement originated.
+    unowned let sourceMenuItem: OBWFilteringMenuItem
+    
+    /// The line in screen coordinates that represents the limit in the "leading" direction that the cursor may move and still be considered to be moving toward the destination.
+    var sourceLine: NSRect = .zero {
+        
+        didSet {
+            
+            self.recalculateLimitPath()
+            self.resetWaypoints()
+            
+            OBWFilteringMenuDebugWindow.displayNow()
+        }
     }
     
-    /*==========================================================================*/
+    /// Determines if the cursor is still making definite progress toward the destination.
     func isCursorProgressingTowardSubmenu(_ event: NSEvent) -> Bool {
         
         if let eventLocation = event.locationInScreen {
             
-            if self.applyLimits {
+            if let path = self.cursorLimitPath {
                 
-                let topLimit = (self.topSlope * eventLocation.x) + self.topOffset
-                let bottomLimit = (self.bottomSlope * eventLocation.x) + self.bottomOffset
-                
-                if eventLocation.y < bottomLimit || eventLocation.y > topLimit {
+                if path.contains(eventLocation) == false {
                     return false
                 }
                 
@@ -72,11 +84,11 @@ class OBWFilteringMenuCursorTracking {
                 }
             }
             
-            self.lastMouseTimestamp = event.timestamp
+            self.previousCursorTimestamp = event.timestamp
         }
-        else if let lastMouseTimestamp = self.lastMouseTimestamp {
+        else if let previousCursorTimestamp = self.previousCursorTimestamp {
             
-            if event.timestamp - lastMouseTimestamp > OBWFilteringMenuCursorTracking.trackingInterval {
+            if event.timestamp - previousCursorTimestamp > OBWFilteringMenuCursorTracking.trackingInterval {
                 return false
             }
         }
@@ -84,127 +96,88 @@ class OBWFilteringMenuCursorTracking {
         return true
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuCursorTracking private
     
+    // MARK: - Private
+    
+    /// A struct that records a cursor position and time.
     private struct Waypoint {
-        var timestamp: TimeInterval
-        var locationInScreen: NSPoint
+        /// The time at which the cursor position was captured.
+        let timestamp: TimeInterval
+        /// The location in screen coordinates of the cursor.
+        let locationInScreen: NSPoint
     }
     
+    /// The maximum interval between cursor positions.
     private static let trackingInterval = 0.10
+    
+    /// The minumum speed in point per second that the cursor must move to be considered "fast enough".
     private static let minimumSpeed = 10.0
     
+    /// The destination of the cursor in screen coordinates.
     private let destinationArea: NSRect
     
-    private var applyLimits = false
+    /// The most recent time at which the cusor position was captured.
+    private var previousCursorTimestamp: TimeInterval? = nil
     
-    private var lastMouseTimestamp: TimeInterval? = nil
-    
+    /// An array of recent cursor positions and timestamps.
     private var cursorWaypoints: [Waypoint] = []
     
-    fileprivate var topSlope: CGFloat = 0.0
-    fileprivate var topOffset: CGFloat = 0.0
-    fileprivate var bottomSlope: CGFloat = 0.0
-    fileprivate var bottomOffset: CGFloat = 0.0
-    fileprivate var minimumDrawX: CGFloat = 0.0
-    fileprivate var maximumDrawX: CGFloat = 0.0
+    /// The path that defines the region in which the cursor may move to be considered as moving toward the destination submenu.
+    private var cursorLimitPath: NSBezierPath? = nil
     
-    private static let debugWindow: OBWFilteringMenuCursorTrackingDebugWindow? = {
-        #if DEBUG_CURSOR_TRACKING
-            return OBWFilteringMenuCursorTrackingDebugWindow()
-        #else
-            return nil
-        #endif
-    }()
-
+    /// Identifier for the debug drawing handler.
+    private var debugDrawingIdentifier: UUID? = nil
     
-    /*==========================================================================*/
-    private func recalculateLimits() {
+    /// Recalculates the limit path.
+    private func recalculateLimitPath() {
         
         let sourceLine = self.sourceLine
         let destinationArea = self.destinationArea
         
-        let sourcePadding = NSSize(width: 0.0, height: 6.0)
-        let destinationPadding = NSSize(width: 0.0, height: 40.0)
-        
-        let leftEdge: NSRect
-        let rightEdge: NSRect
-        
-        let minimumDrawX: CGFloat
-        let maximumDrawX: CGFloat
-        
-        if sourceLine.origin.x < destinationArea.origin.x {
+        if sourceLine.minX < destinationArea.minX {
             
-            leftEdge = NSRect(
-                x: sourceLine.origin.x - sourcePadding.width,
-                y: sourceLine.origin.y - sourcePadding.height,
-                width: 0.0,
-                height: sourceLine.size.height + (2.0 * sourcePadding.height)
-            )
+            let leadingEdge = self.sourceLine.insetBy(dx: -2.0, dy: -6.0)
+            let trailingEdge = self.destinationArea.insetBy(dx: 0.0, dy: -40.0)
             
-            rightEdge = NSRect(
-                x: destinationArea.origin.x - destinationPadding.width,
-                y: destinationArea.origin.y - destinationPadding.height,
-                width: 0.0,
-                height: destinationArea.size.height + (2.0 * destinationPadding.height)
-            )
+            let path = NSBezierPath()
+            path.move(to: NSPoint(x: leadingEdge.minX, y: leadingEdge.minY))
+            path.line(to: NSPoint(x: trailingEdge.minX, y: trailingEdge.minY))
+            path.line(to: NSPoint(x: trailingEdge.maxX, y: trailingEdge.minY))
+            path.line(to: NSPoint(x: trailingEdge.maxX, y: trailingEdge.maxY))
+            path.line(to: NSPoint(x: trailingEdge.minX, y: trailingEdge.maxY))
+            path.line(to: NSPoint(x: leadingEdge.minX, y: leadingEdge.maxY))
+            path.close()
             
-            minimumDrawX = sourceLine.origin.x
-            maximumDrawX = destinationArea.origin.x + destinationArea.size.width
+            self.cursorLimitPath = path
         }
-        else if sourceLine.origin.x > destinationArea.origin.x + destinationArea.size.width {
+        else if sourceLine.minX > destinationArea.maxX {
             
-            leftEdge = NSRect(
-                x: destinationArea.origin.x + destinationArea.size.width - destinationPadding.width,
-                y: destinationArea.origin.y - destinationPadding.height,
-                width: 0.0,
-                height: destinationArea.size.height + (2.0 * destinationPadding.height)
-            )
+            let leadingEdge = self.sourceLine.insetBy(dx: -2.0, dy: -6.0)
+            let trailingEdge = self.destinationArea.insetBy(dx: 0.0, dy: -40.0)
             
-            rightEdge = NSRect(
-                x: sourceLine.origin.x + sourcePadding.width,
-                y: sourceLine.origin.y - sourcePadding.height,
-                width: 0.0,
-                height: sourceLine.size.height + (2.0 * sourcePadding.height)
-            )
+            let path = NSBezierPath()
+            path.move(to: NSPoint(x: trailingEdge.minX, y: trailingEdge.minY))
+            path.line(to: NSPoint(x: trailingEdge.maxX, y: trailingEdge.minY))
+            path.line(to: NSPoint(x: leadingEdge.maxX, y: leadingEdge.minY))
+            path.line(to: NSPoint(x: leadingEdge.maxX, y: leadingEdge.maxY))
+            path.line(to: NSPoint(x: trailingEdge.maxX, y: trailingEdge.maxY))
+            path.line(to: NSPoint(x: trailingEdge.minX, y: trailingEdge.maxY))
+            path.close()
             
-            minimumDrawX = destinationArea.origin.x;
-            maximumDrawX = sourceLine.origin.x
+            self.cursorLimitPath = path
         }
         else {
             
-            self.applyLimits = false
-            return
+            self.cursorLimitPath = nil
         }
-        
-        let run = rightEdge.origin.x - leftEdge.origin.x
-        guard run != 0.0 else {
-            return
-        }
-        
-        let topRise = rightEdge.maxY - leftEdge.maxY
-        self.topSlope = topRise / run
-        self.topOffset = leftEdge.maxY - (topSlope * leftEdge.origin.x)
-        
-        let bottomRise = rightEdge.origin.y - leftEdge.origin.y
-        self.bottomSlope = bottomRise / run
-        self.bottomOffset = leftEdge.origin.y - (bottomSlope * leftEdge.origin.x)
-        
-        self.minimumDrawX = minimumDrawX
-        self.maximumDrawX = maximumDrawX
-        self.applyLimits = true
-        
-        OBWFilteringMenuCursorTracking.debugWindow?.trackingView.needsDisplay = true
-        OBWFilteringMenuCursorTracking.debugWindow?.display()
     }
     
-    /*==========================================================================*/
+    /// Reset the captured cursor positions.
     private func resetWaypoints() {
         self.cursorWaypoints = []
     }
     
-    /*==========================================================================*/
+    /// Determines if the cursor is moving "fast enough" toward the destination.
     private func isCursorMovingFastEnough(_ timestamp: TimeInterval, locationInScreen: NSPoint) -> Bool {
         
         self.cursorWaypoints.append(Waypoint(timestamp: timestamp, locationInScreen: locationInScreen))
@@ -215,9 +188,7 @@ class OBWFilteringMenuCursorTracking {
         
         let maxWaypointCount = 20
         
-        if self.cursorWaypoints.count > maxWaypointCount {
-            self.cursorWaypoints = Array(self.cursorWaypoints.dropFirst(self.cursorWaypoints.count - maxWaypointCount))
-        }
+        self.cursorWaypoints = Array(self.cursorWaypoints.suffix(maxWaypointCount))
         
         let oldestWaypoint = self.cursorWaypoints[0]
         let distanceX = oldestWaypoint.locationInScreen.x - locationInScreen.x
@@ -235,86 +206,4 @@ class OBWFilteringMenuCursorTracking {
         return speed >= OBWFilteringMenuCursorTracking.minimumSpeed
     }
     
-}
-
-/*==========================================================================*/
-// MARK: -
-
-private class OBWFilteringMenuCursorTrackingDebugView: NSView {
-    
-    weak var cursorTracking: OBWFilteringMenuCursorTracking? = nil
-    
-    override func draw(_ dirtyRect: NSRect) {
-        
-        let bounds = self.bounds
-        
-        NSColor.clear.set()
-        bounds.fill()
-        
-        guard let cursorTracking = self.cursorTracking else {
-            return
-        }
-        
-        let topLeft = NSPoint(
-            x: cursorTracking.minimumDrawX,
-            y: (cursorTracking.topSlope * cursorTracking.minimumDrawX) + cursorTracking.topOffset
-        )
-        
-        let topRight = NSPoint(
-            x: cursorTracking.maximumDrawX,
-            y: (cursorTracking.topSlope * cursorTracking.maximumDrawX) + cursorTracking.topOffset
-        )
-        
-        let bottomLeft = NSPoint(
-            x: cursorTracking.minimumDrawX,
-            y: (cursorTracking.bottomSlope * cursorTracking.minimumDrawX) + cursorTracking.bottomOffset
-        )
-        
-        let bottomRight = NSPoint(
-            x: cursorTracking.maximumDrawX,
-            y: (cursorTracking.bottomSlope * cursorTracking.maximumDrawX) + cursorTracking.bottomOffset
-        )
-        
-        NSColor.systemRed.withAlphaComponent(0.15).set()
-        
-        let path = NSBezierPath()
-        path.move(to: topRight)
-        path.line(to: topLeft)
-        path.line(to: bottomLeft)
-        path.line(to: bottomRight)
-        path.close()
-        path.fill()
-        
-        NSColor.systemRed.withAlphaComponent(0.5).set()
-        path.stroke()
-    }
-}
-
-/*==========================================================================*/
-// MARK: -
-
-private class OBWFilteringMenuCursorTrackingDebugWindow: NSWindow {
-    
-    unowned let trackingView: OBWFilteringMenuCursorTrackingDebugView
-    
-    init() {
-        
-        let screenFrame = NSScreen.screens.first?.frame ?? NSZeroRect
-        
-        let trackingView = OBWFilteringMenuCursorTrackingDebugView(frame: screenFrame)
-        self.trackingView = trackingView
-        
-        super.init(contentRect: screenFrame, styleMask: .borderless, backing: .buffered, defer: false)
-        
-        self.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.screenSaverWindow)) - 10)
-        self.isOpaque = false
-        self.backgroundColor = NSColor.clear
-        self.hasShadow = false
-        self.ignoresMouseEvents = true
-        self.acceptsMouseMovedEvents = false
-        self.isReleasedWhenClosed = false
-        self.animationBehavior = .none
-        
-        self.contentView?.addSubview(trackingView)
-    }
 }

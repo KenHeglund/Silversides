@@ -7,26 +7,21 @@
 import XCTest
 @testable import OBWControls
 
-/*==========================================================================*/
-
 class OBWFilteringMenuCursorTrackingTests: XCTestCase {
     
-    /*==========================================================================*/
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
-    /*==========================================================================*/
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
     
-    /*==========================================================================*/
     func testContinuationWithFastCursorMovement() {
         
-        let menuItem = OBWFilteringMenuItem( title: "menuItem" )
+        let menuItem = OBWFilteringMenuItem(title: "menuItem")
         
         let sourceLine = NSRect(
             x: 100.0,
@@ -42,12 +37,12 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
             height: 200.0
         )
         
-        let cursorTracking = OBWFilteringMenuCursorTracking( subviewOfItem: menuItem, fromSourceLine: sourceLine, toArea: destinationArea )
+        let cursorTracking = OBWFilteringMenuCursorTracking(subviewOfItem: menuItem, fromSourceLine: sourceLine, toArea: destinationArea)
         
         let distancePerEvent: CGFloat = 5.0
         var locationInScreen = NSPoint(
             x: sourceLine.origin.x,
-            y: sourceLine.origin.y + floor( sourceLine.size.height / 2.0 )
+            y: sourceLine.origin.y + floor(sourceLine.size.height / 2.0)
         )
         
         let intervalPerEvent = 0.05
@@ -76,18 +71,17 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
                 return
             }
             
-            if cursorTracking.isCursorProgressingTowardSubmenu( event ) == false {
+            if cursorTracking.isCursorProgressingTowardSubmenu(event) == false {
                 result = false
             }
         }
         
-        XCTAssertTrue( result )
+        XCTAssertTrue(result)
     }
     
-    /*==========================================================================*/
     func testContinuationWithSlowCursorMovement() {
         
-        let menuItem = OBWFilteringMenuItem( title: "menuItem" )
+        let menuItem = OBWFilteringMenuItem(title: "menuItem")
         
         let sourceLine = NSRect(
             x: 100.0,
@@ -103,12 +97,12 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
             height: 200.0
         )
         
-        let cursorTracking = OBWFilteringMenuCursorTracking( subviewOfItem: menuItem, fromSourceLine: sourceLine, toArea: destinationArea )
+        let cursorTracking = OBWFilteringMenuCursorTracking(subviewOfItem: menuItem, fromSourceLine: sourceLine, toArea: destinationArea)
         
         let distancePerEvent: CGFloat = 0.5
         var locationInScreen = NSPoint(
             x: sourceLine.origin.x,
-            y: sourceLine.origin.y + floor( sourceLine.size.height / 2.0 )
+            y: sourceLine.origin.y + floor(sourceLine.size.height / 2.0)
         )
         
         let intervalPerEvent = 0.1
@@ -137,18 +131,17 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
                 return
             }
             
-            if cursorTracking.isCursorProgressingTowardSubmenu( event ) == false {
+            if cursorTracking.isCursorProgressingTowardSubmenu(event) == false {
                 result = false
             }
         }
         
-        XCTAssertFalse( result )
+        XCTAssertFalse(result)
     }
     
-    /*==========================================================================*/
     func testContinuationWithCursorMovementBeyondBounds() {
         
-        let menuItem = OBWFilteringMenuItem( title: "menuItem" )
+        let menuItem = OBWFilteringMenuItem(title: "menuItem")
         
         let sourceLine = NSRect(
             x: 100.0,
@@ -164,13 +157,13 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
             height: 200.0
         )
         
-        let cursorTracking = OBWFilteringMenuCursorTracking( subviewOfItem: menuItem, fromSourceLine: sourceLine, toArea: destinationArea )
+        let cursorTracking = OBWFilteringMenuCursorTracking(subviewOfItem: menuItem, fromSourceLine: sourceLine, toArea: destinationArea)
         
-        let offsetPerEvent = NSSize( width: 5.0, height: 20.0 )
+        let offsetPerEvent = NSSize(width: 5.0, height: 20.0)
         
         var locationInScreen = NSPoint(
             x: sourceLine.origin.x,
-            y: sourceLine.origin.y + floor( sourceLine.size.height / 2.0 )
+            y: sourceLine.origin.y + floor(sourceLine.size.height / 2.0)
         )
         
         let intervalPerEvent = 0.05
@@ -201,11 +194,12 @@ class OBWFilteringMenuCursorTrackingTests: XCTestCase {
                 return
             }
             
-            if cursorTracking.isCursorProgressingTowardSubmenu( event ) == false {
+            if cursorTracking.isCursorProgressingTowardSubmenu(event) == false {
                 result = false
             }
         }
         
-        XCTAssertFalse( result )
+        XCTAssertFalse(result)
     }
+    
 }

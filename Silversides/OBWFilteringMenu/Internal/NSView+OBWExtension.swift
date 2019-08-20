@@ -4,39 +4,22 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
-
-/*==========================================================================*/
+import AppKit
 
 extension NSView {
     
-    /*==========================================================================*/
-    var boundsLowerLeftPoint: NSPoint {
-        
-        let viewBounds = self.bounds
-        var lowerLeftCorner = viewBounds.origin
-        
-        if self.isFlipped {
-            lowerLeftCorner.y += viewBounds.size.height
-        }
-        
-        return lowerLeftCorner
-    }
-    
-    /*==========================================================================*/
+    /// The bounds of the receiver in screen coordinates.  If the view is not on-screen, then this will be equal to the view's bounds.
     var boundsInScreen: NSRect {
         
-        let boundsInWindow = self.convert(self.bounds, to: nil)
-        
-        if let window = self.window {
-            return window.convertToScreen(boundsInWindow)
-        }
-        else {
+        guard let window = self.window else {
             return self.bounds
         }
+        
+        let boundsInWindow = self.convert(self.bounds, to: nil)
+        return window.convertToScreen(boundsInWindow)
     }
     
-    /*==========================================================================*/
+    /// Converts the given point in the view's coordinate system into screen coordinates.
     func convertPointToScreen(_ locationInView: NSPoint) -> NSPoint {
         
         guard let window = self.window else {
@@ -50,4 +33,5 @@ extension NSView {
         
         return rectInScreen.origin
     }
+    
 }

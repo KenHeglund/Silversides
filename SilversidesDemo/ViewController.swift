@@ -4,7 +4,7 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 import OBWControls
 
 /*==========================================================================*/
@@ -37,6 +37,7 @@ private class ItemInfo {
 class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBWFilteringMenuDelegate {
     
     @IBOutlet var pathViewOutlet: OBWPathView! = nil
+    @IBOutlet var styledFilteringPopUpButtonOutlet: NSPopUpButton! = nil
     @IBOutlet var regularFilteringPopUpButtonOutlet: NSPopUpButton! = nil
     @IBOutlet var smallFilteringPopUpButtonOutlet: NSPopUpButton! = nil
     @IBOutlet var miniFilteringPopUpButtonOutlet: NSPopUpButton! = nil
@@ -239,6 +240,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         super.viewDidLoad()
         
         assert(self.pathViewOutlet != nil)
+        assert(self.styledFilteringPopUpButtonOutlet != nil)
         assert(self.regularFilteringPopUpButtonOutlet != nil)
         assert(self.smallFilteringPopUpButtonOutlet != nil)
         assert(self.miniFilteringPopUpButtonOutlet != nil)
@@ -258,6 +260,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         NSColorPanel.shared.showsAlpha = true
         
         guard
+            let styledCell = self.styledFilteringPopUpButtonOutlet.cell as? OBWFilteringPopUpButtonCell,
             let regularCell = self.regularFilteringPopUpButtonOutlet.cell as? OBWFilteringPopUpButtonCell,
             let smallCell = self.smallFilteringPopUpButtonOutlet.cell as? OBWFilteringPopUpButtonCell,
             let miniCell = self.miniFilteringPopUpButtonOutlet.cell as? OBWFilteringPopUpButtonCell
@@ -265,6 +268,8 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             assertionFailure("cells for the filtering pop up buttons are expected to be a OBWFilteringPopUpButtonCell")
             return
         }
+        
+        styledCell.filteringMenu = ViewController.makeStyledMenu()
         
         let popupButtonBaseURL = URL(fileURLWithPath: "/Volumes/Macintosh HD/Applications")
         
@@ -290,7 +295,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     // MARK: - OBWFilteringMenuDelegate implementation
     
     /*==========================================================================*/
-    func willBeginTrackingFilteringMenu( _ menu: OBWFilteringMenu ) {
+    func filteringMenuWillAppear( _ menu: OBWFilteringMenu ) {
         
         #if !USE_NSMENU
             guard menu.numberOfItems == 0 else {
@@ -320,12 +325,10 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
         #if !USE_NSMENU
             let menuItemHasSubmenu = (menuItem.submenu != nil)
             
-            let folderFormat = NSLocalizedString("Click this button to interact with the %@ folder", comment: "Folder menu item help format") as NSString
-            let fileFormat = NSLocalizedString("Click this button to select %@", comment: "File menu item help format") as NSString
-            
-            let helpString = NSString(format: (menuItemHasSubmenu ? folderFormat : fileFormat), menuItem.title ?? "")
-            
-            return helpString as String
+            let folderFormat = NSLocalizedString("Click this button to interact with the %@ folder", comment: "Folder menu item help format")
+            let fileFormat = NSLocalizedString("Click this button to select %@", comment: "File menu item help format")
+            let format = menuItemHasSubmenu ? folderFormat : fileFormat
+            return String.localizedStringWithFormat(format, menuItem.title ?? "")
         #else
             return nil
         #endif // !USE_NSMENU
@@ -391,7 +394,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     // MARK: - OBWPathViewDelegate implementation
     
     /*==========================================================================*/
-    func pathView(_ pathView: OBWPathView, filteringMenuForItem pathItem: OBWPathItem, trigger: OBWPathItemTrigger) -> OBWFilteringMenu? {
+    func pathView(_ pathView: OBWPathView, filteringMenuForItem pathItem: OBWPathItem, activatedBy activation: OBWPathItem.ActivationType) -> OBWFilteringMenu? {
         
         #if !USE_NSMENU
             guard let itemInfo = pathItem.representedObject as? ItemInfo else {
@@ -428,7 +431,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
     }
     
     /*==========================================================================*/
-    func pathView(_ pathView: OBWPathView, menuForItem pathItem: OBWPathItem, trigger: OBWPathItemTrigger) -> NSMenu? {
+    func pathView(_ pathView: OBWPathView, menuForItem pathItem: OBWPathItem, activatedBy activation: OBWPathItem.ActivationType) -> NSMenu? {
         
         #if USE_NSMENU
             guard let itemInfo = pathItem.representedObject as? ItemInfo else {
@@ -717,9 +720,7 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
                         menu.addItem(OBWFilteringMenuItem.separatorItem)
                     }
                     
-                    let menuItem = OBWFilteringMenuItem(title: "Group \(urlCount / 5 + 1)")
-                    menuItem.enabled = false
-                    menuItem.isHeading = true
+                    let menuItem = OBWFilteringMenuItem(headingTitled: "Group \(urlCount / 5 + 1)")
                     menu.addItem(menuItem)
                 }
                 
@@ -852,6 +853,46 @@ class ViewController: NSViewController, NSMenuDelegate, OBWPathViewDelegate, OBW
             layer.borderColor = nil
             layer.borderWidth = 0.0
         }
+    }
+    
+    /*==========================================================================*/
+    private static func makeStyledMenu() -> OBWFilteringMenu {
+        
+        let filteringMenu = OBWFilteringMenu(title: "Styled")
+        
+        guard let font = NSFont.userFixedPitchFont(ofSize: 12.0) else {
+            assertionFailure("Failed to obtain the system fixed pitch font")
+            return filteringMenu
+        }
+        
+        let attributes: [NSAttributedString.Key : Any] = [
+            .font : font,
+            .foregroundColor : NSColor.systemYellow,
+        ]
+        
+        let attributedString = NSAttributedString(string: "Attributed String", attributes: attributes)
+        
+        let menuItem1 = OBWFilteringMenuItem(title: "")
+        menuItem1.attributedTitle = attributedString
+        filteringMenu.addItem(menuItem1)
+        
+        let menuItem2 = OBWFilteringMenuItem(title: "")
+        menuItem2.attributedTitle = attributedString
+        menuItem2.enabled = false
+        filteringMenu.addItem(menuItem2)
+        
+        filteringMenu.addSeparatorItem()
+        
+        let basicString = "Basic String"
+        
+        let menuItem3 = OBWFilteringMenuItem(title: basicString)
+        filteringMenu.addItem(menuItem3)
+        
+        let menuItem4 = OBWFilteringMenuItem(title: basicString)
+        menuItem4.enabled = false
+        filteringMenu.addItem(menuItem4)
+        
+        return filteringMenu
     }
     
     /*==========================================================================*/

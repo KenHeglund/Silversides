@@ -4,32 +4,12 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-
-struct OBWFilteringMenuCorners: OptionSet, Hashable {
-    
-    init(rawValue: UInt) {
-        self.rawValue = rawValue & 0xF
-    }
-    
-    private(set) var rawValue: UInt
-    
-    static let topLeft      = OBWFilteringMenuCorners(rawValue: 1 << 0)
-    static let topRight     = OBWFilteringMenuCorners(rawValue: 1 << 1)
-    static let bottomLeft   = OBWFilteringMenuCorners(rawValue: 1 << 2)
-    static let bottomRight  = OBWFilteringMenuCorners(rawValue: 1 << 3)
-    
-    static let all: OBWFilteringMenuCorners = [topLeft, topRight, bottomLeft, bottomRight]
-}
-
-/*==========================================================================*/
-// MARK: -
-
+/// The background view of a menu window.  Its mask defines the outer shape of the window.
 class OBWFilteringMenuBackground: NSVisualEffectView {
     
-    /*==========================================================================*/
+    /// The preferred initializer.
     override init(frame frameRect: NSRect) {
         
         super.init(frame: frameRect)
@@ -43,15 +23,15 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         self.updateMaskImage()
     }
     
-    /*==========================================================================*/
+    // Required initializer.  Not used.
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuBackground internal
     
-    /*==========================================================================*/
+    // MARK: - OBWFilteringMenuBackground Interface
+    
+    /// Identifies the corner of the view that have a rounded appearance.
     var roundedCorners = OBWFilteringMenuCorners.all {
         
         didSet {
@@ -59,40 +39,40 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         }
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuBackground private
     
+    // MARK: - Private
+    
+    /// The radius of corners that are rounded.
     static let roundedCornerRadius: CGFloat = 6.0
+    
+    /// The radius of corners that are not rounded.
     static let squareCornerRadius: CGFloat = 0.0
     
+    /// A cache of images containing various combinations of rounded corners.
     private static var maskImageCache: [OBWFilteringMenuCorners:NSImage] = [:]
     
-    /*==========================================================================*/
-    func updateMaskImage() {
-        
-        let maskImage: NSImage
+    /// Update the current mask image.
+    private func updateMaskImage() {
         
         if let existingImage = OBWFilteringMenuBackground.maskImageCache[self.roundedCorners] {
-            maskImage = existingImage
+            self.maskImage = existingImage
         }
         else {
-            maskImage = OBWFilteringMenuBackground.maskImage(self.roundedCorners)
-            OBWFilteringMenuBackground.maskImageCache[self.roundedCorners] = maskImage
+            self.maskImage = OBWFilteringMenuBackground.makeMaskImage(rounding: self.roundedCorners)
+            OBWFilteringMenuBackground.maskImageCache[self.roundedCorners] = self.maskImage
         }
-        
-        self.maskImage = maskImage
     }
     
-    /*==========================================================================*/
-    private static func maskImage(_ roundedCorners: OBWFilteringMenuCorners) -> NSImage {
+    /// Constructs a resizeable image with the given corners rounded.
+    private static func makeMaskImage(rounding corners: OBWFilteringMenuCorners) -> NSImage {
         
         let roundedCornerRadius = OBWFilteringMenuBackground.roundedCornerRadius
         let squareCornerRadius = OBWFilteringMenuBackground.squareCornerRadius
         
-        let topLeftRadius = roundedCorners.contains(.topLeft) ? roundedCornerRadius : squareCornerRadius
-        let bottomLeftRadius = roundedCorners.contains(.bottomLeft) ? roundedCornerRadius : squareCornerRadius
-        let bottomRightRadius = roundedCorners.contains(.bottomRight) ? roundedCornerRadius : squareCornerRadius
-        let topRightRadius = roundedCorners.contains(.topRight) ? roundedCornerRadius : squareCornerRadius
+        let topLeftRadius = corners.contains(.topLeft) ? roundedCornerRadius : squareCornerRadius
+        let bottomLeftRadius = corners.contains(.bottomLeft) ? roundedCornerRadius : squareCornerRadius
+        let bottomRightRadius = corners.contains(.bottomRight) ? roundedCornerRadius : squareCornerRadius
+        let topRightRadius = corners.contains(.topRight) ? roundedCornerRadius : squareCornerRadius
         
         let bounds = NSRect(
             width: roundedCornerRadius * 3.0,
@@ -126,4 +106,5 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
         
         return maskImage
     }
+    
 }
