@@ -8,6 +8,22 @@
 
 /* Begin PBXBuildFile section */
 		BE29533F1D7A2CC000EA47AB /* OBWFilteringMenuBackgroundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE29533E1D7A2CC000EA47AB /* OBWFilteringMenuBackgroundTests.swift */; };
+		BE35702022E1A24200E9E68C /* OBWFilteringMenu+Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35701F22E1A24200E9E68C /* OBWFilteringMenu+Notification.swift */; };
+		BE35702222E1A39D00E9E68C /* OBWFilteringMenu+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35702122E1A39D00E9E68C /* OBWFilteringMenu+Error.swift */; };
+		BE35702422E1A5A500E9E68C /* OBWFilteringMenu+HighlightTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35702322E1A5A500E9E68C /* OBWFilteringMenu+HighlightTarget.swift */; };
+		BE35702622E2D64E00E9E68C /* OBWFilteringMenuSeparatorItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35702522E2D64E00E9E68C /* OBWFilteringMenuSeparatorItemView.swift */; };
+		BE35702822E5647700E9E68C /* OBWFilteringMenuCorners.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35702722E5647700E9E68C /* OBWFilteringMenuCorners.swift */; };
+		BE35702A22E5AB3B00E9E68C /* OBWFilteringMenuEventSubtype.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35702922E5AB3B00E9E68C /* OBWFilteringMenuEventSubtype.swift */; };
+		BE35702C22E94D2E00E9E68C /* NSGraphicsContext+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35702B22E94D2E00E9E68C /* NSGraphicsContext+OBWExtension.swift */; };
+		BE35702E22EC165100E9E68C /* OBWFilteringMenuSubmenuImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35702D22EC165100E9E68C /* OBWFilteringMenuSubmenuImageView.swift */; };
+		BE35703022EC617C00E9E68C /* OBWFilteringMenuItemTitleField.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35702F22EC617C00E9E68C /* OBWFilteringMenuItemTitleField.swift */; };
+		BE35703222F57D2C00E9E68C /* OBWFilteringMenuDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35703122F57D2C00E9E68C /* OBWFilteringMenuDebugView.swift */; };
+		BE35703422F586A200E9E68C /* OBWFilteringMenuDebugWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35703322F586A200E9E68C /* OBWFilteringMenuDebugWindow.swift */; };
+		BE35703622F8255A00E9E68C /* OBWFilteringMenuItem+Alignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35703522F8255A00E9E68C /* OBWFilteringMenuItem+Alignment.swift */; };
+		BE3570382302B63F00E9E68C /* OBWPathItem+ActivationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3570372302B63F00E9E68C /* OBWPathItem+ActivationType.swift */; };
+		BE35703A2302B6F100E9E68C /* OBWPathViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3570392302B6F100E9E68C /* OBWPathViewDelegate.swift */; };
+		BE35703C2302BC4300E9E68C /* OBWPathView+ErrorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35703B2302BC4300E9E68C /* OBWPathView+ErrorType.swift */; };
+		BE35703E2302BCD100E9E68C /* OBWPathView+CompressionPriority.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35703D2302BCD100E9E68C /* OBWPathView+CompressionPriority.swift */; };
 		BE44C8D51DA3F47E009517A5 /* OBWFilteringMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE44C8D41DA3F47E009517A5 /* OBWFilteringMenuController.swift */; };
 		BE44C8D71DA40305009517A5 /* OBWFilteringMenuControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE44C8D61DA40305009517A5 /* OBWFilteringMenuControllerTests.swift */; };
 		BE44C8D91DA55E8A009517A5 /* NSWindow+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE44C8D81DA55E8A009517A5 /* NSWindow+OBWExtension.swift */; };
@@ -30,7 +46,6 @@
 		BE4685CC1D91F8E900AC4B6F /* NSControl+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */; };
 		BE7F3ED91DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7F3ED81DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift */; };
 		BE7F3EDB1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7F3EDA1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift */; };
-		BE9CB0B01D84665B00323D09 /* OBWFilteringMenuFieldEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0AF1D84665B00323D09 /* OBWFilteringMenuFieldEditor.swift */; };
 		BE9CB0B21D8469BC00323D09 /* OBWFilteringMenuWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */; };
 		BE9CB0B41D84925700323D09 /* OBWFilteringMenuWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0B31D84925700323D09 /* OBWFilteringMenuWindowTests.swift */; };
 		BE9CB0B61D86464F00323D09 /* OBWFilteringMenuArrows.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0B51D86464F00323D09 /* OBWFilteringMenuArrows.swift */; };
@@ -38,7 +53,15 @@
 		BE9CB0BA1D86AA3300323D09 /* OBWFilteringMenuItemFilterStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0B91D86AA3300323D09 /* OBWFilteringMenuItemFilterStatusTests.swift */; };
 		BE9CB0BC1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0BB1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift */; };
 		BE9CB0BE1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0BD1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift */; };
+		BE9CF7FB230A557A00F721D0 /* PrintEventDataAsEncodedString.m in Sources */ = {isa = PBXBuildFile; fileRef = BE9CF7FA230A557A00F721D0 /* PrintEventDataAsEncodedString.m */; };
+		BE9CF7FE230A7E1A00F721D0 /* XCTestCase+WaitForInterval.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CF7FD230A7E1A00F721D0 /* XCTestCase+WaitForInterval.swift */; };
+		BE9DFB062303BB49008DD378 /* OBWFilteringMenu+SessionState.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9DFB052303BB49008DD378 /* OBWFilteringMenu+SessionState.swift */; };
+		BE9DFB082303C1EA008DD378 /* OBWFilteringMenuController+Keys.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9DFB072303C1EA008DD378 /* OBWFilteringMenuController+Keys.swift */; };
+		BEB815D622E187C0009B2172 /* OBWFilteringMenuDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB815D522E187C0009B2172 /* OBWFilteringMenuDelegate.swift */; };
+		BEB815D822E18B8E009B2172 /* OBWFilteringMenu+Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEB815D722E18B8E009B2172 /* OBWFilteringMenu+Internal.swift */; };
+		BEBD932321E258DD00CC1679 /* NSAppearance+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEBD932221E258DD00CC1679 /* NSAppearance+OBWExtension.swift */; };
 		BEBEECC81D77E59A0050D277 /* OBWFilteringMenuBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEBEECC71D77E59A0050D277 /* OBWFilteringMenuBackground.swift */; };
+		BEC2CD4821D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC2CD4721D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift */; };
 		BEC489BF1D4C173500CE7AB8 /* Silversides.h in Headers */ = {isa = PBXBuildFile; fileRef = BEC489BE1D4C173500CE7AB8 /* Silversides.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BEC489C61D4C173500CE7AB8 /* OBWControls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC489BB1D4C173500CE7AB8 /* OBWControls.framework */; };
 		BEC489CB1D4C173500CE7AB8 /* OBWPathViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEC489CA1D4C173500CE7AB8 /* OBWPathViewTests.swift */; };
@@ -48,6 +71,7 @@
 		BEC489EB1D4C198100CE7AB8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BEC489E91D4C198100CE7AB8 /* Main.storyboard */; };
 		BEC489F01D4C1B3100CE7AB8 /* OBWControls.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEC489BB1D4C173500CE7AB8 /* OBWControls.framework */; };
 		BEC489F21D4C1B4D00CE7AB8 /* OBWControls.framework in Copy Bundle Frameworks */ = {isa = PBXBuildFile; fileRef = BEC489BB1D4C173500CE7AB8 /* OBWControls.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		BED4FE842306C41E003080E7 /* OBWColorFilledView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED4FE832306C41E003080E7 /* OBWColorFilledView.swift */; };
 		BEF9D5631DC2881300EA6FE0 /* NSImage+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF9D5621DC2881300EA6FE0 /* NSImage+OBWExtension.swift */; };
 		BEF9D5651DC28AEB00EA6FE0 /* NSScreen+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF9D5641DC28AEB00EA6FE0 /* NSScreen+OBWExtension.swift */; };
 		BEF9D5671DC28B4000EA6FE0 /* NSEdgeInsets+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEF9D5661DC28B4000EA6FE0 /* NSEdgeInsets+OBWExtension.swift */; };
@@ -94,7 +118,27 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BE09C1D51FE7FA5100EC5E6E /* OBWPathView.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OBWPathView.png; sourceTree = "<group>"; };
+		BE09C1D61FE7FA5100EC5E6E /* OBWFilteringMenu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = OBWFilteringMenu.png; sourceTree = "<group>"; };
+		BE09C1D71FE7FA5100EC5E6E /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
+		BE09C1D81FE7FA5100EC5E6E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BE29533E1D7A2CC000EA47AB /* OBWFilteringMenuBackgroundTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuBackgroundTests.swift; sourceTree = "<group>"; };
+		BE35701F22E1A24200E9E68C /* OBWFilteringMenu+Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenu+Notification.swift"; sourceTree = "<group>"; };
+		BE35702122E1A39D00E9E68C /* OBWFilteringMenu+Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenu+Error.swift"; sourceTree = "<group>"; };
+		BE35702322E1A5A500E9E68C /* OBWFilteringMenu+HighlightTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenu+HighlightTarget.swift"; sourceTree = "<group>"; };
+		BE35702522E2D64E00E9E68C /* OBWFilteringMenuSeparatorItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuSeparatorItemView.swift; sourceTree = "<group>"; };
+		BE35702722E5647700E9E68C /* OBWFilteringMenuCorners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuCorners.swift; sourceTree = "<group>"; };
+		BE35702922E5AB3B00E9E68C /* OBWFilteringMenuEventSubtype.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuEventSubtype.swift; sourceTree = "<group>"; };
+		BE35702B22E94D2E00E9E68C /* NSGraphicsContext+OBWExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSGraphicsContext+OBWExtension.swift"; sourceTree = "<group>"; };
+		BE35702D22EC165100E9E68C /* OBWFilteringMenuSubmenuImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuSubmenuImageView.swift; sourceTree = "<group>"; };
+		BE35702F22EC617C00E9E68C /* OBWFilteringMenuItemTitleField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuItemTitleField.swift; sourceTree = "<group>"; };
+		BE35703122F57D2C00E9E68C /* OBWFilteringMenuDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuDebugView.swift; sourceTree = "<group>"; };
+		BE35703322F586A200E9E68C /* OBWFilteringMenuDebugWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuDebugWindow.swift; sourceTree = "<group>"; };
+		BE35703522F8255A00E9E68C /* OBWFilteringMenuItem+Alignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenuItem+Alignment.swift"; sourceTree = "<group>"; };
+		BE3570372302B63F00E9E68C /* OBWPathItem+ActivationType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWPathItem+ActivationType.swift"; sourceTree = "<group>"; };
+		BE3570392302B6F100E9E68C /* OBWPathViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWPathViewDelegate.swift; sourceTree = "<group>"; };
+		BE35703B2302BC4300E9E68C /* OBWPathView+ErrorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWPathView+ErrorType.swift"; sourceTree = "<group>"; };
+		BE35703D2302BCD100E9E68C /* OBWPathView+CompressionPriority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWPathView+CompressionPriority.swift"; sourceTree = "<group>"; };
 		BE44C8D11DA19822009517A5 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		BE44C8D41DA3F47E009517A5 /* OBWFilteringMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuController.swift; sourceTree = "<group>"; };
 		BE44C8D61DA40305009517A5 /* OBWFilteringMenuControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuControllerTests.swift; sourceTree = "<group>"; };
@@ -118,7 +162,6 @@
 		BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSControl+OBWExtension.swift"; sourceTree = "<group>"; };
 		BE7F3ED81DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuViewTests.swift; sourceTree = "<group>"; };
 		BE7F3EDA1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSSize+OBWExtensions.swift"; sourceTree = "<group>"; };
-		BE9CB0AF1D84665B00323D09 /* OBWFilteringMenuFieldEditor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuFieldEditor.swift; sourceTree = "<group>"; };
 		BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuWindow.swift; sourceTree = "<group>"; };
 		BE9CB0B31D84925700323D09 /* OBWFilteringMenuWindowTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuWindowTests.swift; sourceTree = "<group>"; };
 		BE9CB0B51D86464F00323D09 /* OBWFilteringMenuArrows.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuArrows.swift; sourceTree = "<group>"; };
@@ -126,7 +169,17 @@
 		BE9CB0B91D86AA3300323D09 /* OBWFilteringMenuItemFilterStatusTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuItemFilterStatusTests.swift; sourceTree = "<group>"; };
 		BE9CB0BB1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuItemView.swift; sourceTree = "<group>"; };
 		BE9CB0BD1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuActionItemView.swift; sourceTree = "<group>"; };
+		BE9CF7F9230A557A00F721D0 /* PrintEventDataAsEncodedString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrintEventDataAsEncodedString.h; sourceTree = "<group>"; };
+		BE9CF7FA230A557A00F721D0 /* PrintEventDataAsEncodedString.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PrintEventDataAsEncodedString.m; sourceTree = "<group>"; };
+		BE9CF7FC230A559800F721D0 /* SilversidesTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SilversidesTests-Bridging-Header.h"; sourceTree = "<group>"; };
+		BE9CF7FD230A7E1A00F721D0 /* XCTestCase+WaitForInterval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+WaitForInterval.swift"; sourceTree = "<group>"; };
+		BE9DFB052303BB49008DD378 /* OBWFilteringMenu+SessionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenu+SessionState.swift"; sourceTree = "<group>"; };
+		BE9DFB072303C1EA008DD378 /* OBWFilteringMenuController+Keys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenuController+Keys.swift"; sourceTree = "<group>"; };
+		BEB815D522E187C0009B2172 /* OBWFilteringMenuDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuDelegate.swift; sourceTree = "<group>"; };
+		BEB815D722E18B8E009B2172 /* OBWFilteringMenu+Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenu+Internal.swift"; sourceTree = "<group>"; };
+		BEBD932221E258DD00CC1679 /* NSAppearance+OBWExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAppearance+OBWExtension.swift"; sourceTree = "<group>"; };
 		BEBEECC71D77E59A0050D277 /* OBWFilteringMenuBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuBackground.swift; sourceTree = "<group>"; };
+		BEC2CD4721D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringPopUpButtonCell.swift; sourceTree = "<group>"; };
 		BEC489BB1D4C173500CE7AB8 /* OBWControls.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = OBWControls.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEC489BE1D4C173500CE7AB8 /* Silversides.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Silversides.h; sourceTree = "<group>"; };
 		BEC489C51D4C173500CE7AB8 /* SilversidesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SilversidesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -139,6 +192,7 @@
 		BEC489E71D4C198100CE7AB8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BEC489EA1D4C198100CE7AB8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		BEC489EC1D4C198100CE7AB8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BED4FE832306C41E003080E7 /* OBWColorFilledView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWColorFilledView.swift; sourceTree = "<group>"; };
 		BEF9D5621DC2881300EA6FE0 /* NSImage+OBWExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSImage+OBWExtension.swift"; sourceTree = "<group>"; };
 		BEF9D5641DC28AEB00EA6FE0 /* NSScreen+OBWExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSScreen+OBWExtension.swift"; sourceTree = "<group>"; };
 		BEF9D5661DC28B4000EA6FE0 /* NSEdgeInsets+OBWExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSEdgeInsets+OBWExtension.swift"; sourceTree = "<group>"; };
@@ -180,6 +234,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BE09C1D41FE7FA5100EC5E6E /* README.assets */ = {
+			isa = PBXGroup;
+			children = (
+				BE09C1D51FE7FA5100EC5E6E /* OBWPathView.png */,
+				BE09C1D61FE7FA5100EC5E6E /* OBWFilteringMenu.png */,
+			);
+			path = README.assets;
+			sourceTree = "<group>";
+		};
 		BE44C8D31DA19837009517A5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -188,9 +251,20 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		BEC2CD4621D6F11200C452F6 /* OBWFilteringPopUpButtonCell */ = {
+			isa = PBXGroup;
+			children = (
+				BEC2CD4721D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift */,
+			);
+			path = OBWFilteringPopUpButtonCell;
+			sourceTree = "<group>";
+		};
 		BEC489B11D4C173500CE7AB8 = {
 			isa = PBXGroup;
 			children = (
+				BE09C1D71FE7FA5100EC5E6E /* LICENSE.md */,
+				BE09C1D41FE7FA5100EC5E6E /* README.assets */,
+				BE09C1D81FE7FA5100EC5E6E /* README.md */,
 				BEC489BD1D4C173500CE7AB8 /* Silversides */,
 				BEC489C91D4C173500CE7AB8 /* SilversidesTests */,
 				BEC489E21D4C198100CE7AB8 /* SilversidesDemo */,
@@ -212,6 +286,7 @@
 		BEC489BD1D4C173500CE7AB8 /* Silversides */ = {
 			isa = PBXGroup;
 			children = (
+				BEC2CD4621D6F11200C452F6 /* OBWFilteringPopUpButtonCell */,
 				BEFDC93A1D6F2FC20005ACFF /* OBWFilteringMenu */,
 				BEC489D61D4C181500CE7AB8 /* OBWPathView */,
 				BEC489DA1D4C193500CE7AB8 /* Resources */,
@@ -240,6 +315,10 @@
 				BEC489CA1D4C173500CE7AB8 /* OBWPathViewTests.swift */,
 				BE4685B11D8CF8C200AC4B6F /* NSEvent+OBWExtensionTests.swift */,
 				BE4685BD1D8FDF2300AC4B6F /* NSView+OBWExtensionTests.swift */,
+				BE9CF7F9230A557A00F721D0 /* PrintEventDataAsEncodedString.h */,
+				BE9CF7FA230A557A00F721D0 /* PrintEventDataAsEncodedString.m */,
+				BE9CF7FD230A7E1A00F721D0 /* XCTestCase+WaitForInterval.swift */,
+				BE9CF7FC230A559800F721D0 /* SilversidesTests-Bridging-Header.h */,
 				BEC489CC1D4C173500CE7AB8 /* Info.plist */,
 			);
 			path = SilversidesTests;
@@ -286,23 +365,35 @@
 		BEFDC9431D6FA0350005ACFF /* Internal */ = {
 			isa = PBXGroup;
 			children = (
+				BEB815D722E18B8E009B2172 /* OBWFilteringMenu+Internal.swift */,
+				BE9DFB052303BB49008DD378 /* OBWFilteringMenu+SessionState.swift */,
 				BE9CB0BD1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift */,
 				BE9CB0B51D86464F00323D09 /* OBWFilteringMenuArrows.swift */,
 				BEBEECC71D77E59A0050D277 /* OBWFilteringMenuBackground.swift */,
 				BE44C8D41DA3F47E009517A5 /* OBWFilteringMenuController.swift */,
+				BE9DFB072303C1EA008DD378 /* OBWFilteringMenuController+Keys.swift */,
+				BE35702722E5647700E9E68C /* OBWFilteringMenuCorners.swift */,
 				BE4685AD1D8CA98700AC4B6F /* OBWFilteringMenuCursorTracking.swift */,
+				BE35703122F57D2C00E9E68C /* OBWFilteringMenuDebugView.swift */,
+				BE35703322F586A200E9E68C /* OBWFilteringMenuDebugWindow.swift */,
 				BE4685B31D8F3A3000AC4B6F /* OBWFilteringMenuEventSource.swift */,
-				BE9CB0AF1D84665B00323D09 /* OBWFilteringMenuFieldEditor.swift */,
+				BE35702922E5AB3B00E9E68C /* OBWFilteringMenuEventSubtype.swift */,
 				BE9CB0B71D8656DE00323D09 /* OBWFilteringMenuItemFilterStatus.swift */,
 				BE4685B91D8F89E300AC4B6F /* OBWFilteringMenuItemScrollView.swift */,
+				BE35702F22EC617C00E9E68C /* OBWFilteringMenuItemTitleField.swift */,
 				BE9CB0BB1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift */,
 				BE4685B71D8F68E900AC4B6F /* OBWFilteringMenuScrollTracking.swift */,
+				BE35702522E2D64E00E9E68C /* OBWFilteringMenuSeparatorItemView.swift */,
+				BE35702D22EC165100E9E68C /* OBWFilteringMenuSubmenuImageView.swift */,
 				BE4685C91D91F53D00AC4B6F /* OBWFilteringMenuView.swift */,
 				BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */,
 				BEFDC94D1D6FB01C0005ACFF /* OBWFilteringMenuWindowGeometry.swift */,
+				BED4FE832306C41E003080E7 /* OBWColorFilledView.swift */,
 				BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */,
+				BEBD932221E258DD00CC1679 /* NSAppearance+OBWExtension.swift */,
 				BEF9D5661DC28B4000EA6FE0 /* NSEdgeInsets+OBWExtension.swift */,
 				BE4685AF1D8CC6B800AC4B6F /* NSEvent+OBWExtension.swift */,
+				BE35702B22E94D2E00E9E68C /* NSGraphicsContext+OBWExtension.swift */,
 				BEF9D5621DC2881300EA6FE0 /* NSImage+OBWExtension.swift */,
 				BE44C8DA1DA72D92009517A5 /* NSRect+OBWExtension.swift */,
 				BEF9D5641DC28AEB00EA6FE0 /* NSScreen+OBWExtension.swift */,
@@ -317,7 +408,12 @@
 			isa = PBXGroup;
 			children = (
 				BEFDC93B1D6F2FE80005ACFF /* OBWFilteringMenu.swift */,
+				BE35702122E1A39D00E9E68C /* OBWFilteringMenu+Error.swift */,
+				BE35702322E1A5A500E9E68C /* OBWFilteringMenu+HighlightTarget.swift */,
+				BE35701F22E1A24200E9E68C /* OBWFilteringMenu+Notification.swift */,
+				BEB815D522E187C0009B2172 /* OBWFilteringMenuDelegate.swift */,
 				BEFDC93D1D6F4B570005ACFF /* OBWFilteringMenuItem.swift */,
+				BE35703522F8255A00E9E68C /* OBWFilteringMenuItem+Alignment.swift */,
 			);
 			path = Public;
 			sourceTree = "<group>";
@@ -326,6 +422,7 @@
 			isa = PBXGroup;
 			children = (
 				BEFDC9461D6FA0940005ACFF /* OBWPathItemView.swift */,
+				BE35703D2302BCD100E9E68C /* OBWPathView+CompressionPriority.swift */,
 			);
 			path = Internal;
 			sourceTree = "<group>";
@@ -334,7 +431,10 @@
 			isa = PBXGroup;
 			children = (
 				BEFDC9481D6FA0940005ACFF /* OBWPathItem.swift */,
+				BE3570372302B63F00E9E68C /* OBWPathItem+ActivationType.swift */,
 				BEFDC9491D6FA0940005ACFF /* OBWPathView.swift */,
+				BE35703B2302BC4300E9E68C /* OBWPathView+ErrorType.swift */,
+				BE3570392302B6F100E9E68C /* OBWPathViewDelegate.swift */,
 			);
 			path = Public;
 			sourceTree = "<group>";
@@ -415,24 +515,27 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 1020;
 				ORGANIZATIONNAME = OrderedBytes;
 				TargetAttributes = {
 					BEC489BA1D4C173500CE7AB8 = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 1020;
 					};
 					BEC489C41D4C173500CE7AB8 = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 1030;
 						TestTargetID = BEC489E01D4C198100CE7AB8;
 					};
 					BEC489E01D4C198100CE7AB8 = {
 						CreatedOnToolsVersion = 7.3;
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
 			buildConfigurationList = BEC489B51D4C173500CE7AB8 /* Build configuration list for PBXProject "Silversides" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -482,15 +585,27 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE4685B41D8F3A3000AC4B6F /* OBWFilteringMenuEventSource.swift in Sources */,
-				BE9CB0B01D84665B00323D09 /* OBWFilteringMenuFieldEditor.swift in Sources */,
+				BE35702222E1A39D00E9E68C /* OBWFilteringMenu+Error.swift in Sources */,
+				BE35702622E2D64E00E9E68C /* OBWFilteringMenuSeparatorItemView.swift in Sources */,
+				BE35702422E1A5A500E9E68C /* OBWFilteringMenu+HighlightTarget.swift in Sources */,
+				BEBD932321E258DD00CC1679 /* NSAppearance+OBWExtension.swift in Sources */,
 				BEFDC94E1D6FB01C0005ACFF /* OBWFilteringMenuWindowGeometry.swift in Sources */,
+				BE35702C22E94D2E00E9E68C /* NSGraphicsContext+OBWExtension.swift in Sources */,
 				BE9CB0B81D8656DE00323D09 /* OBWFilteringMenuItemFilterStatus.swift in Sources */,
 				BE7F3EDB1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift in Sources */,
+				BEB815D822E18B8E009B2172 /* OBWFilteringMenu+Internal.swift in Sources */,
 				BEBEECC81D77E59A0050D277 /* OBWFilteringMenuBackground.swift in Sources */,
+				BED4FE842306C41E003080E7 /* OBWColorFilledView.swift in Sources */,
+				BE35703C2302BC4300E9E68C /* OBWPathView+ErrorType.swift in Sources */,
 				BE4685CA1D91F53D00AC4B6F /* OBWFilteringMenuView.swift in Sources */,
+				BE35703622F8255A00E9E68C /* OBWFilteringMenuItem+Alignment.swift in Sources */,
 				BE9CB0BC1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift in Sources */,
+				BE35703E2302BCD100E9E68C /* OBWPathView+CompressionPriority.swift in Sources */,
 				BEFDC94C1D6FA0940005ACFF /* OBWPathView.swift in Sources */,
+				BE35702022E1A24200E9E68C /* OBWFilteringMenu+Notification.swift in Sources */,
+				BE9DFB062303BB49008DD378 /* OBWFilteringMenu+SessionState.swift in Sources */,
 				BE9CB0B61D86464F00323D09 /* OBWFilteringMenuArrows.swift in Sources */,
+				BEC2CD4821D6F14A00C452F6 /* OBWFilteringPopUpButtonCell.swift in Sources */,
 				BE4685B81D8F68E900AC4B6F /* OBWFilteringMenuScrollTracking.swift in Sources */,
 				BE4685AE1D8CA98700AC4B6F /* OBWFilteringMenuCursorTracking.swift in Sources */,
 				BE44C8DB1DA72D92009517A5 /* NSRect+OBWExtension.swift in Sources */,
@@ -498,17 +613,27 @@
 				BE44C8D51DA3F47E009517A5 /* OBWFilteringMenuController.swift in Sources */,
 				BE4685BC1D8FDCE400AC4B6F /* NSView+OBWExtension.swift in Sources */,
 				BE4685B01D8CC6B800AC4B6F /* NSEvent+OBWExtension.swift in Sources */,
+				BE35702822E5647700E9E68C /* OBWFilteringMenuCorners.swift in Sources */,
 				BEF9D5671DC28B4000EA6FE0 /* NSEdgeInsets+OBWExtension.swift in Sources */,
+				BE35702A22E5AB3B00E9E68C /* OBWFilteringMenuEventSubtype.swift in Sources */,
+				BE9DFB082303C1EA008DD378 /* OBWFilteringMenuController+Keys.swift in Sources */,
 				BE4685BA1D8F89E300AC4B6F /* OBWFilteringMenuItemScrollView.swift in Sources */,
 				BEFDC93E1D6F4B570005ACFF /* OBWFilteringMenuItem.swift in Sources */,
+				BE35703022EC617C00E9E68C /* OBWFilteringMenuItemTitleField.swift in Sources */,
+				BEB815D622E187C0009B2172 /* OBWFilteringMenuDelegate.swift in Sources */,
+				BE35702E22EC165100E9E68C /* OBWFilteringMenuSubmenuImageView.swift in Sources */,
 				BEFDC93C1D6F2FE80005ACFF /* OBWFilteringMenu.swift in Sources */,
 				BE9CB0BE1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift in Sources */,
+				BE35703A2302B6F100E9E68C /* OBWPathViewDelegate.swift in Sources */,
+				BE35703422F586A200E9E68C /* OBWFilteringMenuDebugWindow.swift in Sources */,
 				BE4685CC1D91F8E900AC4B6F /* NSControl+OBWExtension.swift in Sources */,
 				BE9CB0B21D8469BC00323D09 /* OBWFilteringMenuWindow.swift in Sources */,
 				BE44C8D91DA55E8A009517A5 /* NSWindow+OBWExtension.swift in Sources */,
 				BEF9D5651DC28AEB00EA6FE0 /* NSScreen+OBWExtension.swift in Sources */,
+				BE35703222F57D2C00E9E68C /* OBWFilteringMenuDebugView.swift in Sources */,
 				BEFDC94A1D6FA0940005ACFF /* OBWPathItemView.swift in Sources */,
 				BEF9D5631DC2881300EA6FE0 /* NSImage+OBWExtension.swift in Sources */,
+				BE3570382302B63F00E9E68C /* OBWPathItem+ActivationType.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,6 +648,7 @@
 				BE4685BE1D8FDF2300AC4B6F /* NSView+OBWExtensionTests.swift in Sources */,
 				BEFDC9501D6FB0FD0005ACFF /* OBWFilteringMenuWindowGeometryTests.swift in Sources */,
 				BEFDC9401D6F64920005ACFF /* OBWFilteringMenuTests.swift in Sources */,
+				BE9CF7FE230A7E1A00F721D0 /* XCTestCase+WaitForInterval.swift in Sources */,
 				BE4685C81D91F44400AC4B6F /* OBWFilteringMenuScrollTrackingTests.swift in Sources */,
 				BEC489CB1D4C173500CE7AB8 /* OBWPathViewTests.swift in Sources */,
 				BE44C8D71DA40305009517A5 /* OBWFilteringMenuControllerTests.swift in Sources */,
@@ -533,6 +659,7 @@
 				BE4685C21D91F26F00AC4B6F /* OBWFilteringMenuCursorTrackingTests.swift in Sources */,
 				BE29533F1D7A2CC000EA47AB /* OBWFilteringMenuBackgroundTests.swift in Sources */,
 				BE4685C01D91F20F00AC4B6F /* OBWFilteringMenuActionItemViewTests.swift in Sources */,
+				BE9CF7FB230A557A00F721D0 /* PrintEventDataAsEncodedString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -581,14 +708,22 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -611,12 +746,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -631,14 +766,22 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
@@ -655,11 +798,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -677,10 +820,10 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Silversides/Resources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
-				OTHER_SWIFT_FLAGS = "-DDEBUG -DxDEBUG_MENU_TINTING -DxDEBUG_CURSOR_TRACKING -DxCONTINUE_ON_RESIGN_ACTIVE -DxPRINT_SCROLL_EVENTS";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.OBWControls;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG xDEBUG_MENU_TINTING xDEBUG_CURSOR_TRACKING xCONTINUE_ON_RESIGN_ACTIVE xDEBUG_MENU_ITEM_BASELINE";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TEST_HOST = "$(BUILD_ROOT)/Debug/SilversidesDemo.app";
 			};
@@ -709,12 +852,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = SilversidesTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				OTHER_SWIFT_FLAGS = "-DxINTERACTIVE_TESTS";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.SilversidesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SilversidesTests/SilversidesTests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SilversidesDemo.app/Contents/MacOS/SilversidesDemo";
 			};
 			name = Debug;
@@ -723,11 +870,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = SilversidesTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.SilversidesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SilversidesTests/SilversidesTests-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SilversidesDemo.app/Contents/MacOS/SilversidesDemo";
 			};
 			name = Release;

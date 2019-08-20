@@ -4,11 +4,10 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-// Insets an NSRect by NSEdgeInsets.
-func +( lhs: NSRect, rhs: NSEdgeInsets ) -> NSRect {
+/// Returns a rect formed by adding the given edge insets to the given rect.  Positive insets will result in a smaller rect.  Will not return a rect with a negative width or height.
+func +(lhs: NSRect, rhs: NSEdgeInsets) -> NSRect {
     
     var rect = lhs
     let insets = rhs
@@ -18,7 +17,7 @@ func +( lhs: NSRect, rhs: NSEdgeInsets ) -> NSRect {
         rect.size.width -= insets.width
     }
     else {
-        rect.origin.x += floor( rect.size.width * insets.left / insets.width )
+        rect.origin.x += floor(rect.size.width * insets.left / insets.width)
         rect.size.width = 0.0
     }
     
@@ -27,16 +26,15 @@ func +( lhs: NSRect, rhs: NSEdgeInsets ) -> NSRect {
         rect.size.height -= insets.height
     }
     else {
-        rect.origin.y += floor( rect.size.height * insets.bottom / insets.height )
+        rect.origin.y += floor(rect.size.height * insets.bottom / insets.height)
         rect.size.height = 0.0
     }
     
     return rect
 }
 
-/*==========================================================================*/
-// Expands an NSRect by NSEdgeInsets
-func -( lhs: NSRect, rhs: NSEdgeInsets ) -> NSRect {
+/// Returns a rect formed by subtracting the given edge insets from the given rect.  Positive insets will result in a larger rect.
+func -(lhs: NSRect, rhs: NSEdgeInsets) -> NSRect {
     
     var rect = lhs
     let insets = rhs
@@ -53,24 +51,24 @@ func -( lhs: NSRect, rhs: NSEdgeInsets ) -> NSRect {
 
 extension NSRect {
     
-    /*==========================================================================*/
-    init( size: NSSize ) {
-        self.init( origin: NSZeroPoint, size: size )
+    /// Initializes an NSRect from an NSSize.  The origin of the NSRect will be .zero.
+    init(size: NSSize) {
+        self.init(origin: .zero, size: size)
     }
     
-    /*==========================================================================*/
-    init( width: CGFloat, height: CGFloat ) {
-        self.init( x: 0.0, y: 0.0, width: width, height: height )
+    /// Initializes an NSRect from a width and height.  The origin of the NSRect will be .zero.
+    init(width: CGFloat, height: CGFloat) {
+        self.init(x: 0.0, y: 0.0, width: width, height: height)
     }
     
-    /*==========================================================================*/
-    init( origin: NSPoint, width: CGFloat, height: CGFloat ) {
-        self.init( x: origin.x, y: origin.y, width: width, height: height )
+    /// Initializes an NSRect from an origin, width, and height.
+    init(origin: NSPoint, width: CGFloat, height: CGFloat) {
+        self.init(x: origin.x, y: origin.y, width: width, height: height)
     }
     
-    /*==========================================================================*/
-    init( x: CGFloat, y: CGFloat, size: NSSize ) {
-        self.init( x: x, y: y, width: size.width, height: size.height )
+    /// Initializes an NSRect from X and Y positions, and a size.
+    init(x: CGFloat, y: CGFloat, size: NSSize) {
+        self.init(x: x, y: y, width: size.width, height: size.height)
     }
     
 }

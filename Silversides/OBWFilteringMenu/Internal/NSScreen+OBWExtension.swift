@@ -4,23 +4,16 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
-
-/*==========================================================================*/
+import AppKit
 
 extension NSScreen {
     
-    class func screenContainingLocation( locationInScreen: NSPoint ) -> NSScreen? {
+    /// Returns the screen containing the given location, if any.
+    class func screenContainingLocation(_ locationInScreen: NSPoint) -> NSScreen? {
         
-        guard let screenList = self.screens() else { return nil }
-        
-        for screen in screenList {
-            
-            if NSPointInRect( locationInScreen, screen.frame ) {
-                return screen
-            }
-        }
-        
-        return nil
+        return self.screens.first(where: {
+            NSPointInRect(locationInScreen, $0.frame)
+        })
     }
+    
 }

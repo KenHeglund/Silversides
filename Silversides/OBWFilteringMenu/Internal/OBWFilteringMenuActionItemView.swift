@@ -4,187 +4,154 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-
-class OBWTextFieldCell: NSTextFieldCell {
-    override func accessibilityIsIgnored() -> Bool {
-        return true
-    }
-}
-
-class OBWImageCell: NSImageCell {
-    override func accessibilityIsIgnored() -> Bool {
-        return true
-    }
-}
-
-extension NSGraphicsContext {
-    
-    static func withSavedGraphicsState( @noescape handler: () -> Void ) {
-        NSGraphicsContext.saveGraphicsState()
-        handler()
-        NSGraphicsContext.restoreGraphicsState()
-    }
-}
-
-/*==========================================================================*/
-// MARK: -
-
+/// A view that hosts an OBWFilteringMenuItem.
 class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     
-    /*==========================================================================*/
-    override init( menuItem: OBWFilteringMenuItem ) {
+    /// Initialize the view from the menu item that it will host.
+    override init(menuItem: OBWFilteringMenuItem) {
         
-        assert( !menuItem.isSeparatorItem )
+        assert(menuItem.isSeparatorItem == false)
         
-        let itemTitleField = NSTextField( frame: NSZeroRect )
-        self.itemTitleField = itemTitleField
+        self.submenuArrowImageView = OBWFilteringMenuSubmenuImageView(menuItem)
+        self.itemTitleField = OBWFilteringMenuItemTitleField(menuItem)
         
-        let itemImageSize = menuItem.image?.size ?? NSZeroSize
-        let itemImageFrame = NSRect( size: itemImageSize )
+        super.init(menuItem: menuItem)
         
-        let itemImageView = NSImageView( frame: itemImageFrame )
-        self.itemImageView = itemImageView
+        self.addSubview(self.itemTitleField)
+        self.addSubview(self.itemImageView)
+        self.addSubview(self.submenuArrowImageView)
+        self.addSubview(self.stateImageView)
         
-        let subviewArrowImageView = NSImageView( frame: OBWFilteringMenuActionItemView.subviewArrowFrame )
-        self.subviewArrowImageView = subviewArrowImageView
+        NotificationCenter.default.addObserver(self, selector: #selector(OBWFilteringMenuActionItemView.highlightedItemDidChange(_:)), name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: nil)
         
-        super.init( menuItem: menuItem )
-        
-        itemTitleField.cell = OBWTextFieldCell()
-        itemTitleField.editable = false
-        itemTitleField.selectable = false
-        itemTitleField.bezeled = false
-        #if DEBUG_MENU_TINTING
-            itemTitleField.drawsBackground = true
-            itemTitleField.backgroundColor = NSColor( deviceRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.15 )
-        #else
-            itemTitleField.drawsBackground = false
-        #endif
-        itemTitleField.cell?.lineBreakMode = .ByClipping
-        itemTitleField.textColor = NSColor.blackColor()
-        itemTitleField.alphaValue = ( menuItem.enabled ? 1.0 : 0.35 )
-        itemTitleField.attributedStringValue = self.attributedStringValue
-        
-        self.addSubview( itemTitleField )
-        
-        itemImageView.cell = OBWImageCell()
-        itemImageView.image = menuItem.image
-        itemImageView.imageFrameStyle = .None
-        itemImageView.editable = false
-        itemImageView.hidden = ( menuItem.image == nil )
-        itemImageView.enabled = menuItem.enabled
-        
-        self.addSubview( itemImageView )
-        
-        subviewArrowImageView.cell = OBWImageCell()
-        subviewArrowImageView.image = OBWFilteringMenuArrows.blackRightArrow
-        subviewArrowImageView.imageFrameStyle = .None
-        subviewArrowImageView.editable = false
-        subviewArrowImageView.hidden = ( menuItem.submenu == nil )
-        
-        self.addSubview( subviewArrowImageView )
-        
-        NSNotificationCenter.defaultCenter().addObserver( self, selector: #selector(OBWFilteringMenuActionItemView.highlightedItemDidChange(_:)), name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: nil )
+        self.itemImageView.image = menuItem.image
+        self.itemImageView.isHidden = (menuItem.image == nil)
+        self.itemImageView.isEnabled = menuItem.enabled && !menuItem.isHeadingItem
     }
     
-    /*==========================================================================*/
-    required init?( coder: NSCoder ) {
-        fatalError( "init(coder:) has not been implemented" )
+    /// Required initializer, currently unused.
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
-    /*==========================================================================*/
+    /// Clean up.
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver( self, name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: nil )
+        NotificationCenter.default.removeObserver(self, name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: nil)
     }
     
-    /*==========================================================================*/
+    
     // MARK: - NSView overrides
     
-    /*==========================================================================*/
-    override func resizeSubviewsWithOldSize( oldSize: NSSize ) {
+    /// Resize and reposition the view's subviews.
+    override func resizeSubviews(withOldSize _: NSSize) {
         
-        let itemViewBounds = self.bounds
-        let interiorMargins = OBWFilteringMenuActionItemView.interiorMargins
+        let contentBounds = self.bounds + OBWFilteringMenuActionItemView.interiorMargins
         let imageMargins = OBWFilteringMenuActionItemView.imageMargins
         
-        let imageFrameOffsetY: CGFloat
-        let titleFrameOffsetY: CGFloat
-        
-        let attributedTitleLength = self.menuItem.attributedTitle?.length ?? 0
-        let fontHeight = self.menuItem.font
-        if attributedTitleLength == 0 && fontHeight == NSFont.systemFontSizeForControlSize( .Regular ) {
-            // Special cases for the standard Regular control size
-            imageFrameOffsetY = 1.0
-            titleFrameOffsetY = 1.0
-        }
-        else {
-            imageFrameOffsetY = -1.0
-            titleFrameOffsetY = 0.0
-        }
+        let indentation = CGFloat(self.menuItem.indentationLevel) * OBWFilteringMenuActionItemView.indentDistancePerLevel
         
         let imageSize = self.menuItem.image?.size ?? NSZeroSize
         let imageFrame = NSRect(
-            x: interiorMargins.left + imageMargins.left,
-            y: floor( ( itemViewBounds.size.height - imageSize.height ) / 1.0 ) + imageFrameOffsetY,
+            x: contentBounds.minX + indentation + imageMargins.left,
+            y: floor(contentBounds.midY - (imageSize.height / 2.0)),
             size: imageSize
         )
         
-        let titleSize = OBWFilteringMenuActionItemView.preferredViewSizeForTitleOfMenuItem( self.menuItem )
+        let titleSize = OBWFilteringMenuActionItemView.preferredTitleTextFieldSize(for: self.menuItem)
         let titleFrame = NSRect(
-            x: ( imageFrame.size.width > 0 ? imageFrame.maxX + imageMargins.right : interiorMargins.left ),
-            y: floor( ( itemViewBounds.size.height - titleSize.height ) / 2.0 ) + titleFrameOffsetY,
+            x: (imageFrame.width > 0 ? imageFrame.maxX + imageMargins.right : contentBounds.minX + indentation),
+            y: floor(contentBounds.midY - (titleSize.height / 2.0)),
             size: titleSize
         )
         
         self.itemImageView.frame = imageFrame
         self.itemTitleField.frame = titleFrame
         
-        var arrowImageFrame = self.subviewArrowImageView.frame
-        arrowImageFrame.origin.y = itemViewBounds.origin.y + round( ( itemViewBounds.size.height - arrowImageFrame.size.height ) / 2.0 )
-        arrowImageFrame.origin.x = itemViewBounds.maxX - arrowImageFrame.size.width - interiorMargins.right
-        self.subviewArrowImageView.setFrameOrigin( arrowImageFrame.origin )
+        let arrowImageSize = self.submenuArrowImageView.frame.size
+        let arrowImageOrigin = NSPoint(
+            x: contentBounds.maxX - arrowImageSize.width,
+            y: contentBounds.midY - floor(arrowImageSize.height / 2.0)
+        )
+        self.submenuArrowImageView.setFrameOrigin(arrowImageOrigin)
+        
+        let stateToTitleRatio: CGFloat = 0.6
+        let stateImageSize = titleSize.height * stateToTitleRatio
+        
+        let stateImageFrame = NSRect(
+            x: imageFrame.origin.x - OBWFilteringMenuActionItemView.statusImageRightMargin - stateImageSize,
+            y: titleFrame.origin.y + ((titleSize.height - stateImageSize) / 2.0),
+            width: stateImageSize,
+            height: stateImageSize
+        )
+        
+        self.stateImageView.frame = stateImageFrame
     }
     
-    /*==========================================================================*/
-    override func drawRect( dirtyRect: NSRect ) {
+    /// The view is about to be drawn.
+    override func viewWillDraw() {
+        super.viewWillDraw()
+        self.updateStateImage()
+    }
+    
+    /// Draw the view.
+    override func draw(_ dirtyRect: NSRect) {
         
         #if DEBUG_MENU_TINTING
-            NSColor( deviceRed: 0.0, green: 1.0, blue: 0.0, alpha: 0.1 ).set()
-            NSRectFill( self.bounds )
+        NSColor.green.withAlphaComponent(0.1).set()
+        self.bounds.fill()
         #endif
-        
-        if !self.menuItem.isHighlighted { return }
+
+        if self.menuItem.isHighlighted == false {
+            return
+        }
         
         NSGraphicsContext.withSavedGraphicsState {
             
             let localOrigin = self.bounds.origin
-            let originInWindow = self.convertPoint( localOrigin, toView: nil )
+            let originInWindow = self.convert(localOrigin, to: nil)
             
-            NSGraphicsContext.currentContext()?.patternPhase = originInWindow
+            NSGraphicsContext.current?.patternPhase = originInWindow
             
-            NSColor.selectedMenuItemColor().setFill()
-            NSRectFill( self.bounds )
+            if #available(macOS 10.14, *) {
+                NSColor.selectedContentBackgroundColor.setFill()
+            }
+            else {
+                NSColor.selectedMenuItemColor.setFill()
+            }
+            self.bounds.fill()
         }
     }
     
-    /*==========================================================================*/
+    /// Returns the first baseline offset of the title field adjusted to this view's coordinates.
+    override var firstBaselineOffsetFromTop: CGFloat {
+        return self.itemTitleField.firstBaselineOffsetFromTop + (self.bounds.maxY - self.itemTitleField.frame.maxY)
+    }
+    
+    
     // MARK: - OBWFilteringMenuItemView overrides
     
-    /*==========================================================================*/
-    override class func preferredSizeForMenuItem( menuItem: OBWFilteringMenuItem ) -> NSSize {
+    /// Calculate the preferred view size needed to draw the given menu item.
+    override class func preferredSizeForMenuItem(_ menuItem: OBWFilteringMenuItem) -> NSSize {
         
         let interiorMargins = OBWFilteringMenuActionItemView.interiorMargins
         let imageMargins = OBWFilteringMenuActionItemView.imageMargins
-        let subviewArrowFrame = OBWFilteringMenuActionItemView.subviewArrowFrame
+        let submenuArrowSize = OBWFilteringMenuSubmenuImageView.size
         let titleToSubmenuArrowSpacing = OBWFilteringMenuActionItemView.titleToSubmenuArrowSpacing
         
-        var imageSize = menuItem.image?.size ?? NSZeroSize
-        imageSize.height += imageMargins.height
+        let imageSize: NSSize
+        if let image = menuItem.image {
+            imageSize = NSSize(
+                width: image.size.width,
+                height: image.size.height + imageMargins.height
+            )
+        }
+        else {
+            imageSize = .zero
+        }
         
-        let titleSize = OBWFilteringMenuActionItemView.preferredViewSizeForTitleOfMenuItem( menuItem )
+        let titleSize = OBWFilteringMenuActionItemView.preferredTitleTextFieldSize(for: menuItem)
         
         var preferredSize = NSSize(
             width: interiorMargins.width + imageSize.width + titleSize.width,
@@ -201,295 +168,248 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         }
         
         if menuItem.submenu != nil {
-            preferredSize.width += titleToSubmenuArrowSpacing + subviewArrowFrame.size.width
+            preferredSize.width += titleToSubmenuArrowSpacing + submenuArrowSize.width
         }
         
-        preferredSize.height = max( imageSize.height, titleSize.height )
-        preferredSize.height = max( preferredSize.height, subviewArrowFrame.size.height )
+        preferredSize.height = max(imageSize.height, titleSize.height)
+        preferredSize.height = max(preferredSize.height, submenuArrowSize.height)
         
-        if menuItem.attributedTitle != nil {
-            return preferredSize
+        if menuItem.attributedTitle == nil {
+        
+            // Special cases for non-attributed titles with standard control font sizes
+            let fontHeight = menuItem.font.pointSize
+            
+            let standardMiniControlMenuItemHeight: CGFloat = 13.0
+            let standardSmallControlMenuItemHeight: CGFloat = 16.0
+            let standardRegularControlMenuItemHeight: CGFloat = 18.0
+            
+            if NSFont.systemFontSize(for: .mini) == fontHeight {
+                preferredSize.height = max(preferredSize.height, standardMiniControlMenuItemHeight)
+            }
+            else if NSFont.systemFontSize(for: .small) == fontHeight {
+                preferredSize.height = max(preferredSize.height, standardSmallControlMenuItemHeight)
+            }
+            else if NSFont.systemFontSize(for: .regular) == fontHeight {
+                preferredSize.height = max(preferredSize.height, standardRegularControlMenuItemHeight)
+            }
         }
         
-        // Special cases for non-attributed titles with standard control font sizes
-        let fontHeight = menuItem.font.pointSize
-        
-        let standardMiniControlMenuItemHeight: CGFloat = 13.0
-        let standardSmallControlMenuItemHeight: CGFloat = 16.0
-        let standardRegularControlMenuItemHeight: CGFloat = 18.0
-        
-        if NSFont.systemFontSizeForControlSize( .Mini ) == fontHeight {
-            preferredSize.height = max( preferredSize.height, standardMiniControlMenuItemHeight )
-        }
-        else if NSFont.systemFontSizeForControlSize( .Small ) == fontHeight {
-            preferredSize.height = max( preferredSize.height, standardSmallControlMenuItemHeight )
-        }
-        else if NSFont.systemFontSizeForControlSize( .Regular ) == fontHeight {
-            preferredSize.height = max( preferredSize.height, standardRegularControlMenuItemHeight )
-        }
+        let indentation = CGFloat(menuItem.indentationLevel) * OBWFilteringMenuActionItemView.indentDistancePerLevel
+        preferredSize.width += indentation
         
         return preferredSize
     }
     
-    /*==========================================================================*/
-    override func applyFilterStatus( status: OBWFilteringMenuItemFilterStatus ) {
-        
-        super.applyFilterStatus( status )
-        
-        self.itemTitleField.attributedStringValue = self.attributedStringValue
-        self.itemTitleField.needsDisplay = true
+    /// Applies the given filter status to the view.
+    override func applyFilterStatus(_ status: OBWFilteringMenuItemFilterStatus) {
+        super.applyFilterStatus(status)
+        self.itemTitleField.filterStatus = status
     }
     
     
-    /*==========================================================================*/
     // MARK: - NSAccessibility implementation
     
-    /*==========================================================================*/
+    /// The view is accessible.
     override func isAccessibilityElement() -> Bool {
         return true
     }
     
-    /*==========================================================================*/
-    override func accessibilityRole() -> String? {
-        let itemHasSubmenu = ( self.menuItem.submenu != nil )
-        return ( itemHasSubmenu ? NSAccessibilityPopUpButtonRole : NSAccessibilityButtonRole )
+    /// Returns the view's accessibility role based on whether or not it has a subview.
+    override func accessibilityRole() -> NSAccessibility.Role? {
+        let itemHasSubmenu = (self.menuItem.submenu != nil)
+        return (itemHasSubmenu ? NSAccessibility.Role.popUpButton : NSAccessibility.Role.button)
     }
     
-    /*==========================================================================*/
+    /// Returns the standard description of the view's accessibility role.
     override func accessibilityRoleDescription() -> String? {
-        guard let role = self.accessibilityRole() else { return nil }
-        return NSAccessibilityRoleDescription( role, nil )
+        
+        guard let role = self.accessibilityRole() else {
+            return nil
+        }
+        
+        return role.description(with: nil )
     }
     
-    /*==========================================================================*/
-    override func accessibilityParent() -> AnyObject? {
-        guard let superview = self.superview else { return nil }
-        return NSAccessibilityUnignoredAncestor( superview )
+    /// Returns the accessibility parent of the view.
+    override func accessibilityParent() -> Any? {
+        
+        guard let superview = self.superview else {
+            return nil
+        }
+        
+        return NSAccessibility.unignoredAncestor(of: superview)
     }
     
-    /*==========================================================================*/
-    override func accessibilityValue() -> AnyObject? {
+    /// Returns the accessibility value (the title) of the view.
+    override func accessibilityValue() -> Any? {
         return self.menuItem.title ?? nil
     }
     
-    /*==========================================================================*/
+    /// Returns a description of the view's accessibility value.
     override func accessibilityValueDescription() -> String? {
-        let itemHasSubmenu = ( self.menuItem.submenu != nil )
-        return ( itemHasSubmenu ? super.accessibilityValueDescription() : self.menuItem.title ?? "" );
+        let itemHasSubmenu = (self.menuItem.submenu != nil)
+        return (itemHasSubmenu ? super.accessibilityValueDescription() : self.menuItem.title ?? "");
     }
     
-    /*==========================================================================*/
-    override func accessibilityChildren() -> [AnyObject]? {
+    /// Returns the view's accessibile children (an empty array).
+    override func accessibilityChildren() -> [Any]? {
         return []
     }
     
-    /*==========================================================================*/
+    /// Returns whether accessibility is enabled on the view based on whether the menu item is enabled or not.
     override func isAccessibilityEnabled() -> Bool {
-        return self.menuItem.enabled
+        return self.menuItem.enabled && !self.menuItem.isHeadingItem
     }
     
-    /*==========================================================================*/
+    /// Returns whether the view has accessibility focus.
     override func isAccessibilityFocused() -> Bool {
         return self.menuItem.isHighlighted
     }
     
-    /*==========================================================================*/
+    /// Returns accessibility help for the view.
     override func accessibilityHelp() -> String? {
         
         let menuItem = self.menuItem
         
         if let menu = menuItem.menu {
-            if let helpString = menu.delegate?.filteringMenu( menu, accessibilityHelpForItem: menuItem ) {
+            if let helpString = menu.delegate?.filteringMenu(menu, accessibilityHelpForItem: menuItem) {
                 return helpString
             }
         }
         
-        guard let title = menuItem.title else { return nil }
+        guard let title = menuItem.title else {
+            return nil
+        }
         
-        let itemWithoutSubmenuFormat = NSLocalizedString( "Click this button to select the %@ item", comment: "Filtering menu item (without submenu) accessibility help format" )
-        let itemWithSubmenuFormat = NSLocalizedString( "Click this button to interact with the %@ item", comment: "Filtering menu item (with submenu) accessibility help format" )
+        let itemWithoutSubmenuFormat = NSLocalizedString("Click this button to select the %@ item", comment: "Filtering menu item (without submenu) accessibility help format")
+        let itemWithSubmenuFormat = NSLocalizedString("Click this button to interact with the %@ item", comment: "Filtering menu item (with submenu) accessibility help format")
         
         let format = menuItem.submenu == nil ? itemWithoutSubmenuFormat : itemWithSubmenuFormat
         
-        return NSString( format: format, title ) as String
+        return String.localizedStringWithFormat(format, title)
     }
     
-    /*==========================================================================*/
+    /// Responds to the user activating the view via accessibility.
     override func accessibilityPerformPress() -> Bool {
-        let notificationCenter = NSNotificationCenter.defaultCenter()
-        let userInfo = [ OBWFilteringMenuItemKey : self.menuItem ]
-        notificationCenter.postNotificationName( OBWFilteringMenuAXDidOpenMenuItemNotification, object: self, userInfo: userInfo )
+        let notificationCenter = NotificationCenter.default
+        let userInfo: [OBWFilteringMenuController.Key:Any] = [.menuItem : self.menuItem]
+        notificationCenter.post(name: OBWFilteringMenuController.axDidOpenMenuItemNotification, object: self, userInfo: userInfo)
         return true
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuActionItemView internal
     
-    /*==========================================================================*/
-    static func titleOffsetForMenuItem( menuItem: OBWFilteringMenuItem ) -> NSSize {
-        
-        let interiorMargins = OBWFilteringMenuActionItemView.interiorMargins
-        let imageMargins = OBWFilteringMenuActionItemView.imageMargins
-        
-        let menuItemSize = OBWFilteringMenuActionItemView.preferredSizeForMenuItem( menuItem )
-        
-        // Offset from top-left of item view to bottom-left of text field
-        
-        let imageSize = menuItem.image?.size ?? NSZeroSize
-        let imageFrame = NSRect(
-            x: interiorMargins.left + imageMargins.left,
-            y: floor( ( menuItemSize.height - imageSize.height ) / 2.0 ),
-            size: imageSize
-        )
-        
-        let titleFrameOffsetY: CGFloat
-        let attributedTitleLength = menuItem.attributedTitle?.length ?? 0
-        if attributedTitleLength == 0 {
-            
-            let fontHeight = menuItem.font.pointSize
-            
-            if NSFont.systemFontSizeForControlSize( .Regular ) == fontHeight {
-                // Special cases for standard Regular control font size
-                titleFrameOffsetY = 1.0
-            }
-            else {
-                titleFrameOffsetY = 0.0
-            }
-        }
-        else {
-            titleFrameOffsetY = 0.0
-        }
-        
-        let titleSize = OBWFilteringMenuActionItemView.preferredViewSizeForTitleOfMenuItem( menuItem )
-        let titleFrame = NSRect(
-            x: ( imageFrame.size.width > 0.0 ? imageFrame.maxX + imageMargins.right : interiorMargins.left ),
-            y: floor( ( menuItemSize.height - titleSize.height ) / 2.0 ) + titleFrameOffsetY,
-            size: titleSize
-        )
-        
-        let titleOffset = NSSize(
-            width: titleFrame.origin.x,
-            height: menuItemSize.height - titleFrame.maxY
-        )
-        
-        return titleOffset
-    }
+    // MARK: - Private
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuActionItemView private
+    /// The field that draws the menu item title.
+    private let itemTitleField: OBWFilteringMenuItemTitleField
     
-    unowned private let itemTitleField: NSTextField
-    unowned private let itemImageView: NSImageView
-    unowned private let subviewArrowImageView: NSImageView
+    /// The view that draws the menu item's image.
+    private let itemImageView: NSImageView = {
+        
+        let itemImageSize = NSSize(width: 10.0, height: 10.0)
+        let itemImageFrame = NSRect(size: itemImageSize)
+        let itemImageView = NSImageView(frame: itemImageFrame)
+        
+        itemImageView.imageFrameStyle = .none
+        itemImageView.isEditable = false
+        
+        return itemImageView
+    }()
     
-    private static let subviewArrowFrame = NSRect( width: 9.0, height: 10.0 )
-    private static let interiorMargins = NSEdgeInsets( top: 0.0, left: 19.0, bottom: 0.0, right: 10.0 )
-    private static let imageMargins = NSEdgeInsets( top: 2.0, left: 2.0, bottom: 2.0, right: 2.0 )
+    /// The view that draws the submenu arrow.
+    private let submenuArrowImageView: OBWFilteringMenuSubmenuImageView
+    
+    /// The view that draws the menu item state.
+    private let stateImageView: NSImageView = {
+        let stateImageView = NSImageView(frame: .zero)
+        stateImageView.imageFrameStyle = .none
+        stateImageView.isEditable = false
+        return stateImageView
+    }()
+    
+    /// Padding to the right of the status image.
+    private static let statusImageRightMargin: CGFloat = 5.0
+    
+    /// Margins between the item image view and its contents.
+    private static let interiorMargins = NSEdgeInsets(top: 0.0, left: 19.0, bottom: 0.0, right: 10.0)
+    
+    /// Margins around the icon image.
+    private static let imageMargins = NSEdgeInsets(top: 2.0, left: 2.0, bottom: 2.0, right: 2.0)
+    
+    /// Padding between the title and the arrow indicating that there is a submenu.
     private static let titleToSubmenuArrowSpacing: CGFloat = 37.0
     
-    /*==========================================================================*/
-    private var attributedStringValue: NSAttributedString {
-        
-        if let filterStatus = self.filterStatus {
-            
-            if !self.menuItem.isHighlighted {
-                return filterStatus.highlightedTitle
-            }
-            
-            let attributedString = NSMutableAttributedString( attributedString: filterStatus.highlightedTitle )
-            let range = NSRange( location: 0, length: attributedString.length )
-            attributedString.addAttribute( NSForegroundColorAttributeName, value: NSColor.whiteColor(), range: range )
-            
-            return attributedString
-        }
-        
-        if let attributedStringValue = OBWFilteringMenuActionItemView.attributedTitleForMenuItem( self.menuItem ) {
-            return attributedStringValue
-        }
-        
-        return NSAttributedString()
-    }
+    /// The amount by which an item is indented for each indentation level.
+    private static let indentDistancePerLevel: CGFloat = 12.0
     
-    /*==========================================================================*/
-    private class func preferredViewSizeForTitleOfMenuItem( menuItem: OBWFilteringMenuItem ) -> NSSize {
+    /// Calculates the preferred text field size for the given menu item.
+    private class func preferredTitleTextFieldSize(for menuItem: OBWFilteringMenuItem) -> NSSize {
         
-        let titleSize = OBWFilteringMenuActionItemView.titleSizeForMenuItem( menuItem )
+        let titleSize = OBWFilteringMenuItemTitleField.attributedTitle(for: menuItem)?.size() ?? .zero
         
         // Left and right bearing is space that is added between the origin and the sides of the glyphs.  The amount present doesn't seem to be readily available.
         let horizontalPaddingToAccountForLeftAndRightBearing: CGFloat = 4.0
         
         var preferredViewSize = NSSize(
             
-            width: ceil( titleSize.width + horizontalPaddingToAccountForLeftAndRightBearing ),
+            width: ceil(titleSize.width + horizontalPaddingToAccountForLeftAndRightBearing),
             
             // This formula was determined by comparing the standard control text heights to the standard-size menu item heights and determining the best-fit, straight-line relationship.
-            height: round( 0.9737 * titleSize.height + 1.7105 )
+            height: round(0.9737 * titleSize.height + 1.7105)
         )
         
         // Above about font size 65.0, the above formula yields a height that is smaller than the title bounds.  Use the bounds when that happens.
-        preferredViewSize.height = max( preferredViewSize.height, ceil( titleSize.height ) )
+        preferredViewSize.height = max(preferredViewSize.height, ceil(titleSize.height))
         
         return preferredViewSize
     }
     
-    /*==========================================================================*/
-    private class func titleSizeForMenuItem( menuItem: OBWFilteringMenuItem ) -> NSSize {
-        return OBWFilteringMenuActionItemView.attributedTitleForMenuItem( menuItem )?.size() ?? NSZeroSize
-    }
-    
-    /*==========================================================================*/
-    private class func attributedTitleForMenuItem( menuItem: OBWFilteringMenuItem ) -> NSAttributedString? {
+    /// The menu's highlighted item changed.
+    @objc private func highlightedItemDidChange(_ notification: Notification) {
         
-        let attributedTitle: NSMutableAttributedString
-        
-        if menuItem.attributedTitle?.length > 0 {
-            attributedTitle = menuItem.attributedTitle!.mutableCopy() as! NSMutableAttributedString
-        }
-        else {
-            
-            guard let itemTitle = menuItem.title else { return nil }
-            
-            let fontAttribute = [ NSFontAttributeName : menuItem.font ]
-            attributedTitle = NSMutableAttributedString( string: itemTitle, attributes: fontAttribute )
-        }
-        
-        let range = NSRange( location: 0, length: attributedTitle.length )
-        
-        let paragraphStyle = NSParagraphStyle.defaultParagraphStyle().mutableCopy() as! NSMutableParagraphStyle
-        paragraphStyle.lineBreakMode = .ByTruncatingTail
-        
-        let paragraphAttribute = [ NSParagraphStyleAttributeName : paragraphStyle ]
-        attributedTitle.addAttributes( paragraphAttribute, range: range )
-        
-        if menuItem.isHighlighted {
-            let colorAttribute = [ NSForegroundColorAttributeName : NSColor.selectedMenuItemTextColor() ]
-            attributedTitle.addAttributes( colorAttribute, range: range )
-        }
-        
-        return attributedTitle.copy() as? NSAttributedString
-    }
-    
-    /*==========================================================================*/
-    @objc private func highlightedItemDidChange( notification: NSNotification ) {
-        
-        guard let userInfo = notification.userInfo else { return }
-        
-        let oldItem = userInfo[OBWFilteringMenu.previousHighlightedItemKey] as? OBWFilteringMenuItem
-        let newItem = userInfo[OBWFilteringMenu.currentHighlightedItemKey] as? OBWFilteringMenuItem
-        
-        let menuItem = self.menuItem
-        
-        if menuItem === oldItem {
-            self.subviewArrowImageView.image = OBWFilteringMenuArrows.blackRightArrow
-        }
-        else if menuItem === newItem {
-            self.subviewArrowImageView.image = OBWFilteringMenuArrows.whiteRightArrow
-        }
-        else {
+        guard let userInfo = notification.userInfo as? [OBWFilteringMenu.Key:Any] else {
             return
         }
         
-        self.itemTitleField.attributedStringValue = self.attributedStringValue
+        let oldItem = userInfo[.previousHighlightedItem] as? OBWFilteringMenuItem
+        let newItem = userInfo[.currentHighlightedItem] as? OBWFilteringMenuItem
+        
+        guard self.menuItem === oldItem || self.menuItem === newItem else {
+            return
+        }
+        
+        self.itemTitleField.needsDisplay = true
+        self.submenuArrowImageView.needsDisplay = true
         self.needsDisplay = true
     }
+    
+    /// Updates the view's state image (i.e. "checked", "mixed", or "none")
+    private func updateStateImage() {
+        
+        guard let templateImage = self.menuItem.stateTemplateImage else {
+            self.stateImageView.image = nil
+            return
+        }
+        
+        let stateImage = NSImage(size: templateImage.size)
+        stateImage.withLockedFocus {
+            
+            NSAppearance.withAppearance(self.effectiveAppearance) {
+                
+                if self.menuItem.isHighlighted {
+                    NSColor.selectedMenuItemTextColor.set()
+                }
+                else {
+                    NSColor.labelColor.set()
+                }
+                
+                NSRect(origin: .zero, size: templateImage.size).fill()
+                
+                templateImage.draw(at: .zero, from: .zero, operation: .destinationIn, fraction: 1.0)
+            }
+        }
+        
+        self.stateImageView.image = stateImage
+    }
+    
 }

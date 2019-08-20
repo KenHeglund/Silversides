@@ -4,23 +4,21 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
-
-/*==========================================================================*/
+import AppKit
 
 extension NSControl {
     
-    /*==========================================================================*/
-    class func obw_controlSizeForFontSize( fontPointSize: CGFloat ) -> NSControlSize {
+    /// Returns a control size for the given font point size.
+    class func controlSizeForFontSize(_ fontPointSize: CGFloat) -> NSControl.ControlSize {
         
-        if fontPointSize <= NSFont.systemFontSizeForControlSize( .Mini ) {
-            return .Mini
+        if fontPointSize <= NSFont.systemFontSize(for: .mini) {
+            return .mini
         }
-        if fontPointSize <= NSFont.systemFontSizeForControlSize( .Small ) {
-            return .Small
+        if fontPointSize <= NSFont.systemFontSize(for: .small) {
+            return .small
         }
         
-        return .Regular
+        return .regular
     }
     
 }

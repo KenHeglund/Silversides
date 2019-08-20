@@ -4,316 +4,321 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 import Carbon.HIToolbox.Events
 
-/*==========================================================================*/
-
-let OBWFilteringMenuTotalItemSizeChangedNotification = "OBWFilteringMenuTotalItemSizeChangedNotification"
-let OBWFilteringMenuViewPreviousGeometryKey = "OBWFilteringMenuViewPreviousGeometryKey"
-
-private let OBWFilteringMenuAllowedModifiers: NSEventModifierFlags = [
-    .Shift, .Control, .Option, .Command
-]
-
-/*==========================================================================*/
-
-private func OBWStandardHeightForControlSize( controlSize: NSControlSize ) -> CGFloat {
-    
-    switch controlSize {
-    case .Mini:     return 15.0
-    case .Small:    return 19.0
-    default:        return 22.0
-    }
-}
-
-/*==========================================================================*/
-
+/// A view class that is the outermost menu-related view.  It's primary subviews are the filter field and the menu item scroll view.
 class OBWFilteringMenuView: NSView {
     
-    init( menu: OBWFilteringMenu ) {
+    /// Initialize with a menu and minimumWidth.
+    init(menu: OBWFilteringMenu, minimumWidth: CGFloat?) {
         
         self.filteringMenu = menu
         
-        let initialMenuItemWidth: CGFloat = 100.0
         let initialFrame = NSRect(
-            width: OBWFilteringMenuView.filterMargins.width + initialMenuItemWidth,
+            width: OBWFilteringMenuView.filterMargins.width + OBWFilteringMenuItemView.minimumWidth,
             height: 0.0
         )
         
         let menuFont = menu.displayFont
-        let filterFieldSize = NSControl.obw_controlSizeForFontSize( menuFont.pointSize )
+        let filterFieldSize = NSControl.controlSizeForFontSize(menuFont.pointSize)
         
         let filterFrame = NSRect(
             x: OBWFilteringMenuView.filterMargins.left,
             y: 0.0,
-            width: initialFrame.size.width - OBWFilteringMenuView.filterMargins.width,
-            height: OBWStandardHeightForControlSize( filterFieldSize )
+            width: initialFrame.width - OBWFilteringMenuView.filterMargins.width,
+            height: filterFieldSize.standardMenuHeight
         )
         
-        let filterField = NSSearchField( frame: filterFrame )
+        let filterField = NSTextField(frame: filterFrame)
         filterField.font = menuFont
         filterField.cell?.controlSize = filterFieldSize
-        filterField.cell?.focusRingType = .None
-        filterField.cell?.scrollable = true
-        (filterField.cell as? NSSearchFieldCell)?.searchButtonCell = nil
-        filterField.autoresizingMask = [ .ViewWidthSizable, .ViewMinYMargin ]
-        filterField.hidden = true
+        filterField.bezelStyle = .roundedBezel
+        filterField.cell?.focusRingType = .none
+        filterField.cell?.isScrollable = true
+        (filterField.cell as? NSTextFieldCell)?.placeholderString = "Filter"
+        filterField.autoresizingMask = [.width, .minYMargin]
+        filterField.isHidden = true
         self.filterField  = filterField
         
-        let filterFieldTitle = NSLocalizedString( "Filter", comment: "The title of a filtering menu's editable text field" )
-        let filterFieldHelp = NSLocalizedString( "The text in this field filters the items that appear in this menu", comment: "Help text for the filtering menu's editable text field" )
-        filterField.cell?.setAccessibilityTitle( filterFieldTitle )
-        filterField.cell?.setAccessibilityHelp( filterFieldHelp )
+        let filterFieldTitle = NSLocalizedString("Filter", comment: "The title of a filtering menu's editable text field")
+        let filterFieldHelp = NSLocalizedString("The text in this field filters the items that appear in this menu", comment: "Help text for the filtering menu's editable text field")
+        filterField.cell?.setAccessibilityTitle(filterFieldTitle)
+        filterField.cell?.setAccessibilityHelp(filterFieldHelp)
         
-        let scrollView = OBWFilteringMenuItemScrollView( menu: menu )
+        let scrollView = OBWFilteringMenuItemScrollView(menu: menu, minimumWidth: minimumWidth)
         self.scrollView = scrollView
         
-        super.init( frame: initialFrame )
+        super.init(frame: initialFrame)
         
-        self.autoresizingMask = .ViewMinYMargin
+        self.autoresizingMask = [.minYMargin]
         self.autoresizesSubviews = true
         
-        self.addSubview( filterField )
-        self.setFrameSize( scrollView.frame.size )
-        self.addSubview( scrollView )
+        self.addSubview(filterField)
+        self.setFrameSize(scrollView.frame.size)
+        self.addSubview(scrollView)
         
-        NSNotificationCenter.defaultCenter().addObserver( self, selector: #selector(OBWFilteringMenuView.textDidChange(_:)), name: NSTextDidChangeNotification, object: nil )
+        NotificationCenter.default.addObserver(self, selector: #selector(OBWFilteringMenuView.textDidChange(_:)), name: NSText.didChangeNotification, object: nil)
     }
     
-    /*==========================================================================*/
-    required init?( coder: NSCoder ) {
-        fatalError( "init(coder:) has not been implemented" )
+    /// Required initializer, currently unused.
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
-    /*==========================================================================*/
+    /// Deinitialization.
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver( self, name: NSTextDidChangeNotification, object: nil )
+        NotificationCenter.default.removeObserver(self, name: NSText.didChangeNotification, object: nil)
     }
     
-    /*==========================================================================*/
-    // MARK: - NSResponder overrides
     
-    /*==========================================================================*/
-    override func cursorUpdate( event: NSEvent ) {
+    // MARK: - NSResponder
+    
+    /// Set the current cursor image.
+    override func cursorUpdate(with event: NSEvent) {
         
-        guard !self.dispatchingCursorUpdateToFilterField else { return }
-        
-        guard let locationInView = event.obw_locationInView( self ) else { return }
+        guard
+            self.dispatchingCursorUpdateToFilterField == false,
+            let locationInView = event.locationInView(self)
+        else {
+            return
+        }
         
         let filterField = self.filterField
         let filterFieldFrame = filterField.frame
         
-        if !filterField.hidden && NSPointInRect( locationInView, filterFieldFrame ) {
+        if filterField.isHidden == false && NSPointInRect(locationInView, filterFieldFrame) {
             
             // The search field might call -[super cursorUpdate:], which might eventually reach -[NSResponder cursorUpdate:], which will send the message up the responder chain, which leads back here.  'dispatchingCursorUpdateToFilterField' is used to break that recursion.
             
             self.dispatchingCursorUpdateToFilterField = true
-            filterField.cursorUpdate( event )
+            filterField.cursorUpdate(with: event)
             self.dispatchingCursorUpdateToFilterField = false
         }
         else {
-            NSCursor.arrowCursor().set()
+            NSCursor.arrow.set()
         }
     }
     
-    /*==========================================================================*/
-    // MARK: - NSView overrides
     
-    /*==========================================================================*/
-    override func drawRect( dirtyRect: NSRect ) {
+    // MARK: - NSView
+    
+    /// Draw the view.
+    override func draw(_ dirtyRect: NSRect) {
         #if DEBUG_MENU_TINTING
-            NSColor( deviceRed: 1.0, green: 0.0, blue: 0.0, alpha: 0.1 ).set()
-            NSRectFill( self.bounds )
+            NSColor.red.withAlphaComponent(0.1).set()
+            self.bounds.fill()
         #endif
     }
     
-    /*==========================================================================*/
-    // MARK: - NSAccessibility implementation
     
-    /*==========================================================================*/
+    // MARK: - NSAccessibility Implementation
+    
+    /// The menu view is an accessible element.
     override func isAccessibilityElement() -> Bool {
         return true
     }
     
-    /*==========================================================================*/
-    override func accessibilityRole() -> String? {
-        return NSAccessibilityListRole
+    /// The menu view represents a list of items.
+    override func accessibilityRole() -> NSAccessibility.Role? {
+        return NSAccessibility.Role.list
     }
     
-    /*==========================================================================*/
+    /// Returns the standard description of a list.
     override func accessibilityRoleDescription() -> String? {
-        return NSAccessibilityRoleDescription( NSAccessibilityListRole, nil )
+        return NSAccessibility.Role.list.description(with: nil)
     }
     
-    /*==========================================================================*/
-    override func accessibilityChildren() -> [AnyObject]? {
+    /// Returns the accessible children of the menu view.
+    override func accessibilityChildren() -> [Any]? {
         
-        guard var children = self.scrollView.accessibilityChildren() else { return nil }
-        
-        if !self.filterField.hidden {
-            children.append( filterField )
+        guard var children = self.scrollView.accessibilityChildren() else {
+            return nil
         }
         
-        return NSAccessibilityUnignoredChildren( children )
+        if self.filterField.isHidden == false {
+            children.append(filterField)
+        }
+        
+        return NSAccessibility.unignoredChildren(from: children)
     }
     
-    /*==========================================================================*/
+    /// Accessibility is enabled.
     override func isAccessibilityEnabled() -> Bool {
         return true
     }
     
-    /*==========================================================================*/
-    override func accessibilityParent() -> AnyObject? {
-        guard let window = self.window else { return nil }
-        return NSAccessibilityUnignoredAncestor( window )
+    /// Returns the window.
+    override func accessibilityParent() -> Any? {
+        
+        guard let window = self.window else {
+            return nil
+        }
+        
+        return NSAccessibility.unignoredAncestor(of: window)
     }
     
-    /*==========================================================================*/
-    override func accessibilitySelectedChildren() -> [AnyObject]? {
+    /// Returns the currently highlighted menu item view, if any.
+    override func accessibilitySelectedChildren() -> [Any]? {
         
-        guard let menuItem = self.filteringMenu.highlightedItem else { return [] }
-        guard let itemView = self.viewForMenuItem( menuItem ) else { return [] }
+        guard
+            let menuItem = self.filteringMenu.highlightedItem,
+            let itemView = self.viewForMenuItem(menuItem)
+        else {
+            return []
+        }
+        
         return [itemView]
     }
     
-    /*==========================================================================*/
-    override func accessibilityTitleUIElement() -> AnyObject? {
+    /// Returns the title element.
+    override func accessibilityTitleUIElement() -> Any? {
         return self
     }
     
-    /*==========================================================================*/
-    override func accessibilityVisibleChildren() -> [AnyObject]? {
+    /// Returns the accessibility visible children.
+    override func accessibilityVisibleChildren() -> [Any]? {
         return self.scrollView.accessibilityChildren()
     }
     
-    /*==========================================================================*/
+    /// The list is oriented vertically.
     override func accessibilityOrientation() -> NSAccessibilityOrientation {
-        return .Vertical
+        return .vertical
     }
     
-    /*==========================================================================*/
-    override func accessibilityTopLevelUIElement() -> AnyObject? {
+    /// The window is the top-level element.
+    override func accessibilityTopLevelUIElement() -> Any? {
         return self.window
     }
     
-    /*==========================================================================*/
-    override func setAccessibilitySelectedChildren( accessibilitySelectedChildren: [AnyObject]? ) {
+    /// Sets the currently selected item.
+    override func setAccessibilitySelectedChildren(_ accessibilitySelectedChildren: [Any]?) {
         
         let selectedView = accessibilitySelectedChildren?.first as? OBWFilteringMenuItemView
         self.filteringMenu.highlightedItem = selectedView?.menuItem
     }
     
-    /*==========================================================================*/
-    // MARK: - NSControl delegate implementation
     
-    /*==========================================================================*/
-    @objc func textDidChange( notification: NSNotification ) {
+    // MARK: - NSControl Delegate Implementation
+    
+    /// The filter field text did change.
+    @objc func textDidChange(_ notification: Notification) {
         
         let filterField = self.filterField
         
-        guard let currentEditor = filterField.currentEditor() else { return }
-        guard notification.object === currentEditor else { return }
+        guard
+            let notificationObject = notification.object as? NSText,
+            let currentEditor = filterField.currentEditor(),
+            notificationObject === currentEditor
+        else {
+            return
+        }
         
-        NSAccessibilityPostNotification( currentEditor, NSAccessibilityFocusedUIElementChangedNotification )
+        NSAccessibility.post(element: currentEditor, notification: NSAccessibility.Notification.focusedUIElementChanged)
         
         let filterString = filterField.stringValue
-        let menuItemArray = self.filteringMenu.itemArray
+        let menu = self.filteringMenu
         
         let filterEventNumber = self.lastFilterEventNumber + 1
         self.lastFilterEventNumber = filterEventNumber
         
-        dispatch_async( dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ) ) {
+        DispatchQueue.global(qos: .userInitiated).async {
             
-            var statusArray: [OBWFilteringMenuItemFilterStatus] = []
+            let statusArray = OBWFilteringMenuItemFilterStatus.filterStatus(menu, filterString: filterString)
             
-            for menuItem in menuItemArray {
-                guard self.lastFilterEventNumber == filterEventNumber else { return }
-                statusArray.append( OBWFilteringMenuItemFilterStatus.filterStatus( menuItem, filterString: filterString ) )
-            }
-            
-            dispatch_async( dispatch_get_main_queue() ) {
-                guard self.lastFilterEventNumber == filterEventNumber else { return }
-                self.applyFilterResults( statusArray )
+            DispatchQueue.main.async {
+                
+                guard self.lastFilterEventNumber == filterEventNumber else {
+                    return
+                }
+                
+                self.applyFilterResults(statusArray)
             }
         }
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuView implementation
     
-    static let filterMargins = NSEdgeInsets( top: 4.0, left: 20.0, bottom: 4.0, right: 20.0 )
+    // MARK: - OBWFilteringMenuView Interface
     
-    var totalMenuItemSize: NSSize { return self.scrollView.totalMenuItemSize }
-    var menuItemBounds: NSRect { return self.scrollView.menuItemBounds }
+    /// Margins around the filter text field.
+    static let filterMargins = NSEdgeInsets(top: 4.0, left: 20.0, bottom: 4.0, right: 20.0)
     
-    /*==========================================================================*/
+    /// Returns the total size of all of the current menu items.
+    var totalMenuItemSize: NSSize {
+        return self.scrollView.totalMenuItemSize
+    }
+    
+    /// Returns the current menu item bounds.
+    var menuItemBounds: NSRect {
+        return self.scrollView.menuItemBounds
+    }
+    
+    /// Returns the margins around the menu portion of the view, excluding the filter field.
     var outerMenuMargins: NSEdgeInsets {
         
         let filterField = self.filterField
         
-        guard !filterField.hidden else { return NSEdgeInsetsZero }
+        guard filterField.isHidden == false else {
+            return NSEdgeInsetsZero
+        }
         
-        let filterAreaHeight = OBWFilteringMenuView.filterMargins.height + filterField.frame.size.height
+        let filterAreaHeight = OBWFilteringMenuView.filterMargins.height + filterField.frame.height
         
-        return NSEdgeInsets( top: filterAreaHeight, left: 0.0, bottom: 0.0, right: 0.0 )
+        return NSEdgeInsets(top: filterAreaHeight, left: 0.0, bottom: 0.0, right: 0.0)
     }
     
-    /*==========================================================================*/
+    /// Returns the minimum height to display just the top item in the menu.
     var minimumHeightAtTop: CGFloat {
         
         let scrollViewMinimumHeight = self.scrollView.minimumHeightAtTop
         
         let filterField = self.filterField
-        if filterField.hidden {
+        if filterField.isHidden {
             return scrollViewMinimumHeight
         }
         
         let filterMargins = OBWFilteringMenuView.filterMargins
-        let minimumHeight = scrollViewMinimumHeight + filterMargins.height + filterField.frame.size.height
+        let minimumHeight = scrollViewMinimumHeight + filterMargins.height + filterField.frame.height
         
         return minimumHeight
     }
-
-    /*==========================================================================*/
+    
+    /// Returns the minimum height to display just the bottom item in the menu.
     var minimumHeightAtBottom: CGFloat {
         
         let scrollViewMinimumHeight = self.scrollView.minimumHeightAtBottom
         
         let filterField = self.filterField
-        if filterField.hidden {
+        if filterField.isHidden {
             return scrollViewMinimumHeight
         }
         
         let filterMargins = OBWFilteringMenuView.filterMargins
-        let minimumHeight = scrollViewMinimumHeight + filterMargins.height + filterField.frame.size.height
+        let minimumHeight = scrollViewMinimumHeight + filterMargins.height + filterField.frame.height
         
         return minimumHeight
     }
     
-    /*==========================================================================*/
-    func handleLeftMouseButtonDownEvent( event: NSEvent ) -> OBWFilteringMenuEventResult {
+    /// Handle a left mouse button down event.  The event is forwarded to the filter field if appropriate.  Otherwise, the event remains unhandled.
+    func handleLeftMouseButtonDownEvent(_ event: NSEvent) -> OBWFilteringMenu.SessionState {
         
         let filterField = self.filterField
-        if filterField.hidden {
-            return .Unhandled
+        
+        guard
+            filterField.isHidden == false,
+            let locationInView = event.locationInView(self),
+            NSPointInRect(locationInView, filterField.frame)
+        else {
+            return .unhandled
         }
         
-        guard let locationInView = event.obw_locationInView( self ) else { return .Unhandled }
+        filterField.mouseDown(with: event)
         
-        if NSPointInRect( locationInView, self.scrollView.frame ) {
-            return .Unhandled
-        }
-        
-        if NSPointInRect( locationInView, filterField.frame ) {
-            filterField.mouseDown( event )
-        }
-        
-        return .Continue
+        return .continue
     }
     
-    /*==========================================================================*/
-    func handleKeyboardEvent( event: NSEvent ) -> OBWFilteringMenuEventResult {
+    /// Handle a key-down event.
+    func handleKeyDownEvent(_ event: NSEvent) -> OBWFilteringMenu.SessionState {
         
         let keyCode = Int(event.keyCode)
         
@@ -321,24 +326,24 @@ class OBWFilteringMenuView: NSView {
         let filterField = self.filterField
         var currentEditor = filterField.currentEditor()
         
-        if event.modifierFlags.contains( .Command ) {
+        if event.modifierFlags.contains(.command) {
             
             if currentEditor != nil {
-                NSApp.sendEvent( event )
+                NSApp.sendEvent(event)
             }
             
-            return .Continue
+            return .continue
         }
         
         if keyCode == kVK_Tab {
             
-            if filterField.hidden {
-                return .Continue
+            if filterField.isHidden {
+                return .continue
             }
             
-            self.moveKeyboardFocusToFilterFieldAndSelectAll( true )
+            self.moveKeyboardFocusToFilterFieldAndSelectAll(true)
             
-            return .Highlight
+            return .highlight
         }
         
         let filteringMenu = self.filteringMenu
@@ -346,7 +351,7 @@ class OBWFilteringMenuView: NSView {
         let currentHighlightedItemView: OBWFilteringMenuItemView?
             
         if let currentHighlightedItem = currentHighlightedItem {
-            currentHighlightedItemView = scrollView.viewForMenuItem( currentHighlightedItem )
+            currentHighlightedItemView = scrollView.viewForMenuItem(currentHighlightedItem)
         }
         else {
             currentHighlightedItemView = nil
@@ -354,196 +359,247 @@ class OBWFilteringMenuView: NSView {
         
         var nextHighlightedItemView = currentHighlightedItemView
         
-        if [kVK_UpArrow, kVK_Home, kVK_PageUp].contains( keyCode ) {
+        switch keyCode {
             
-            if currentEditor != nil && currentHighlightedItem == nil {
-                currentEditor!.keyDown( event )
-                return .Continue
+        case kVK_UpArrow, kVK_Home, kVK_PageUp:
+            
+            if let currentEditor = currentEditor, currentHighlightedItem == nil {
+                currentEditor.keyDown(with: event)
+                return .continue
             }
             
             if keyCode == kVK_UpArrow {
-                nextHighlightedItemView = scrollView.previousViewBeforeItem( currentHighlightedItem )
+                nextHighlightedItemView = scrollView.previousViewBeforeItem(currentHighlightedItem)
             }
             else if keyCode == kVK_Home {
-                nextHighlightedItemView = scrollView.nextViewAfterItem( nil )
+                nextHighlightedItemView = scrollView.nextViewAfterItem(nil)
             }
             else if keyCode == kVK_PageUp {
                 nextHighlightedItemView = scrollView.scrollItemsDownOnePage()
             }
             
-            if nextHighlightedItemView === currentHighlightedItemView && !filterField.hidden {
-                self.moveKeyboardFocusToFilterFieldAndSelectAll( true )
-                return .Highlight
+            if nextHighlightedItemView === currentHighlightedItemView && filterField.isHidden == false {
+                self.moveKeyboardFocusToFilterFieldAndSelectAll(true)
+                return .highlight
             }
             
-            if nextHighlightedItemView != nil && nextHighlightedItemView !== currentHighlightedItemView {
-                filteringMenu.highlightedItem = nextHighlightedItemView!.menuItem
-                scrollView.scrollItemToVisible( nextHighlightedItemView!.menuItem )
-                return .Highlight
+            if
+                let nextHighlightedItemView = nextHighlightedItemView,
+                nextHighlightedItemView !== currentHighlightedItemView
+            {
+                filteringMenu.highlightedItem = nextHighlightedItemView.menuItem
+                scrollView.scrollItemToVisible(nextHighlightedItemView.menuItem)
+                return .highlight
             }
             
-            return .Continue
-        }
-        else if [kVK_DownArrow, kVK_End, kVK_PageDown].contains( keyCode ) {
+            return .continue
+            
+        case kVK_DownArrow, kVK_End, kVK_PageDown:
             
             if currentEditor != nil {
                 self.window?.makeFirstResponder( nil )
-                nextHighlightedItemView = scrollView.nextViewAfterItem( currentHighlightedItem )
+                nextHighlightedItemView = scrollView.nextViewAfterItem(currentHighlightedItem)
             }
             else if keyCode == kVK_DownArrow {
-                nextHighlightedItemView = scrollView.nextViewAfterItem( currentHighlightedItem )
+                nextHighlightedItemView = scrollView.nextViewAfterItem(currentHighlightedItem)
             }
             else if keyCode == kVK_End {
-                nextHighlightedItemView = scrollView.previousViewBeforeItem( nil )
+                nextHighlightedItemView = scrollView.previousViewBeforeItem(nil)
             }
             else if keyCode == kVK_PageDown {
                 nextHighlightedItemView = scrollView.scrollItemsUpOnePage()
             }
             
-            if nextHighlightedItemView != nil && nextHighlightedItemView !== currentHighlightedItemView {
-                filteringMenu.highlightedItem = nextHighlightedItemView!.menuItem
-                scrollView.scrollItemToVisible( nextHighlightedItemView!.menuItem )
-                return .Highlight
+            if
+                let nextHighlightedItemView = nextHighlightedItemView,
+                nextHighlightedItemView !== currentHighlightedItemView
+            {
+                filteringMenu.highlightedItem = nextHighlightedItemView.menuItem
+                scrollView.scrollItemToVisible(nextHighlightedItemView.menuItem)
+                return .highlight
             }
             
-            return .Continue
-        }
-        
-        if [kVK_LeftArrow, kVK_RightArrow, kVK_Space, kVK_Return, kVK_ANSI_KeypadEnter].contains( keyCode ) {
+            return .continue
             
-            guard currentEditor != nil else { return .Unhandled }
-            currentEditor!.keyDown( event )
-            return .Continue
+        case kVK_LeftArrow, kVK_RightArrow, kVK_Space, kVK_Return, kVK_ANSI_KeypadEnter:
+            
+            if let currentEditor = currentEditor {
+                currentEditor.keyDown(with: event)
+                return .continue
+            }
+            else {
+                return .unhandled
+            }
+            
+        default:
+            break
         }
         
-        if filterField.hidden {
+        if filterField.isHidden {
             
             let filterMargins = OBWFilteringMenuView.filterMargins
             var scrollViewFrame = self.scrollView.frame
-            scrollViewFrame.size.height -= ( filterMargins.height + filterField.frame.size.height )
-            self.scrollView.setFrameSize( scrollViewFrame.size )
+            scrollViewFrame.size.height -= (filterMargins.height + filterField.frame.height)
+            self.scrollView.setFrameSize(scrollViewFrame.size)
             
             var filterFieldFrame = filterField.frame
             filterFieldFrame.origin.y = scrollViewFrame.maxY + filterMargins.bottom
-            filterField.setFrameOrigin( filterFieldFrame.origin )
-            filterField.hidden = false
+            filterField.setFrameOrigin(filterFieldFrame.origin)
+            filterField.isHidden = false
             
             // Set the string value to an initial non-empty string that will get selected and replaced by the typed character.  This prods the search field to display the cancel button.
             filterField.stringValue = " "
             
             if let window = self.window as? OBWFilteringMenuWindow {
-                window.displayUpdatedTotalMenuItemSize()
+                _ = window.displayUpdatedTotalMenuItemSize()
             }
         }
         
         if currentEditor == nil {
-            self.moveKeyboardFocusToFilterFieldAndSelectAll( true )
+            self.moveKeyboardFocusToFilterFieldAndSelectAll(true)
             currentEditor = filterField.currentEditor()
         }
         
         if let currentEditor = currentEditor {
-            currentEditor.keyDown( event )
+            currentEditor.keyDown(with: event)
         }
         
-        return .ChangeFilter
+        return .changeFilter
     }
     
-    /*==========================================================================*/
-    func handleFlagsChangedEvent( event: NSEvent ) {
+    /// Handle a change to the currently pressed keyboard modifiers.
+    func handleKeyboardModifiersChangedEvent(_ event: NSEvent) {
         
-        let modifierFlags = event.modifierFlags.intersect( OBWFilteringMenuAllowedModifiers )
+        let modifierFlags = event.modifierFlags.intersection(OBWFilteringMenu.allowedModifierFlags)
         
-        if self.scrollView.applyModifierFlags( modifierFlags ) {
+        if self.scrollView.applyModifierFlags(modifierFlags) {
             
             if let window = self.window as? OBWFilteringMenuWindow {
-                window.displayUpdatedTotalMenuItemSize()
+                _ = window.displayUpdatedTotalMenuItemSize()
             }
         }
     }
     
-    /*==========================================================================*/
-    func applyFilterResults( statusArray: [OBWFilteringMenuItemFilterStatus] ) {
+    /// Applies filter status results to the menu.
+    func applyFilterResults(_ statusArray: [OBWFilteringMenuItemFilterStatus]) {
         
-        if self.scrollView.applyFilterResults( statusArray ) {
+        if self.scrollView.applyFilterResults(statusArray) {
             
             if let window = self.window as? OBWFilteringMenuWindow {
-                window.displayUpdatedTotalMenuItemSize()
+                _ = window.displayUpdatedTotalMenuItemSize()
             }
         }
     }
     
-    /*==========================================================================*/
+    /// Highlight the first menu item.
     func selectFirstMenuItemView() {
-        self.filteringMenu.highlightedItem = self.scrollView.nextViewAfterItem( nil )?.menuItem
+        self.filteringMenu.highlightedItem = self.scrollView.nextViewAfterItem(nil)?.menuItem
     }
     
-    /*==========================================================================*/
-    func menuItemAtLocation( locationInView: NSPoint ) -> OBWFilteringMenuItem? {
+    /// Returns the menu item at the given location.
+    /// - parameter locationInView: A location in the receiver's coordinate system.
+    func menuItemAtLocation(_ locationInView: NSPoint) -> OBWFilteringMenuItem? {
         
         let scrollView = self.scrollView
-        let locationInScrollView = self.convertPoint( locationInView, toView: scrollView )
-        return scrollView.menuItemAtLocation( locationInScrollView )
+        let locationInScrollView = self.convert(locationInView, to: scrollView)
+        return scrollView.menuItemAtLocation(locationInScrollView)
     }
     
-    /*==========================================================================*/
-    func menuPartAtLocation( locationInView: NSPoint ) -> OBWFilteringMenuPart {
+    /// Returns the menu part at the given location.
+    /// - parameter locationInView: A location in the receiver's coordinate system.
+    func menuPartAtLocation(_ locationInView: NSPoint) -> OBWFilteringMenu.MenuPart {
         
         let filterField = self.filterField
-        if !filterField.hidden && NSPointInRect( locationInView, filterField.frame ) {
-            return .Filter
+        if filterField.isHidden == false, NSPointInRect(locationInView, filterField.frame) {
+            return .filter
         }
         
         let scrollView = self.scrollView
-        let locationInScrollView = self.convertPoint( locationInView, toView: scrollView )
-        return scrollView.menuPartAtLocation( locationInScrollView )
+        let locationInScrollView = self.convert(locationInView, to: scrollView)
+        return scrollView.menuPartAtLocation(locationInScrollView)
     }
     
-    /*==========================================================================*/
-    func viewForMenuItem( menuItem: OBWFilteringMenuItem ) -> OBWFilteringMenuItemView? {
-        return self.scrollView.viewForMenuItem( menuItem )
+    /// Returns the view for the given menu item.
+    func viewForMenuItem(_ menuItem: OBWFilteringMenuItem) -> OBWFilteringMenuItemView? {
+        return self.scrollView.viewForMenuItem(menuItem)
     }
     
-    /*==========================================================================*/
-    func scrollItemsDownWithAcceleration( acceleration: Double ) -> Bool {
-        return self.scrollView.scrollItemsDownWithAcceleration( acceleration )
+    /// Scrolls the menu content downward with the given acceleration multiplier.
+    func scrollItemsDownWithAcceleration(_ acceleration: Double) -> Bool {
+        return self.scrollView.scrollItemsDownWithAcceleration(acceleration)
     }
     
-    /*==========================================================================*/
-    func scrollItemsUpWithAcceleration( acceleration: Double ) -> Bool {
-        return self.scrollView.scrollItemsUpWithAcceleration( acceleration )
+    /// Scrolls the menu content upward with the given acceleration multiplier.
+    func scrollItemsUpWithAcceleration(_ acceleration: Double) -> Bool {
+        return self.scrollView.scrollItemsUpWithAcceleration(acceleration)
     }
     
-    /*==========================================================================*/
-    func setMenuItemBoundsOriginY( boundsOriginY: CGFloat ) {
-        self.scrollView.setMenuItemBoundsOriginY( boundsOriginY )
+    /// Sets the bounds origin of the menu items.
+    func setMenuItemBoundsOriginY(_ boundsOriginY: CGFloat) {
+        self.scrollView.setMenuItemBoundsOriginY(boundsOriginY)
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuView private
     
+    // MARK: - Private
+    
+    /// The filtering menu.
     unowned private let filteringMenu: OBWFilteringMenu
-    unowned private let filterField: NSSearchField
+    
+    /// The filter text field.
+    unowned private let filterField: NSTextField
+    
+    /// The menu item scroll view.
     unowned private let scrollView: OBWFilteringMenuItemScrollView
+    
+    /// A filter event generation counter.
     private var lastFilterEventNumber: Int = 0
+    
+    /// A boolean to indicate whether a cursorUpdate: is currently being dispatched to the filter field.
     private var dispatchingCursorUpdateToFilterField = false
     
-    /*==========================================================================*/
-    private func moveKeyboardFocusToFilterFieldAndSelectAll( selectAll: Bool ) {
+    /// Move the cursor to the filter field and optionally selects the field's contents.
+    private func moveKeyboardFocusToFilterFieldAndSelectAll(_ selectAll: Bool) {
         
         self.filteringMenu.highlightedItem = nil
         
         let filterField = self.filterField
-        filterField.selectText( nil )
+        filterField.selectText(nil)
         
-        guard let currentEditor = filterField.currentEditor() else { return }
+        guard let currentEditor = filterField.currentEditor() else {
+            return
+        }
         
         if selectAll {
-            currentEditor.selectAll( nil )
+            currentEditor.selectAll(nil)
         }
         else {
-            let selectionRange = NSRange( location: currentEditor.string?.utf8.count ?? 0, length: 0 )
+            let selectionRange = NSRange(location: currentEditor.string.utf8.count, length: 0)
             currentEditor.selectedRange = selectionRange
         }
     }
     
+}
+
+
+// MARK: -
+
+/// Extension to return standard menu heights for the various control sizes.
+private extension NSControl.ControlSize {
+    
+    var standardMenuHeight: CGFloat {
+        
+        switch self {
+        case .mini:
+            return 15.0
+            
+        case .small:
+            return 19.0
+            
+        case .regular:
+            fallthrough
+            
+        @unknown default:
+            return 22.0
+        }
+    }
 }

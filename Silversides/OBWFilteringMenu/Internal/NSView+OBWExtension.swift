@@ -4,42 +4,34 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
-
-/*==========================================================================*/
+import AppKit
 
 extension NSView {
     
-    /*==========================================================================*/
-    var obw_boundsLowerLeftPoint: NSPoint {
+    /// The bounds of the receiver in screen coordinates.  If the view is not on-screen, then this will be equal to the view's bounds.
+    var boundsInScreen: NSRect {
         
-        let viewBounds = self.bounds
-        var lowerLeftCorner = viewBounds.origin
-        
-        if self.flipped {
-            lowerLeftCorner.y += viewBounds.size.height
+        guard let window = self.window else {
+            return self.bounds
         }
         
-        return lowerLeftCorner
+        let boundsInWindow = self.convert(self.bounds, to: nil)
+        return window.convertToScreen(boundsInWindow)
     }
     
-    /*==========================================================================*/
-    var obw_boundsInScreen: NSRect {
+    /// Converts the given point in the view's coordinate system into screen coordinates.
+    func convertPointToScreen(_ locationInView: NSPoint) -> NSPoint {
         
-        let boundsInWindow = self.convertRect( self.bounds, toView: nil )
-        guard let window = self.window else { return self.bounds }
-        return window.convertRectToScreen( boundsInWindow )
-    }
-    
-    /*==========================================================================*/
-    func obw_convertPointToScreen( locationInView: NSPoint ) -> NSPoint {
+        guard let window = self.window else {
+            return locationInView
+        }
         
-        guard let window = self.window else { return locationInView }
-        let locationInWindow = self.convertPoint( locationInView, toView: nil )
+        let locationInWindow = self.convert(locationInView, to: nil)
         
-        let rectInWindow = NSRect( origin: locationInWindow, size: NSZeroSize )
-        let rectInScreen = window.convertRectToScreen( rectInWindow )
+        let rectInWindow = NSRect(origin: locationInWindow, size: .zero)
+        let rectInScreen = window.convertToScreen(rectInWindow)
         
         return rectInScreen.origin
     }
+    
 }

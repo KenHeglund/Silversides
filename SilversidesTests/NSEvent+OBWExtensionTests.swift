@@ -7,33 +7,28 @@
 import XCTest
 @testable import OBWControls
 
-/*==========================================================================*/
-
 class NSEvent_OBWExtensionTests: XCTestCase {
     
-    /*==========================================================================*/
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
-    /*==========================================================================*/
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
     
-    /*==========================================================================*/
     func testLocationInScreen() {
         
-        let timestamp = NSProcessInfo.processInfo().systemUptime
+        let timestamp = ProcessInfo().systemUptime
         
-        var event: NSEvent!
-        var locationInScreen: NSPoint?
+        var event: NSEvent? = nil
+        var locationInScreen: NSPoint? = nil
         
-        event = NSEvent.otherEventWithType(
-            .ApplicationDefined,
-            location: NSPoint( x: 100.0, y: 100.0 ),
+        event = NSEvent.otherEvent(
+            with: .applicationDefined,
+            location: NSPoint(x: 100.0, y: 100.0),
             modifierFlags: [],
             timestamp: timestamp,
             windowNumber: 0,
@@ -42,12 +37,12 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             data1: 2,
             data2: 3
         )
-        XCTAssertNotNil( event )
-        XCTAssertNil( event.obw_locationInScreen )
+        XCTAssertNotNil(event)
+        XCTAssertNil(event?.locationInScreen)
         
-        event = NSEvent.otherEventWithType(
-            .Periodic,
-            location: NSPoint( x: 100.0, y: 100.0 ),
+        event = NSEvent.otherEvent(
+            with: .periodic,
+            location: NSPoint(x: 100.0, y: 100.0),
             modifierFlags: [],
             timestamp: timestamp,
             windowNumber: 0,
@@ -56,8 +51,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             data1: 2,
             data2: 3
         )
-        XCTAssertNotNil( event )
-        XCTAssertNil( event.obw_locationInScreen )
+        XCTAssertNotNil(event)
+        XCTAssertNil(event?.locationInScreen)
         
         let windowContentFrame = NSRect(
             x: 200.0,
@@ -66,7 +61,7 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             height: 500.0
         )
         
-        let testLocation = NSPoint( x: 40.0, y: 60.0 )
+        let testLocation = NSPoint(x: 40.0, y: 60.0)
         let verificationPoint = NSPoint(
             x: windowContentFrame.origin.x + testLocation.x,
             y: windowContentFrame.origin.y + testLocation.y
@@ -74,13 +69,13 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         
         let window = NSWindow(
             contentRect: windowContentFrame,
-            styleMask: NSBorderlessWindowMask,
-            backing: .Buffered,
+            styleMask: .borderless,
+            backing: .buffered,
             defer: true
         )
         
-        event = NSEvent.mouseEventWithType(
-            .OtherMouseDragged,
+        event = NSEvent.mouseEvent(
+            with: .otherMouseDragged,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -90,13 +85,13 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             clickCount: 1,
             pressure: 1.0
         )
-        XCTAssertNotNil( event )
+        XCTAssertNotNil(event)
         
-        locationInScreen = event.obw_locationInScreen
-        XCTAssertEqual( locationInScreen, verificationPoint )
+        locationInScreen = event?.locationInScreen
+        XCTAssertEqual(locationInScreen, verificationPoint)
         
-        event = NSEvent.mouseEventWithType(
-            .OtherMouseUp,
+        event = NSEvent.mouseEvent(
+            with: .otherMouseUp,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -106,21 +101,20 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             clickCount: 1,
             pressure: 0.0
         )
-        XCTAssertNotNil( event )
+        XCTAssertNotNil(event)
         
-        locationInScreen = event.obw_locationInScreen
-        XCTAssertEqual( locationInScreen, testLocation )
+        locationInScreen = event?.locationInScreen
+        XCTAssertEqual(locationInScreen, testLocation)
     }
     
-    /*==========================================================================*/
     func testLocationInView() {
         
-        let timestamp = NSProcessInfo.processInfo().systemUptime
+        let timestamp = ProcessInfo().systemUptime
         
-        var event: NSEvent!
-        var locationInView: NSPoint?
-        var testLocation: NSPoint
-        var verificationPoint: NSPoint
+        var event: NSEvent? = nil
+        var locationInView: NSPoint? = nil
+        var testLocation: NSPoint = .zero
+        var verificationPoint: NSPoint = .zero
         
         let windowContentFrame = NSRect(
             x: 200.0,
@@ -131,8 +125,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
         
         let window = NSWindow(
             contentRect: windowContentFrame,
-            styleMask: NSBorderlessWindowMask,
-            backing: .Buffered,
+            styleMask: .borderless,
+            backing: .buffered,
             defer: true
         )
         
@@ -143,11 +137,11 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             height: 95.0
         )
         
-        let testView = NSView( frame: viewFrame )
-        testLocation = NSPoint( x: 50.0, y: 100.0 )
+        let testView = NSView(frame: viewFrame)
+        testLocation = NSPoint(x: 50.0, y: 100.0)
         
-        event = NSEvent.mouseEventWithType(
-            .OtherMouseDragged,
+        event = NSEvent.mouseEvent(
+            with: .otherMouseDragged,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -157,18 +151,18 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             clickCount: 1,
             pressure: 1.0
         )
-        XCTAssertNotNil( event )
-        XCTAssertNil( event.obw_locationInView( testView ) )
+        XCTAssertNotNil(event)
+        XCTAssertNil(event?.locationInView(testView))
         
-        window.contentView?.addSubview( testView )
+        window.contentView?.addSubview(testView)
         
         verificationPoint = NSPoint(
             x: testLocation.x - viewFrame.origin.x,
             y: testLocation.y - viewFrame.origin.y
         )
         
-        event = NSEvent.mouseEventWithType(
-            .OtherMouseDragged,
+        event = NSEvent.mouseEvent(
+            with: .otherMouseDragged,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -178,19 +172,19 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             clickCount: 1,
             pressure: 1.0
         )
-        XCTAssertNotNil( event )
+        XCTAssertNotNil(event)
         
-        locationInView = event.obw_locationInView( testView )
-        XCTAssertEqual( locationInView, verificationPoint )
+        locationInView = event?.locationInView(testView)
+        XCTAssertEqual(locationInView, verificationPoint)
         
-        testLocation = NSPoint( x: 250.0, y: 400.0 )
+        testLocation = NSPoint(x: 250.0, y: 400.0)
         verificationPoint = NSPoint(
             x: testLocation.x - viewFrame.origin.x - windowContentFrame.origin.x,
             y: testLocation.y - viewFrame.origin.y - windowContentFrame.origin.y
         )
         
-        event = NSEvent.mouseEventWithType(
-            .OtherMouseUp,
+        event = NSEvent.mouseEvent(
+            with: .otherMouseUp,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -200,13 +194,13 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             clickCount: 1,
             pressure: 0.0
         )
-        XCTAssertNotNil( event )
+        XCTAssertNotNil(event)
         
-        locationInView = event.obw_locationInView( testView )
-        XCTAssertEqual( locationInView, verificationPoint )
+        locationInView = event?.locationInView(testView)
+        XCTAssertEqual(locationInView, verificationPoint)
         
-        event = NSEvent.otherEventWithType(
-            .ApplicationDefined,
+        event = NSEvent.otherEvent(
+            with: .applicationDefined,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -216,11 +210,11 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             data1: 2,
             data2: 3
         )
-        XCTAssertNotNil( event )
-        XCTAssertNil( event.obw_locationInView( testView ) )
+        XCTAssertNotNil(event)
+        XCTAssertNil(event?.locationInView(testView))
         
-        event = NSEvent.otherEventWithType(
-            .Periodic,
+        event = NSEvent.otherEvent(
+            with: .periodic,
             location: testLocation,
             modifierFlags: [],
             timestamp: timestamp,
@@ -230,7 +224,8 @@ class NSEvent_OBWExtensionTests: XCTestCase {
             data1: 2,
             data2: 3
         )
-        XCTAssertNotNil( event )
-        XCTAssertNil( event.obw_locationInView( testView ) )
+        XCTAssertNotNil(event)
+        XCTAssertNil(event?.locationInView(testView))
     }
+    
 }

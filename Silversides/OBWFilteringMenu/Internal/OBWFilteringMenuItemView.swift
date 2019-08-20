@@ -4,113 +4,85 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-
+/// A view that displays a menu item.
 class OBWFilteringMenuItemView: NSView {
     
-    /*==========================================================================*/
-    init( menuItem: OBWFilteringMenuItem ) {
+    /// Initialize a menu item view with a menu item.
+    init(menuItem: OBWFilteringMenuItem) {
         
         self.menuItem = menuItem
+        self.alternateViews = menuItem.alternates.mapValues(OBWFilteringMenuItemView.makeViewWithMenuItem)
         
-        let placeholderFrame = NSRect( width: 10.0, height: 10.0 )
-        super.init( frame: placeholderFrame )
+        let placeholderFrame = NSRect(width: OBWFilteringMenuItemView.minimumWidth, height: 10.0)
+        super.init(frame: placeholderFrame)
         
-        self.autoresizingMask = .ViewWidthSizable
-        
-        var alternateViews: [String:OBWFilteringMenuItemView] = [:]
-        
-        for ( key, menuItem ) in menuItem.alternates {
-            alternateViews[key] = OBWFilteringMenuItemView.viewWithMenuItem( menuItem )
-        }
-        
-        if !alternateViews.isEmpty {
-            self.alternateViews = alternateViews
-        }
+        self.autoresizingMask = .width
     }
     
-    /*==========================================================================*/
-    required init?( coder: NSCoder ) {
-        fatalError( "init(coder:) has not been implemented" )
+    /// Required initializer, currently unused.
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
-    /*==========================================================================*/
+    
     // MARK: - OBWFilteringMenuItemView implementation
     
+    /// The minimum width that the view will occupy.
+    static let minimumWidth: CGFloat = 100.0
+    
+    /// The view's menu item.
     let menuItem: OBWFilteringMenuItem
-    private(set) var alternateViews: [String:OBWFilteringMenuItemView]? = nil
+    
+    /// The view's alternate menu item views.
+    let alternateViews: [OBWFilteringMenuItem.AlternateKey:OBWFilteringMenuItemView]
+    
+    /// The current view's current filter status, if any.
     private(set) var filterStatus: OBWFilteringMenuItemFilterStatus? = nil
     
-    /*==========================================================================*/
+    /// The preferred size of the view to display its contents.
     var preferredSize: NSSize {
-        return self.dynamicType.preferredSizeForMenuItem( self.menuItem )
+        return type(of: self).preferredSizeForMenuItem(self.menuItem)
     }
     
-    /*==========================================================================*/
-    class func viewWithMenuItem( menuItem: OBWFilteringMenuItem ) -> OBWFilteringMenuItemView {
+    /// Creates a OBWFilteringMenuItemView for the given menu item.
+    class func makeViewWithMenuItem(_ menuItem: OBWFilteringMenuItem) -> OBWFilteringMenuItemView {
         
         if menuItem.isSeparatorItem {
-            return OBWFilteringMenuSeparatorItemView( menuItem: menuItem )
+            return OBWFilteringMenuSeparatorItemView(menuItem: menuItem)
         }
         
-        return OBWFilteringMenuActionItemView( menuItem: menuItem )
+        return OBWFilteringMenuActionItemView(menuItem: menuItem)
     }
     
-    /*==========================================================================*/
-    class func preferredSizeForMenuItem( menuItem: OBWFilteringMenuItem ) -> NSSize {
+    /// Calculates the preferred view size for the given menu item.
+    class func preferredSizeForMenuItem(_ menuItem: OBWFilteringMenuItem) -> NSSize {
         
         if menuItem.isSeparatorItem {
-            return OBWFilteringMenuSeparatorItemView.preferredSizeForMenuItem( menuItem )
+            return OBWFilteringMenuSeparatorItemView.preferredSizeForMenuItem(menuItem)
         }
         
-        return OBWFilteringMenuActionItemView.preferredSizeForMenuItem( menuItem )
+        return OBWFilteringMenuActionItemView.preferredSizeForMenuItem(menuItem)
     }
     
-    /*==========================================================================*/
+    /// Adjusts the receiver's frame to its preferred size.
     func sizeToFit() {
-        self.setFrameSize( self.preferredSize )
+        self.setFrameSize(self.preferredSize)
     }
     
-    /*==========================================================================*/
-    func applyFilterStatus( status: OBWFilteringMenuItemFilterStatus ) {
+    /// Applies the given status to the receiver and its alternate views.
+    func applyFilterStatus(_ status: OBWFilteringMenuItemFilterStatus) {
         
         self.filterStatus = status
         
-        guard let alternateStatus = status.alternateStatus else { return }
-        guard let alternateViews = self.alternateViews else { return }
+        guard let alternateStatus = status.alternateStatus else {
+            return
+        }
         
-        for ( key, view ) in alternateViews {
+        for (key, view) in self.alternateViews {
             view.filterStatus = alternateStatus[key]
         }
     }
     
-}
-
-/*==========================================================================*/
-// MARK: -
-
-class OBWFilteringMenuSeparatorItemView: OBWFilteringMenuItemView {
-    
-    /*==========================================================================*/
-    override func drawRect( dirtyRect: NSRect ) {
-        
-        let itemViewBounds = self.bounds
-        
-        let drawRect = NSRect(
-            x: itemViewBounds.origin.x + 1.0,
-            y: floor( itemViewBounds.midY ) - 1.0,
-            width: itemViewBounds.size.width - 2.0,
-            height: 1.0
-        )
-        
-        NSColor( deviceWhite: 0.6, alpha: 1.0 ).set()
-        NSRectFill( drawRect )
-    }
-    
-    /*==========================================================================*/
-    override class func preferredSizeForMenuItem( menuItem: OBWFilteringMenuItem ) -> NSSize {
-        return NSSize( width: 10.0, height: 12.0 )
-    }
 }

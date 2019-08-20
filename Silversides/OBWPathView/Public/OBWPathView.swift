@@ -4,94 +4,64 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
-
-/*==========================================================================*/
-
-public enum OBWPathItemTrigger {
-    
-    case GUI( NSEvent )
-    case Accessibility
-}
-
-public protocol OBWPathViewDelegate: AnyObject {
-    
-    func pathView( pathView: OBWPathView, filteringMenuForItem: OBWPathItem, trigger: OBWPathItemTrigger ) -> OBWFilteringMenu?
-    func pathView( pathView: OBWPathView, menuForItem: OBWPathItem, trigger: OBWPathItemTrigger ) -> NSMenu?
-    
-    func pathViewAccessibilityDescription( pathView: OBWPathView ) -> String?
-    func pathViewAccessibilityHelp( pathView: OBWPathView ) -> String?
-    func pathView( pathView: OBWPathView, accessibilityHelpForItem: OBWPathItem ) -> String?
-}
-
-public enum OBWPathViewError: ErrorType {
-    case InvalidIndex( index: Int, endIndex: Int )
-    case ImbalancedEndPathItemUpdate
-}
-
-/*==========================================================================*/
-
-private enum OBWPathViewCompression: Int {
-    case None = 0
-    case Interior       // Lowest resistance to compression
-    case Head
-    case Penultimate
-    case Tail           // Highest resistance to compression
-}
-
-/*==========================================================================*/
-// MARK: -
+import AppKit
 
 public class OBWPathView: NSView {
     
-    /*==========================================================================*/
-    override init( frame frameRect: NSRect ) {
-        super.init( frame: frameRect )
+    /// Initialize from a frame rectangle.
+    public override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
         self.commonInitialization()
     }
     
-    /*==========================================================================*/
-    public required init?( coder: NSCoder ) {
-        super.init( coder: coder )
+    /// Initialize from a coder.
+    public required init?(coder: NSCoder) {
+        super.init(coder: coder)
         self.commonInitialization()
     }
     
-    /*==========================================================================*/
+    /// Additional common initialization.
     private func commonInitialization() {
         
         self.autoresizesSubviews = false
         
-        let options: NSTrackingAreaOptions = [ .MouseEnteredAndExited, .MouseMoved, .ActiveAlways, .InVisibleRect ]
-        let trackingArea = NSTrackingArea( rect: self.bounds, options: options, owner: self, userInfo: nil )
-        self.addTrackingArea( trackingArea )
+        let options: NSTrackingArea.Options = [.mouseEnteredAndExited, .mouseMoved, .activeAlways, .inVisibleRect]
+        let trackingArea = NSTrackingArea(rect: self.bounds, options: options, owner: self, userInfo: nil)
+        self.addTrackingArea(trackingArea)
         
         self.wantsLayer = true
         
-        let notificationCenter = NSNotificationCenter.defaultCenter()
-        notificationCenter.addObserver( self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindowDidBecomeMainNotification, object: self.window )
-        notificationCenter.addObserver( self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindowDidResignMainNotification, object: self.window )
+        if let layer = self.layer {
+            layer.backgroundColor = NSColor.textBackgroundColor.cgColor
+            layer.borderColor = NSColor.tertiaryLabelColor.cgColor
+            layer.borderWidth = 1.0
+        }
+        
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindow.didBecomeMainNotification, object: self.window)
+        notificationCenter.addObserver(self, selector: #selector(OBWPathView.windowBecameOrResignedMain(_:)), name: NSWindow.didResignMainNotification, object: self.window)
     }
     
-    /*==========================================================================*/
+    /// Deinitialize the receiver.
     deinit {
-        
-        try! self.removeItemsFromIndex( 0 )
-        
-        NSNotificationCenter.defaultCenter().removeObserver( self )
+        try? self.removeItemsFromIndex(0)
+        NotificationCenter.default.removeObserver(self)
     }
     
-    /*==========================================================================*/
+    
     // MARK: - NSResponder overrides
     
-    /*==========================================================================*/
-    override public func mouseEntered( theEvent: NSEvent ) {
-        self.mouseMoved( theEvent )
+    /// The cursor entered the Path View.
+    override public func mouseEntered(with theEvent: NSEvent) {
+        self.mouseMoved(with: theEvent)
     }
     
-    /*==========================================================================*/
-    override public func mouseExited( theEvent: NSEvent ) {
+    /// The cursor departed the Path View.
+    override public func mouseExited(with theEvent: NSEvent) {
         
-        guard self.pathItemUpdateDepth == 0 else { return }
+        guard self.pathItemUpdateDepth == 0 else {
+            return
+        }
         
         var updateItemWidths = false
         
@@ -105,100 +75,101 @@ public class OBWPathView: NSView {
         
         if updateItemWidths {
             self.updateCurrentItemViewWidths()
-            self.adjustItemViewFrames( animate: true )
+            self.adjustItemViewFrames(withAnimation: true)
         }
     }
     
-    /*==========================================================================*/
-    override public func mouseMoved( theEvent: NSEvent ) {
+    /// The cursor moved within the Path View.
+    override public func mouseMoved(with theEvent: NSEvent) {
         
-        guard self.pathItemUpdateDepth == 0 else { return }
+        guard self.pathItemUpdateDepth == 0 else {
+            return
+        }
         
-        let locationInView = self.convertPoint( theEvent.locationInWindow, fromView: nil )
+        let locationInView = self.convert(theEvent.locationInWindow, from: nil)
         
-        if !self.updatePreferredWidthRequirementsForCursorLocation( locationInView ) { return }
+        if self.updatePreferredWidthRequirementsForCursorLocation(locationInView) == false {
+            return
+        }
         
         self.updateCurrentItemViewWidths()
-        self.adjustItemViewFrames( animate: true )
+        self.adjustItemViewFrames(withAnimation: true)
     }
     
-    /*==========================================================================*/
+    
     // MARK: - NSView overrides
     
-    /*==========================================================================*/
-    override public var wantsUpdateLayer: Bool { return true }
-    
-    /*==========================================================================*/
-    override public func updateLayer() {
-        self.updateLayerContents()
-    }
-    
-    /*==========================================================================*/
-    override public func resizeWithOldSuperviewSize( oldSize: NSSize ) {
-        super.resizeWithOldSuperviewSize( oldSize )
+    /// Live resize the Path View.
+    override public func resize(withOldSuperviewSize oldSize: NSSize) {
+        super.resize(withOldSuperviewSize: oldSize)
         self.updateCurrentItemViewWidths()
-        self.adjustItemViewFrames( animate: false )
+        self.adjustItemViewFrames(withAnimation: false)
     }
     
-    /*==========================================================================*/
+    /// The Path View moved to a new window.
     override public func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        self.active = self.window?.mainWindow ?? false
+        self.active = self.window?.isMainWindow ?? false
     }
     
-    /*==========================================================================*/
+    
     // MARK: - NSAccessibility implementation
     
-    /*==========================================================================*/
+    /// The Path View is an accessible element.
     override public func isAccessibilityElement() -> Bool {
         return true
     }
     
-    /*==========================================================================*/
-    override public func accessibilityRole() -> String? {
-        return NSAccessibilityListRole
+    /// The Path View behaves like an accessible list.
+    override public func accessibilityRole() -> NSAccessibility.Role? {
+        return NSAccessibility.Role.list
     }
     
-    /*==========================================================================*/
+    /// Returns the standard description of an accessible list.
     override public func accessibilityRoleDescription() -> String? {
         
-        let descriptionFormat = NSLocalizedString( "path element %@", comment: "PathView accessibility role description format" )
-        guard let standardDescription = NSAccessibilityRoleDescription( NSAccessibilityListRole, nil ) else { return nil }
-        return String( format: descriptionFormat, standardDescription )
+        let descriptionFormat = NSLocalizedString("path element %@", comment: "PathView accessibility role description format")
+        
+        guard let standardDescription = NSAccessibility.Role.list.description(with: nil) else {
+            return nil
+        }
+        
+        return String(format: descriptionFormat, standardDescription)
     }
     
-    /*==========================================================================*/
+    /// Provides a description of the Path View suitable for an accessibility user.
     override public func accessibilityValueDescription() -> String? {
-        return self.delegate?.pathViewAccessibilityDescription( self ) ?? "Empty Path"
+        return self.delegate?.pathViewAccessibilityDescription(self) ?? "Empty Path"
     }
     
-    /*==========================================================================*/
-    override public func accessibilityChildren() -> [AnyObject]? {
-        return NSAccessibilityUnignoredChildren( self.itemViews )
+    /// Returns the accessibile children of the Path View.
+    override public func accessibilityChildren() -> [Any]? {
+        return NSAccessibility.unignoredChildren(from: self.itemViews)
     }
     
-    /*==========================================================================*/
+    /// Returns whether accessibility is current enabled for the Path View.
     override public func isAccessibilityEnabled() -> Bool {
         return self.enabled
     }
     
-    /*==========================================================================*/
+    /// Returns the general orientation of the list.
     override public func accessibilityOrientation() -> NSAccessibilityOrientation {
-        return .Horizontal
+        return .horizontal
     }
     
-    /*==========================================================================*/
+    /// Returns a description of how to use the Path View.
     override public func accessibilityHelp() -> String? {
-        return self.delegate?.pathViewAccessibilityHelp( self )
+        return self.delegate?.pathViewAccessibilityHelp(self)
     }
     
-    /*==========================================================================*/
+    
     // MARK: - OBWPathView public
     
+    /// The Path View's delegate, if any.
     public weak var delegate: OBWPathViewDelegate? = nil
     
-    /*==========================================================================*/
-    public dynamic var enabled = true {
+    /// Indicates whether the Path View is currently enabled.  Key-Value observable.
+    @objc public dynamic var enabled = true {
         
         didSet {
             
@@ -208,43 +179,54 @@ public class OBWPathView: NSView {
         }
     }
     
-    /*==========================================================================*/
+    /// Returns the number of items currently in the Path View.
     public var numberOfItems: Int {
         return self.itemViews.count
     }
     
-    /*==========================================================================*/
-    public func setItems( pathItems: [OBWPathItem] ) {
+    /// Replaces the Path View's current items with the given item.
+    /// - parameter pathItems: The new Path View's new items.
+    public func setItems(_ pathItems: [OBWPathItem]) {
         
         self.pathItemUpdate { 
             
-            for itemIndex in 0 ..< pathItems.endIndex {
-                try! self.setItem( pathItems[itemIndex], atIndex: itemIndex )
+            for itemIndex in pathItems.indices.suffix(from: 0) {
+                try? self.setItem(pathItems[itemIndex], atIndex: itemIndex)
             }
             
-            try! self.removeItemsFromIndex( pathItems.endIndex )
+            try? self.removeItemsFromIndex(pathItems.endIndex)
         }
     }
     
-    /*==========================================================================*/
-    public func item( atIndex index: Int ) throws -> OBWPathItem {
+    /// Returns the item at the given index.
+    /// - parameter index: The index of the desired item.
+    /// - returns: The item at the given index.
+    /// - throws: Throws `ErrorType.invalidIndex` if the index is out of range.
+    public func item(atIndex index: Int) throws -> OBWPathItem {
         
         let endIndex = self.itemViews.endIndex
         
         guard index >= 0 && index < endIndex else {
-            throw OBWPathViewError.InvalidIndex( index: index, endIndex: endIndex )
+            throw ErrorType.invalidIndex(index: index, endIndex: endIndex)
         }
         
-        return self.itemViews[index].pathItem!
+        guard let pathItem = self.itemViews[index].pathItem else {
+            throw ErrorType.internalConsistency("Valid item view does not have a path item")
+        }
+        
+        return pathItem
     }
     
-    /*==========================================================================*/
-    public func setItem( item: OBWPathItem, atIndex index: Int ) throws {
+    /// Replaces the item at the given index with a new item.  If the index is equal to the number of items currently in the Path View, the new item is appended to the end of the current list of items.
+    /// - parameter item: The Path Item to add.
+    /// - parameter index: The index at which to add the Path Item, replacing any item that may exist at that index.
+    /// - throws: Throws `ErrorType.invalidIndex` if the index is out of range.
+    public func setItem(_ item: OBWPathItem, atIndex index: Int) throws {
         
         let endIndex = self.itemViews.endIndex
         
         guard index >= 0 && index <= endIndex else {
-            throw OBWPathViewError.InvalidIndex( index: index, endIndex: endIndex )
+            throw ErrorType.invalidIndex(index: index, endIndex: endIndex)
         }
         
         self.pathItemUpdate {
@@ -254,43 +236,44 @@ public class OBWPathView: NSView {
                 let pathViewBounds = self.bounds
                 
                 var newItemViewFrame = NSRect(
-                    x: pathViewBounds.origin.x + pathViewBounds.size.width,
-                    y: pathViewBounds.origin.y,
+                    x: pathViewBounds.maxX,
+                    y: pathViewBounds.minY,
                     width: 50.0,
-                    height: pathViewBounds.size.height
+                    height: pathViewBounds.height
                 )
                 
                 if let lastView = self.itemViews.last {
                     let lastViewFrame = lastView.frame
-                    newItemViewFrame.origin.x = max( newItemViewFrame.origin.x, lastViewFrame.origin.x + lastViewFrame.size.width )
+                    newItemViewFrame.origin.x = max(newItemViewFrame.minX, lastViewFrame.minX + lastViewFrame.width)
                 }
                 
-                let itemView = OBWPathItemView( frame: newItemViewFrame )
+                let itemView = OBWPathItemView(frame: newItemViewFrame)
                 itemView.alphaValue = 0.0
                 itemView.pathItem = item
-                self.addSubview( itemView )
-                self.itemViews.append( itemView )
+                self.addSubview(itemView)
+                self.itemViews.append(itemView)
                 
                 newItemViewFrame.size.width = itemView.preferredWidth
-                itemView.currentWidth = newItemViewFrame.size.width
-                itemView.idleWidth = newItemViewFrame.size.width
+                itemView.currentWidth = newItemViewFrame.width
+                itemView.idleWidth = newItemViewFrame.width
                 itemView.frame = newItemViewFrame
             }
             else {
                 
                 self.itemViews[index].pathItem = item
             }
-                
         }
     }
     
-    /*==========================================================================*/
-    public func removeItemsFromIndex( index: Int ) throws {
+    /// Removes the Path Item at the given index.
+    /// - parameter index: The index of the Path Item to remove.
+    /// - throws: Throws `ErrorType.invalidIndex` if the index is out of range.
+    public func removeItemsFromIndex(_ index: Int) throws {
         
         let endIndex = self.itemViews.endIndex
         
         guard index >= 0 && index <= endIndex else {
-            throw OBWPathViewError.InvalidIndex( index: index, endIndex: endIndex )
+            throw ErrorType.invalidIndex(index: index, endIndex: endIndex)
         }
         
         if index == endIndex {
@@ -298,21 +281,23 @@ public class OBWPathView: NSView {
         }
         
         self.pathItemUpdate {
-            self.terminatedViews = Array( self.itemViews.suffixFrom( index ) )
-            self.itemViews = Array( self.itemViews.prefixUpTo( index ) )
+            self.terminatedViews = Array(self.itemViews.suffix(from: index))
+            self.itemViews = Array(self.itemViews.prefix(upTo: index))
         }
     }
     
-    /*==========================================================================*/
+    /// Begin a batch update of path items.  Must be balanced by a call to `endPathItemUpdate()`.
+    /// - note: Multiple calls to `beginPathItemUpdate()` may be made provided each is balanced by a call to `endPathItemUpdate()`.  Path Item updates will not occur until the last call to `beginPathItemUpdate()` is balanced by a call to `endPathItemUpdate()`.
     public func beginPathItemUpdate() {
         self.pathItemUpdateDepth += 1
     }
     
-    /*==========================================================================*/
+    /// Ends a batch update of path items.  Balances a previous call to `beginPathItemUpdate()`.
+    /// - throws: Throws `ErrorType.imbalancedEndPathItemUpdate` if a call to `endPathItemUpdate()` does not balance a previous call to `beginPathItemUpdate()`.
     public func endPathItemUpdate() throws {
         
         if self.pathItemUpdateDepth <= 0 {
-            throw OBWPathViewError.ImbalancedEndPathItemUpdate
+            throw ErrorType.imbalancedEndPathItemUpdate
         }
         
         self.pathItemUpdateDepth -= 1
@@ -320,26 +305,30 @@ public class OBWPathView: NSView {
         guard self.pathItemUpdateDepth == 0 else { return }
         
         self.updateItemDividerVisibility()
-        self.updatePreferredWidthRequirements()
+        _ = self.updatePreferredWidthRequirements()
         self.updateCurrentItemViewWidths()
-        self.adjustItemViewFrames( animate: true )
+        self.adjustItemViewFrames(withAnimation: true)
     }
     
-    /*==========================================================================*/
-    public func pathItemUpdate( @noescape withHandler handler: () -> Void ) {
+    /// Executes the given closure within a single path item update context.
+    /// - parameter handler: The closure to call.
+    public func pathItemUpdate(withHandler handler: () -> Void) {
         self.beginPathItemUpdate()
         handler()
         try! self.endPathItemUpdate()
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWPathView private
     
+    // MARK: - Private
+    
+    /// Indicates whether the Path View is currently active.
     private(set) var active = false {
         
         didSet {
             
-            guard self.enabled else { return }
+            guard self.enabled else {
+                return
+            }
             
             for itemView in self.itemViews {
                 itemView.pathViewAppearanceChanged()
@@ -347,56 +336,57 @@ public class OBWPathView: NSView {
         }
     }
     
+    /// The current views displaying Path Items.
     private var itemViews: [OBWPathItemView] = []
+    
+    /// The current depth of `beginPathItemUpdate()` / `endPathItemUpdate()` calls.
     private var pathItemUpdateDepth = 0
     
+    /// Views that are being removed from the Path View.
     private var terminatedViews: [OBWPathItemView]? = nil
     
-    /*==========================================================================*/
-    @objc private func windowBecameOrResignedMain( notification: NSNotification ) {
-        self.updateLayerContents()
-        self.active = ( notification.name == NSWindowDidBecomeMainNotification )
+    /// The Path View's window changed "Main" status.
+    @objc private func windowBecameOrResignedMain(_ notification: Notification) {
+        self.needsDisplay = true
+        self.active = (notification.name == NSWindow.didBecomeMainNotification)
     }
     
-    /*==========================================================================*/
-    private func updateLayerContents() {
-        
-        guard let layer = self.layer else { return }
-        
-        layer.backgroundColor = CGColorCreateGenericGray( 1.0, 1.0 )
-        layer.borderColor = CGColorCreateGenericGray( 0.55, 1.0 )
-        layer.borderWidth = 1.0
-    }
-    
-    /*==========================================================================*/
+    /// Updates the visibility of each of the divider images within the Path View.
     private func updateItemDividerVisibility() {
         
-        guard let lastItemView = self.itemViews.last else { return }
+        guard let lastItemView = self.itemViews.last else {
+            return
+        }
         
         for itemView in self.itemViews {
-            itemView.dividerHidden = ( itemView === lastItemView )
+            itemView.dividerHidden = (itemView === lastItemView)
         }
     }
     
-    /*==========================================================================*/
+    /// Updates each of the Path Item's current preferred widths.
+    /// - returns: `true` if any item's preferred width changed, `false` if all did not change.
     private func updatePreferredWidthRequirements() -> Bool {
         
-        guard let window = self.window else { return false }
+        guard let window = self.window else {
+            return false
+        }
         
-        let locationInScreen = NSRect( origin: NSEvent.mouseLocation(), size: NSZeroSize )
-        let locationInWindow = window.convertRectFromScreen( locationInScreen )
-        let locationInView = self.convertPoint( locationInWindow.origin, fromView: nil )
+        let locationInScreen = NSRect(origin: NSEvent.mouseLocation, size: .zero)
+        let locationInWindow = window.convertFromScreen(locationInScreen)
+        let locationInView = self.convert(locationInWindow.origin, from: nil)
         
-        return self.updatePreferredWidthRequirementsForCursorLocation( locationInView )
+        return self.updatePreferredWidthRequirementsForCursorLocation(locationInView)
     }
 
     
-    /*==========================================================================*/
-    private func updatePreferredWidthRequirementsForCursorLocation( locationInView: NSPoint ) -> Bool {
+    /// Updates each of the Path Item's current preferred widths based on the given cursor location.
+    /// - parameter locationInView: The location of the cursor in the Path View's coordinate system.
+    /// - returns: `true` if any item's preferred width changed, `false` if all did not change.
+    private func updatePreferredWidthRequirementsForCursorLocation(_ locationInView: NSPoint) -> Bool {
         
-        let cursorIsInParent = NSPointInRect( locationInView, self.bounds )
+        let cursorIsInParent = NSPointInRect(locationInView, self.bounds)
         
-        var itemLeftBound = self.bounds.origin.x
+        var itemLeftBound = self.bounds.minX
         var anItemHasBeenCollapsed = false
         var anItemHasBeenExpanded = false
         
@@ -407,10 +397,10 @@ public class OBWPathView: NSView {
                 continue
             }
             
-            let itemWidthToTest = ( anItemHasBeenCollapsed ? itemView.preferredWidth : itemView.currentWidth )
+            let itemWidthToTest = (anItemHasBeenCollapsed ? itemView.preferredWidth : itemView.currentWidth)
             let itemRightBound = itemLeftBound + itemWidthToTest
-            let cursorIsInItem = ( locationInView.x >= itemLeftBound && locationInView.x < itemRightBound )
-            let preferredWidthIsRequired = ( cursorIsInParent && cursorIsInItem )
+            let cursorIsInItem = (locationInView.x >= itemLeftBound && locationInView.x < itemRightBound)
+            let preferredWidthIsRequired = (cursorIsInParent && cursorIsInItem)
             
             if itemView.preferredWidthRequired == preferredWidthIsRequired {
                 itemLeftBound += itemWidthToTest
@@ -429,10 +419,10 @@ public class OBWPathView: NSView {
             }
         }
         
-        return ( anItemHasBeenCollapsed || anItemHasBeenExpanded )
+        return (anItemHasBeenCollapsed || anItemHasBeenExpanded)
     }
     
-    /*==========================================================================*/
+    /// Updates the current width of all Path Items based on the preferred width of each and the amount of horizontal space available to display items.
     private func updateCurrentItemViewWidths() {
         
         var itemViews = self.itemViews
@@ -450,15 +440,15 @@ public class OBWPathView: NSView {
             totalPreferredWidth += preferredWidth
         }
         
-        let parentWidth = self.bounds.size.width
+        let parentWidth = self.bounds.width
         
         if parentWidth >= totalPreferredWidth {
             return
         }
         
         let tailItemView = itemViews.removeLast()
-        let penultimateItemView: OBWPathItemView? = ( itemViews.count > 0 ? itemViews.removeLast() : nil )
-        let headItemView: OBWPathItemView? = ( itemViews.count > 0 ? itemViews.removeFirst() : nil )
+        let penultimateItemView: OBWPathItemView? = (itemViews.count > 0 ? itemViews.removeLast() : nil)
+        let headItemView: OBWPathItemView? = (itemViews.count > 0 ? itemViews.removeFirst() : nil)
         let interiorItemViews = itemViews
         
         let tailPreferredWidth = tailItemView.preferredWidth
@@ -472,38 +462,38 @@ public class OBWPathView: NSView {
             interiorMinimumWidth += itemView.minimumWidth
         }
         
-        var compression = OBWPathViewCompression.Interior
+        var compression = CompressionPriority.interior
         var widthToCompress = totalPreferredWidth - parentWidth
         
         if parentWidth < headMinimumWidth + interiorMinimumWidth + penultimateMinimumWidth + tailPreferredWidth {
-            compression = .Tail
+            compression = .tail
         }
         else if parentWidth < headMinimumWidth + interiorMinimumWidth + penultimatePreferredWidth + tailPreferredWidth {
-            compression = .Penultimate
+            compression = .penultimate
         }
         else if parentWidth < headPreferredWidth + interiorMinimumWidth + penultimatePreferredWidth + tailPreferredWidth {
-            compression = .Head
+            compression = .head
         }
         
-        if compression.rawValue >= OBWPathViewCompression.Interior.rawValue && !interiorItemViews.isEmpty {
-            widthToCompress -= self.compress( itemViews: interiorItemViews, by: widthToCompress )
+        if compression >= .interior && interiorItemViews.isEmpty == false {
+            widthToCompress -= self.compress(itemViews: interiorItemViews, by: widthToCompress)
         }
         
         if let headItemView = headItemView {
-            if compression.rawValue >= OBWPathViewCompression.Head.rawValue {
-                widthToCompress -= self.compress( itemViews: [headItemView], by: widthToCompress )
+            if compression >= .head {
+                widthToCompress -= self.compress(itemViews: [headItemView], by: widthToCompress)
             }
         }
         
         if let penultimateItemView = penultimateItemView {
-            if compression.rawValue >= OBWPathViewCompression.Penultimate.rawValue {
-                widthToCompress -= self.compress( itemViews: [penultimateItemView], by: widthToCompress )
+            if compression >= .penultimate {
+                widthToCompress -= self.compress(itemViews: [penultimateItemView], by: widthToCompress)
             }
         }
         
-        if compression.rawValue == OBWPathViewCompression.Tail.rawValue {
+        if compression == .tail {
             let tailMinimumWidth = tailItemView.minimumWidth
-            let tailCurrentWidth = ( tailPreferredWidth - widthToCompress < tailMinimumWidth ? tailMinimumWidth : tailPreferredWidth - widthToCompress )
+            let tailCurrentWidth = (tailPreferredWidth - widthToCompress < tailMinimumWidth ? tailMinimumWidth : tailPreferredWidth - widthToCompress)
             tailItemView.currentWidth = tailCurrentWidth
             tailItemView.idleWidth = tailCurrentWidth
         }
@@ -516,8 +506,11 @@ public class OBWPathView: NSView {
         }
     }
     
-    /*==========================================================================*/
-    private func compress( itemViews itemViews: [OBWPathItemView], by compression: CGFloat ) -> CGFloat {
+    /// Compress the given views proportionally by the given distance.
+    /// - parameter itemViews: The view to compress.
+    /// - parameter compression: The number of combined points that `itemViews` should be compressed by.
+    /// - returns: The number of combined points by which `itemViews` were actually compressed.  May be less than `compression` if all `itemViews` are compressed to their minimum widths.
+    private func compress(itemViews: [OBWPathItemView], by compression: CGFloat) -> CGFloat {
         
         var compressibleItemViews: [OBWPathItemView] = []
         var totalWidthItemsCanCompress: CGFloat = 0.0
@@ -528,12 +521,16 @@ public class OBWPathView: NSView {
             
             if widthItemCanCompress > 0.0 {
                 totalWidthItemsCanCompress += widthItemCanCompress
-                compressibleItemViews.append( itemView )
+                compressibleItemViews.append(itemView)
             }
         }
         
-        guard !compressibleItemViews.isEmpty else { return 0.0 }
-        guard totalWidthItemsCanCompress > 0.0 else { return 0.0 }
+        guard
+            let lastCompressibleView = compressibleItemViews.last,
+            totalWidthItemsCanCompress > 0.0
+        else {
+            return 0.0
+        }
         
         let widthToCompress = compression
         
@@ -556,11 +553,11 @@ public class OBWPathView: NSView {
             let preferredWidth = itemView.preferredWidth
             var widthToCompressItem = widthRemainingToCompress
             
-            if itemView !== compressibleItemViews.last! {
+            if itemView !== lastCompressibleView {
                 
                 let widthItemCanCompress = preferredWidth - itemView.minimumWidth
                 let compressionFraction = widthItemCanCompress / totalWidthItemsCanCompress
-                widthToCompressItem = round( widthToCompress * compressionFraction )
+                widthToCompressItem = round(widthToCompress * compressionFraction)
             }
             
             let itemWidth = preferredWidth - widthToCompressItem
@@ -572,13 +569,15 @@ public class OBWPathView: NSView {
         return widthToCompress
     }
     
-    /*==========================================================================*/
-    private func adjustItemViewFrames( animate animate: Bool ) {
+    /// Repositions all item views based on their current sizes.
+    /// - parameter animate: If `true`, the views will animate to their new locations.
+    private func adjustItemViewFrames(withAnimation animate: Bool) {
         
-        let shiftKey = NSEvent.modifierFlags().contains( .Shift )
-        let animationDuration = ( animate ? ( shiftKey ? 2.5 : 0.1 ) : 0.0 )
+        let shiftKey = NSEvent.modifierFlags.contains(.shift)
+        let animationDuration = (animate ? (shiftKey ? 2.5 : 0.1) : 0.0)
         
-        NSAnimationContext.runAnimationGroup({ ( context: NSAnimationContext ) in
+        NSAnimationContext.runAnimationGroup({
+            (context: NSAnimationContext) in
             
             context.duration = animationDuration
             
@@ -590,39 +589,42 @@ public class OBWPathView: NSView {
                 itemFrame.origin.x = itemOriginX
                 itemFrame.size.width = itemView.currentWidth
                 
-                let targetView = ( animate ? itemView.animator() : itemView )
+                let targetView = (animate ? itemView.animator() : itemView)
                 targetView.frame = itemFrame
                 targetView.alphaValue = 1.0
                 
                 itemView.needsDisplay = true
                 
-                itemOriginX += itemFrame.size.width
+                itemOriginX += itemFrame.width
             }
             
-            }, completionHandler: nil )
+            }, completionHandler: nil)
         
-        guard let terminatedViews = self.terminatedViews else { return }
+        guard let terminatedViews = self.terminatedViews else {
+            return
+        }
         
         self.terminatedViews = nil
         
-        NSAnimationContext.runAnimationGroup({ ( context: NSAnimationContext ) in
+        NSAnimationContext.runAnimationGroup({
+            (context: NSAnimationContext) in
             
             context.duration = animationDuration
             
-            var itemOriginX = self.bounds.origin.x + self.bounds.size.width
+            var itemOriginX = self.bounds.maxX
             
             for itemView in terminatedViews {
                 
                 var itemFrame = itemView.frame
                 itemFrame.origin.x = itemOriginX
                 
-                let targetView = ( animate ? itemView.animator() : itemView )
+                let targetView = (animate ? itemView.animator() : itemView)
                 targetView.frame = itemFrame
                 targetView.alphaValue = 0.0
                 
                 itemView.needsDisplay = true
                 
-                itemOriginX += itemFrame.size.width
+                itemOriginX += itemFrame.width
             }
             
             }, completionHandler: {

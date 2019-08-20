@@ -4,83 +4,58 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-// MARK: -
-
-extension NSColor {
-    
-    func colorByScaling( hue hue: CGFloat, saturation: CGFloat, brightness: CGFloat, alpha: CGFloat ) -> NSColor {
-        
-        guard let originalColor = self.colorUsingColorSpaceName( NSDeviceRGBColorSpace ) else { return self }
-        
-        let pinColor = { ( value: CGFloat ) -> CGFloat in
-            if value < 0.0 { return 0.0 }
-            if value > 1.0 { return 1.0 }
-            return value
-        }
-        
-        let adjustedHue = pinColor( originalColor.hueComponent * hue )
-        let adjustedSaturation = pinColor( originalColor.saturationComponent * saturation )
-        let adjustedBrightness = pinColor( originalColor.brightnessComponent * brightness )
-        let adjustedAlpha = pinColor( originalColor.alphaComponent * alpha )
-        
-        let adjustedColor = NSColor( deviceHue: adjustedHue, saturation: adjustedSaturation, brightness: adjustedBrightness, alpha: adjustedAlpha )
-        
-        return ( adjustedColor.colorUsingColorSpaceName( self.colorSpaceName ) ?? self )
-    }
-    
-}
-
-/*==========================================================================*/
-// MARK: -
-
+/// A view class that displays a Path Item.
 class OBWPathItemView: NSView {
     
-    /*==========================================================================*/
-    override init( frame frameRect: NSRect ) {
-        super.init( frame: frameRect )
+    /// Initialize from a frame.
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
         self.commonInitialization()
     }
     
-    /*==========================================================================*/
-    required init?( coder: NSCoder ) {
-        super.init( coder: coder )
+    /// Initialize from a coder.
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
         self.commonInitialization()
     }
     
-    /*==========================================================================*/
+    /// Additional common initialization
     private func commonInitialization() {
         
         self.currentWidth = self.bounds.size.width
         self.idleWidth = self.currentWidth
         self.preferredWidth = self.currentWidth
         
-        self.addSubview( imageView )
-        self.addSubview( titleField )
-        self.addSubview( dividerView )
+        self.addSubview(imageView)
+        self.addSubview(titleField)
+        self.addSubview(dividerView)
         
-        self.autoresizingMask = .ViewNotSizable
-        self.layerContentsRedrawPolicy = .DuringViewResize
+        self.autoresizingMask = []
+        self.layerContentsRedrawPolicy = .duringViewResize
     }
     
-    /*==========================================================================*/
+    
     // MARK: - NSResponder overrides
     
-    /*==========================================================================*/
-    override func mouseDown( theEvent: NSEvent ) {
+    /// Display the item's menu on mouseDown.
+    override func mouseDown(with theEvent: NSEvent) {
         
-        guard let pathView = self.superview as? OBWPathView else { return }
-        guard pathView.enabled else { return }
+        guard
+            let pathView = self.superview as? OBWPathView,
+            pathView.enabled
+        else {
+            return
+        }
         
-        self.displayItemMenu( .GUI( theEvent ) )
+        self.displayItemMenu(.gui(theEvent))
     }
 
-    /*==========================================================================*/
+    
     // MARK: - NSView overrides
     
-    /*==========================================================================*/
+    /// Update the title field when the view moves to a window.
     override func viewDidMoveToWindow() {
         
         super.viewDidMoveToWindow()
@@ -94,7 +69,12 @@ class OBWPathItemView: NSView {
         }
     }
     
-    /*==========================================================================*/
+    /// Distance from the top of the item view to the title field's baseline.
+    override var firstBaselineOffsetFromTop: CGFloat {
+        return self.titleField.firstBaselineOffsetFromTop + (self.bounds.maxY - self.titleField.frame.maxY)
+    }
+    
+    /// Layout the subviews.
     override func layout() {
         
         let itemViewBounds = self.bounds
@@ -107,35 +87,35 @@ class OBWPathItemView: NSView {
         let imageHeight = itemViewBounds.size.height - imageMargins.bottom - imageMargins.top
         
         let imageFrame = NSRect(
-            x: itemViewBounds.origin.x + imageMargins.left,
-            y: itemViewBounds.origin.y + imageMargins.bottom,
+            x: itemViewBounds.minX + imageMargins.left,
+            y: itemViewBounds.minY + imageMargins.bottom,
             width: imageHeight,
             height: imageHeight
         )
         
         imageView.frame = imageFrame
         
-        if !imageView.hidden {
-            titleMargins.left = imageMargins.left + imageFrame.size.width + max( imageMargins.right, titleMargins.left )
+        if imageView.isHidden == false {
+            titleMargins.left = imageMargins.left + imageFrame.width + max(imageMargins.right, titleMargins.left)
         }
         
         let dividerView = self.dividerView
-        let dividerImageSize = dividerView.image?.size ?? NSZeroSize
+        let dividerImageSize = dividerView.image?.size ?? NSSize.zero
         
         var dividerFrame = NSRect(
-            x: itemViewBounds.origin.x + itemViewBounds.size.width - dividerMargins.right - dividerImageSize.width,
-            y: floor( ( itemViewBounds.size.height - dividerImageSize.height ) / 2.0 ),
+            x: itemViewBounds.minX + itemViewBounds.width - dividerMargins.right - dividerImageSize.width,
+            y: ((itemViewBounds.height - dividerImageSize.height) / 2.0).rounded(.down),
             width: dividerImageSize.width,
             height: dividerImageSize.height
         )
         
-        let minimumDividerOriginX = itemViewBounds.origin.x + self.minimumWidth - ( dividerMargins.right + dividerImageSize.width )
-        dividerFrame.origin.x = max( dividerFrame.origin.x, minimumDividerOriginX )
+        let minimumDividerOriginX = itemViewBounds.minX + self.minimumWidth - (dividerMargins.right + dividerImageSize.width)
+        dividerFrame.origin.x = max(dividerFrame.minX, minimumDividerOriginX)
         
         dividerView.frame = dividerFrame
         
-        if !dividerView.hidden {
-            titleMargins.right = dividerMargins.right + dividerFrame.size.width + min( dividerMargins.left, titleMargins.right )
+        if dividerView.isHidden == false {
+            titleMargins.right = dividerMargins.right + dividerFrame.width + min(dividerMargins.left, titleMargins.right)
         }
         
         let titleField = self.titleField
@@ -143,20 +123,17 @@ class OBWPathItemView: NSView {
         // This is the distance from the top of the ESCPathItemView to the desired text baseline.
         let desiredDistanceFromTopOfViewToTitleBaseline: CGFloat = 16.0
         
-        // This is the distance from the top of the NSTextFieldCell to the text baseline and appears to be an AppKit constant.  It was casually measured from screenshots on Mac OS X 10.8.
-        let measuredDistanceFromTopOfCellToTextBaseline: CGFloat = 11.0
-        
         var titleFrame = NSRect(
             x: titleMargins.left,
             y: 0.0,
-            width: itemViewBounds.size.width - titleMargins.left - titleMargins.right,
-            height: itemViewBounds.size.height - desiredDistanceFromTopOfViewToTitleBaseline + measuredDistanceFromTopOfCellToTextBaseline
+            width: itemViewBounds.width - titleMargins.width,
+            height: itemViewBounds.height - desiredDistanceFromTopOfViewToTitleBaseline + self.titleField.firstBaselineOffsetFromTop
         )
         
         OBWPathItemView.offscreenTextField.attributedStringValue = titleField.attributedStringValue
         OBWPathItemView.offscreenTextField.sizeToFit()
-        let fieldHeight = OBWPathItemView.offscreenTextField.frame.size.height
-        titleFrame.origin.y = titleFrame.size.height - fieldHeight
+        let fieldHeight = OBWPathItemView.offscreenTextField.frame.height
+        titleFrame.origin.y = titleFrame.height - fieldHeight
         titleFrame.size.height = fieldHeight
         
         titleField.frame = titleFrame
@@ -164,73 +141,95 @@ class OBWPathItemView: NSView {
         super.layout()
     }
     
-    /*==========================================================================*/
+    
     // MARK: - NSAccessibility implementation
     
-    /*==========================================================================*/
+    /// Indicates whether the view is an accessible element.
     override func isAccessibilityElement() -> Bool {
         return self.pathItem?.accessible ?? false
     }
     
-    /*==========================================================================*/
-    override func accessibilityRole() -> String? {
-        return NSAccessibilityPopUpButtonRole
+    /// Path item views act like pop up buttons.
+    override func accessibilityRole() -> NSAccessibility.Role? {
+        return NSAccessibility.Role.popUpButton
     }
     
-    /*==========================================================================*/
+    /// Return the description of a pop up button.
     override func accessibilityRoleDescription() -> String? {
         
-        let descriptionFormat = NSLocalizedString( "path element %@", comment: "PathItemView accessibility role description" )
-        guard let standardDescription = NSAccessibilityRoleDescription( NSAccessibilityPopUpButtonRole, nil ) else { return nil }
-        return String( format: descriptionFormat, standardDescription )
+        let descriptionFormat = NSLocalizedString("path element %@", comment: "PathItemView accessibility role description")
+        
+        guard let standardDescription = NSAccessibility.Role.popUpButton.description(with: nil) else {
+            return nil
+        }
+        
+        return String(format: descriptionFormat, standardDescription)
     }
     
-    /*==========================================================================*/
-    override func accessibilityChildren() -> [AnyObject]? {
+    /// The subviews are not accessible.
+    override func accessibilityChildren() -> [Any]? {
         return nil
     }
     
-    /*==========================================================================*/
+    /// Indicates whether accessibility is currently enabled.
     override func isAccessibilityEnabled() -> Bool {
-        guard let pathView = self.superview as? OBWPathView else { return false }
+        
+        guard let pathView = self.superview as? OBWPathView else {
+            return false
+        }
+        
         return pathView.enabled
     }
     
-    /*==========================================================================*/
-    override func accessibilityValue() -> AnyObject? {
+    /// The accessible value is the item's title.
+    override func accessibilityValue() -> Any? {
         return self.pathItem?.title ?? ""
     }
     
-    /*==========================================================================*/
+    /// Obtain the accessible help from the delegate.
     override func accessibilityHelp() -> String? {
-        guard let pathView = self.superview as? OBWPathView else { return nil }
-        guard let pathItem = self.pathItem else { return nil }
-        return pathView.delegate?.pathView( pathView, accessibilityHelpForItem: pathItem )
+        
+        guard
+            let pathView = self.superview as? OBWPathView,
+            let pathItem = self.pathItem
+        else {
+            return nil
+        }
+        
+        return pathView.delegate?.pathView(pathView, accessibilityHelpForItem: pathItem)
     }
     
-    /*==========================================================================*/
+    /// Respond to a simulated mouseDown.
     override func accessibilityPerformPress() -> Bool {
-        self.displayItemMenu( .Accessibility )
+        self.displayItemMenu(.accessibility)
         return true
     }
     
-    /*==========================================================================*/
+    /// Respond to a request to show the pop up's menu.
     override func accessibilityPerformShowMenu() -> Bool {
-        self.displayItemMenu( .Accessibility )
+        self.displayItemMenu(.accessibility)
         return true
     }
     
-    /*==========================================================================*/
+    
     // MARK: - OBWPathItemView implementation
     
+    /// When `true`, the item view is required to be at its preferred width.
     var preferredWidthRequired: Bool = false
+    
+    /// The current width of the item view.
     var currentWidth: CGFloat = 0.0
+    
+    /// The width the item view will be when it is not under the cursor.
     var idleWidth: CGFloat = 0.0
     
+    /// The preferred width of the item view is wide enough to show the entire title without compressing the font.
     private(set) var preferredWidth: CGFloat = 0.0
+    
+    /// The minimum width the item view is allowed to be.
     private(set) var minimumWidth: CGFloat = 20.0
     
-    /*==========================================================================*/
+    /// The Path Item that the view is displaying.
     var pathItem: OBWPathItem? = nil {
         
         didSet {
@@ -238,7 +237,7 @@ class OBWPathItemView: NSView {
             self.updateTitleFieldContents()
             
             self.imageView.image = self.pathItem?.image ?? nil
-            self.imageView.hidden = ( self.imageView.image == nil )
+            self.imageView.isHidden = (self.imageView.image == nil)
             
             self.needsDisplay = true
             
@@ -248,20 +247,20 @@ class OBWPathItemView: NSView {
         }
     }
     
-    /*==========================================================================*/
+    /// Indicates whether the inter-item separator is currently hidden.
     var dividerHidden: Bool {
         
         get {
-            return self.dividerView.hidden
+            return self.dividerView.isHidden
         }
         
         set {
             
-            if self.dividerView.hidden == newValue {
+            if self.dividerView.isHidden == newValue {
                 return
             }
             
-            self.dividerView.hidden = newValue
+            self.dividerView.isHidden = newValue
             
             if self.recalculateWidths() {
                 self.needsLayout = true
@@ -269,91 +268,91 @@ class OBWPathItemView: NSView {
         }
     }
     
-    /*==========================================================================*/
-    func displayItemMenu( menuTrigger: OBWPathItemTrigger ) {
+    /// Display the item's menu.
+    /// - parameter menuTrigger: The cause of the menu to be shown.
+    func displayItemMenu(_ menuTrigger: OBWPathItem.ActivationType) {
         
-        guard let pathView = self.superview as? OBWPathView else { return }
-        
-        guard let hitPathItem = self.pathItem else { return }
-        guard let delegate = pathView.delegate else { return }
+        guard
+            let pathView = self.superview as? OBWPathView,
+            let hitPathItem = self.pathItem,
+            let delegate = pathView.delegate
+        else {
+            return
+        }
         
         // OBWFilteringMenu
-        if let filteringMenu = delegate.pathView( pathView, filteringMenuForItem: hitPathItem, trigger: menuTrigger ) {
+        if let filteringMenu = delegate.pathView(pathView, filteringMenuForItem: hitPathItem, activatedBy: menuTrigger) {
             
-            let menuItem = filteringMenu.itemWithTitle( hitPathItem.title )
+            let menuItem: OBWFilteringMenuItem?
+            let alignment: OBWFilteringMenuItem.Alignment
+            let itemLocation: NSPoint
             
-            var itemLocation = NSPoint( x: self.bounds.minX, y: self.bounds.maxY )
-            
-            if let menuItem = menuItem {
-            
-                let pathTitleFieldFrame = self.titleField.frame
-                
-                let pathTitleOffset = NSSize(
-                    width: pathTitleFieldFrame.origin.x - self.bounds.minX,
-                    height: self.bounds.size.height - pathTitleFieldFrame.maxY
+            if let hitItem = filteringMenu.itemWithTitle(hitPathItem.title) {
+                menuItem = hitItem
+                alignment = .baseline
+                itemLocation = NSPoint(
+                    x: self.bounds.minX - self.imageView.frame.width - OBWPathItemView.imageMargins.right,
+                    y: self.bounds.maxY - self.firstBaselineOffsetFromTop
                 )
-                
-                let menuItemTitleOffset = menuItem.titleOffset
-                
-                let menuItemLocationOffsets = NSSize(
-                    width: pathTitleOffset.width - menuItemTitleOffset.width,
-                    height: pathTitleOffset.height - menuItemTitleOffset.height
-                )
-                
-                itemLocation.x += menuItemLocationOffsets.width
-                itemLocation.y -= menuItemLocationOffsets.height
+            }
+            else {
+                menuItem = nil
+                alignment = .topLeft
+                itemLocation = NSPoint(x: self.bounds.minX, y: self.bounds.maxY)
             }
             
             let event: NSEvent?
-            let highlightItem: Bool?
+            let highlightTarget: OBWFilteringMenu.HighlightTarget
             
             switch menuTrigger {
                 
-            case .GUI( let triggerEvent ):
+            case .gui(let triggerEvent):
                 event = triggerEvent
-                highlightItem = nil
+                highlightTarget = .underCursor
                 
-            case .Accessibility:
+            case .accessibility:
                 event = nil
-                highlightItem = false
+                highlightTarget = .none
             }
             
-            filteringMenu.popUpMenuPositioningItem( menuItem, atLocation: itemLocation, inView: self, withEvent: event, highlightMenuItem: highlightItem )
+            filteringMenu.popUpMenuPositioningItem(menuItem, aligning: alignment, atPoint: itemLocation, inView: self, matchingWidth: false, withEvent: event, highlighting: highlightTarget)
         }
         
         // NSMenu
-        else if let menu = delegate.pathView( pathView, menuForItem: hitPathItem, trigger: menuTrigger ) {
+        else if let menu = delegate.pathView(pathView, menuForItem: hitPathItem, activatedBy: menuTrigger) {
             
-            let menuItem = menu.itemWithTitle( hitPathItem.title )
+            let menuItem = menu.item(withTitle: hitPathItem.title)
             
-            let minorVersion = NSProcessInfo.processInfo().operatingSystemVersion.minorVersion
+            let minorVersion = ProcessInfo().operatingSystemVersion.minorVersion
             let menuItemLocationOffsets: NSSize
             
             if minorVersion <= 10 {
                 // These offsets are based on the geometry of a standard NSMenu and were determined experimentally on Mac OS X 10.10
-                menuItemLocationOffsets = NSSize( width: -17.0, height: 1.0 )
+                menuItemLocationOffsets = NSSize(width: -17.0, height: 1.0)
             }
             else {
                 // These offsets are based on the geometry of a standard NSMenu and were determined experimentally on Mac OS X 10.11
-                menuItemLocationOffsets = NSSize( width: -16.0, height: 2.0 )
+                menuItemLocationOffsets = NSSize(width: -16.0, height: 2.0)
             }
             
             let itemLocation = NSPoint(
-                x: self.bounds.origin.x + menuItemLocationOffsets.width,
-                y: self.bounds.origin.y + self.bounds.size.height - menuItemLocationOffsets.height
+                x: self.bounds.minX + menuItemLocationOffsets.width,
+                y: self.bounds.minY + self.bounds.height - menuItemLocationOffsets.height
             )
             
-            menu.popUpMenuPositioningItem( menuItem, atLocation: itemLocation, inView: self )
+            menu.popUp(positioning: menuItem, at: itemLocation, in: self)
         }
     }
     
-    /*==========================================================================*/
+    /// Updates the view's visual state based on a state change in the Path View.
     func pathViewAppearanceChanged() {
         
-        guard let pathView = self.superview as? OBWPathView else { return }
+        guard let pathView = self.superview as? OBWPathView else {
+            return
+        }
         
-        let activeAppearance = ( pathView.enabled && pathView.active )
-        let imageAlpha = ( activeAppearance ? 1.0 : OBWPathItemView.disabledViewAlpha )
+        let activeAppearance = (pathView.enabled && pathView.active)
+        let imageAlpha = (activeAppearance ? 1.0 : OBWPathItemView.disabledViewAlpha)
         
         self.imageView.alphaValue = imageAlpha
         self.dividerView.alphaValue = imageAlpha
@@ -361,144 +360,153 @@ class OBWPathItemView: NSView {
         self.needsDisplay = true
     }
     
-    /*==========================================================================*/
+    
     // MARK: - OBWPathItemView internal
     
-    private static let offscreenTextField = NSTextField( frame: NSZeroRect )
-    private var active: Bool = true
+    /// An offscreen text field used to measure text.
+    private static let offscreenTextField = NSTextField(frame: .zero)
     
-    /*==========================================================================*/
+    /// View to display the item's image.
     private let imageView: NSImageView = {
         
-        let itemImageView = NSImageView( frame: NSZeroRect )
-        itemImageView.autoresizingMask = .ViewNotSizable
-        itemImageView.hidden = true
-        itemImageView.cell?.setAccessibilityElement( false )
+        let itemImageView = NSImageView(frame: .zero)
+        itemImageView.autoresizingMask = []
+        itemImageView.isHidden = true
+        itemImageView.cell?.setAccessibilityElement(false)
         
         return itemImageView
     }()
     
-    /*==========================================================================*/
+    /// View to display the item's title.
     private let titleField: NSTextField = {
         
-        let titleField = NSTextField( frame: NSZeroRect )
-        titleField.cell?.setAccessibilityElement( false )
-        titleField.cell?.lineBreakMode = .ByTruncatingTail
-        titleField.autoresizingMask = .ViewNotSizable
-        titleField.editable = false
-        titleField.selectable = false
-        titleField.bezeled = false
+        let titleField = NSTextField(frame: .zero)
+        titleField.cell?.setAccessibilityElement(false)
+        titleField.cell?.lineBreakMode = .byTruncatingTail
+        titleField.autoresizingMask = []
+        titleField.isEditable = false
+        titleField.isSelectable = false
+        titleField.isBezeled = false
         titleField.drawsBackground = false
         
         return titleField
     }()
     
-    /*==========================================================================*/
+    /// View to display a divider between this item and the item to its right.
     private let dividerView: NSImageView = {
         
         let dividerImage = OBWPathItemView.dividerImage
         
-        let frame = NSRect( size: dividerImage.size )
+        let frame = NSRect(size: dividerImage.size)
         
-        let dividerImageView = NSImageView( frame: frame )
-        dividerImageView.cell?.setAccessibilityElement( false )
+        let dividerImageView = NSImageView(frame: frame)
+        dividerImageView.cell?.setAccessibilityElement(false)
         dividerImageView.image = dividerImage
-        dividerImageView.autoresizingMask = .ViewMaxXMargin
-        dividerImageView.hidden = true
+        dividerImageView.autoresizingMask = .maxXMargin
+        dividerImageView.isHidden = true
         
         return dividerImageView
     }()
     
-    private static let titleFontSize: CGFloat = 11.0
+    /// The base font size used to draw path item titles.
+    private static var titleFontSize: CGFloat {
+        return NSFont.systemFontSize(for: .small)
+    }
+    
+    /// Alpha used to give view contents a "disabled" look.
     private static let disabledViewAlpha: CGFloat = 0.5
     
-    /*==========================================================================*/
+    /// Margins around the image view.
     private static let imageMargins: NSEdgeInsets = {
         
-        let minorVersion = NSProcessInfo.processInfo().operatingSystemVersion.minorVersion
+        let minorVersion = ProcessInfo().operatingSystemVersion.minorVersion
         
         if minorVersion <= 10 {
-            return NSEdgeInsets( top: 3.0, left: 4.0, bottom: 3.0, right: 2.0 )
+            return NSEdgeInsets(top: 3.0, left: 4.0, bottom: 3.0, right: 2.0)
+        }
+        else if minorVersion < 14 {
+            return NSEdgeInsets(top: 3.0, left: 5.0, bottom: 4.0, right: 2.0)
         }
         else {
-            return NSEdgeInsets( top: 3.0, left: 5.0, bottom: 4.0, right: 2.0 )
+            return NSEdgeInsets(top: 5.0, left: 4.0, bottom: 4.0, right: 2.0)
         }
     }()
     
-    private static let titleMargins = NSEdgeInsets( top: 4.0, left: 2.0, bottom: 4.0, right: 2.0 )
-    private static let dividerMargins = NSEdgeInsets( top: 0.0, left: 3.0, bottom: 0.0, right: 2.0 )
+    /// Margins around the title text field.
+    private static let titleMargins = NSEdgeInsets(top: 4.0, left: 2.0, bottom: 4.0, right: 2.0)
     
+    /// Margins around the divider view.
+    private static let dividerMargins = NSEdgeInsets(top: 0.0, left: 3.0, bottom: 0.0, right: 2.0)
+    
+    /// Minimum width of the title view.
     private static let minimumTitleWidthWithoutImage: CGFloat = 20.0
-
-    /*==========================================================================*/
+    
+    /// The image to be used as a horizontal divider between adjacent path items.
     private static var dividerImage: NSImage = {
         
-        let attributes: [String:AnyObject] = [
-            NSParagraphStyleAttributeName : NSParagraphStyle.defaultParagraphStyle(),
-            NSFontAttributeName : NSFont.controlContentFontOfSize( OBWPathItemView.titleFontSize + 6.0 ),
-            NSForegroundColorAttributeName : NSColor( deviceWhite: 0.55, alpha: 1.0 ),
+        // All scalar values were determined experimentally.
+        let attributes: [NSAttributedString.Key:Any] = [
+            .paragraphStyle : NSParagraphStyle.default,
+            .font : NSFont.controlContentFont(ofSize: OBWPathItemView.titleFontSize + 6.0),
+            .foregroundColor : NSColor(white: 0.55, alpha: 1.0),
         ]
         
         let string = "⟩" as NSString // \xE2\x9F\xA9
-        let stringBounds = string.boundingRectWithSize( NSZeroSize, options: [], attributes: attributes )
+        let stringBounds = string.boundingRect(with: .zero, options: [], attributes: attributes)
         
         let sourceFrame = NSRect(
-            width: ceil( stringBounds.size.width ),
-            height: ceil( stringBounds.size.height )
+            width: stringBounds.width.rounded(.up),
+            height: stringBounds.height.rounded(.up)
         )
         
-        let sourceImage = NSImage( size: sourceFrame.size )
+        let sourceImage = NSImage(size: sourceFrame.size)
         sourceImage.withLockedFocus {
-            string.drawAtPoint( NSZeroPoint, withAttributes: attributes )
+            string.draw(at: .zero, withAttributes: attributes)
         }
         
-        guard let dividerImage = sourceImage.imageByTrimmingTransparentEdges() else { return sourceImage }
+        guard let dividerImage = sourceImage.imageByTrimmingTransparentEdges() else {
+            return sourceImage
+        }
         
-        let maskImage = NSImage( size: dividerImage.size )
+        let maskImage = NSImage(size: dividerImage.size)
         maskImage.withLockedFocus {
             
-            let colors = [
-                NSColor.blackColor(),
-                NSColor.clearColor(),
-                NSColor.clearColor(),
-            ]
+            let colors: [NSColor] = [.black, .clear, .clear]
+            let locations: [CGFloat] = [0.0, 0.65, 1.0]
             
-            let locations: [CGFloat] = [ 0.0, 0.65, 1.0 ]
+            guard let gradient = NSGradient(colors: colors, atLocations: locations, colorSpace: .genericRGB) else {
+                return
+            }
             
-            guard let gradient = NSGradient( colors: colors, atLocations: locations, colorSpace: NSColorSpace.genericRGBColorSpace() ) else { return }
-            
-            let destinationRect = NSRect(
-                size: dividerImage.size
-            )
-            
-            gradient.drawInRect( destinationRect, angle: 0.0 )
+            let destinationRect = NSRect(size: dividerImage.size)
+            gradient.draw(in: destinationRect, angle: 0.0)
         }
         
         dividerImage.withLockedFocus {
-            maskImage.drawAtPoint( NSZeroPoint, fromRect: NSZeroRect, operation: .DestinationOut, fraction: 1.0 )
+            maskImage.draw(at: .zero, from: .zero, operation: .destinationOut, fraction: 1.0)
         }
         
         return dividerImage
     }()
     
-    /*==========================================================================*/
-    private class func titleFontForPathItemStyle( style: OBWPathItemStyle ) -> NSFont {
+    /// Builds the font to be used to draw the item's title.
+    /// - parameter style: An OBWPathItemStyle containing the item's title style.
+    /// - returns: A newly created NSFont.
+    private class func titleFontForPathItemStyle(_ style: OBWPathItemStyle) -> NSFont {
         
-        var displayFont = NSFont.controlContentFontOfSize( OBWPathItemView.titleFontSize )
+        var displayFont = NSFont.controlContentFont(ofSize: OBWPathItemView.titleFontSize)
         
-        let sharedFontManager = NSFontManager.sharedFontManager()
-        
-        if style.contains( .Italic ) {
-            displayFont = sharedFontManager.convertFont( displayFont, toHaveTrait: .ItalicFontMask )
+        if style.contains(.italic) {
+            displayFont = NSFontManager.shared.convert(displayFont, toHaveTrait: .italicFontMask)
         }
-        if style.contains( .Bold ) {
-            displayFont = sharedFontManager.convertFont( displayFont, toHaveTrait: .BoldFontMask )
+        if style.contains(.bold) {
+            displayFont = NSFontManager.shared.convert(displayFont, toHaveTrait: .boldFontMask)
         }
         
         return displayFont
     }
     
-    /*==========================================================================*/
+    /// Update the title field's stringValue (or attributedStringValue) based on the current title string and Path View state.
     private func updateTitleFieldContents() {
         
         guard let title = self.pathItem?.title else {
@@ -506,15 +514,20 @@ class OBWPathItemView: NSView {
             return
         }
         
-        guard let pathItem = self.pathItem else { return }
-        guard let pathView = self.superview as? OBWPathView else { return }
+        guard
+            let pathItem = self.pathItem,
+            let pathView = self.superview as? OBWPathView
+        else {
+            return
+        }
         
-        let paragraphStyle = NSParagraphStyle.defaultParagraphStyle().mutableCopy() as! NSMutableParagraphStyle
-        paragraphStyle.lineBreakMode = .ByTruncatingTail
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.setParagraphStyle(.default)
+        paragraphStyle.lineBreakMode = .byTruncatingTail
         
-        let displayFont = OBWPathItemView.titleFontForPathItemStyle( pathItem.style )
+        let displayFont = OBWPathItemView.titleFontForPathItemStyle(pathItem.style)
         
-        let displayInActiveState = ( pathView.active && pathView.enabled )
+        let displayInActiveState = (pathView.active && pathView.enabled)
         let titleColor: NSColor
         
         if let styleTitleColor = pathItem.textColor {
@@ -523,26 +536,26 @@ class OBWPathItemView: NSView {
                 titleColor = styleTitleColor
             }
             else {
-                titleColor = styleTitleColor.colorByScaling( hue: 1.0, saturation: 1.0, brightness: 1.0, alpha: OBWPathItemView.disabledViewAlpha )
+                titleColor = styleTitleColor.withAlphaComponent(styleTitleColor.alphaComponent * OBWPathItemView.disabledViewAlpha)
             }
         }
         else if displayInActiveState {
-            titleColor = NSColor.controlTextColor()
+            titleColor = .controlTextColor
         }
         else {
-            titleColor = NSColor.disabledControlTextColor()
+            titleColor = .disabledControlTextColor
         }
         
-        let attributes: [String:AnyObject] = [
-            NSParagraphStyleAttributeName : paragraphStyle,
-            NSFontAttributeName : displayFont,
-            NSForegroundColorAttributeName : titleColor,
+        let attributes: [NSAttributedString.Key:Any] = [
+            .paragraphStyle : paragraphStyle,
+            .font : displayFont,
+            .foregroundColor : titleColor,
         ]
         
-        self.titleField.attributedStringValue = NSAttributedString( string: title, attributes: attributes )
+        self.titleField.attributedStringValue = NSAttributedString(string: title, attributes: attributes)
     }
     
-    /*==========================================================================*/
+    /// Recalculates the minimum and preferred widths of the item view.
     private func recalculateWidths() -> Bool {
         
         var titleMargins = OBWPathItemView.titleMargins
@@ -550,37 +563,44 @@ class OBWPathItemView: NSView {
         
         let imageView = self.imageView
         
-        if !imageView.hidden {
+        if imageView.isHidden == false {
             
-            let imageFrameWidth = self.bounds.size.height - OBWPathItemView.imageMargins.bottom - OBWPathItemView.imageMargins.top
-            titleMargins.left = OBWPathItemView.imageMargins.left + imageFrameWidth + max( OBWPathItemView.imageMargins.right, OBWPathItemView.titleMargins.left )
+            let imageFrameWidth = self.bounds.height - OBWPathItemView.imageMargins.height
+            titleMargins.left = OBWPathItemView.imageMargins.left + imageFrameWidth + max(OBWPathItemView.imageMargins.right, OBWPathItemView.titleMargins.left)
             titleMinimumWidth = 0.0
         }
         
         let dividerView = self.dividerView
         
-        if !dividerView.hidden {
-            let dividerImageSize = dividerView.image!.size
-            titleMargins.right = OBWPathItemView.dividerMargins.right + dividerImageSize.width + min( OBWPathItemView.dividerMargins.left, OBWPathItemView.titleMargins.right )
+        if dividerView.isHidden == false {
+            
+            guard let dividerImage = dividerView.image else {
+                assertionFailure()
+                return false
+            }
+            
+            let dividerImageSize = dividerImage.size
+            
+            titleMargins.right = OBWPathItemView.dividerMargins.right + dividerImageSize.width + min(OBWPathItemView.dividerMargins.left, OBWPathItemView.titleMargins.right)
         }
         
         let currentMinimumWidth = self.minimumWidth
-        let newMinimumWidth = ( titleMargins.left + titleMinimumWidth + titleMargins.right )
+        let newMinimumWidth = titleMargins.width + titleMinimumWidth
         
         let currentPreferredWidth = self.preferredWidth
         var newPreferredWidth = newMinimumWidth
         
-        if let cell = self.titleField.cell, pathItem = self.pathItem {
+        if let cell = self.titleField.cell, let pathItem = self.pathItem {
             
-            if !pathItem.title.isEmpty {
-                let titlePreferredWidth = ceil( cell.cellSize.width )
-                newPreferredWidth = ( titleMargins.left + max( titlePreferredWidth, titleMinimumWidth ) + titleMargins.right )
+            if pathItem.title.isEmpty == false {
+                let titlePreferredWidth = ceil(cell.cellSize.width)
+                newPreferredWidth = (titleMargins.left + max(titlePreferredWidth, titleMinimumWidth) + titleMargins.right)
             }
         }
         
         self.preferredWidth = newPreferredWidth
         self.minimumWidth = newMinimumWidth
         
-        return ( currentPreferredWidth != newPreferredWidth || currentMinimumWidth != newMinimumWidth )
+        return (currentPreferredWidth != newPreferredWidth || currentMinimumWidth != newMinimumWidth)
     }
 }

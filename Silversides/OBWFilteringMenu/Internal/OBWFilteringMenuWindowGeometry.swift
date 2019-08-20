@@ -4,15 +4,13 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-// MARK: -
-
+/// A class that calculates window geometries.
 class OBWFilteringMenuWindowGeometry {
     
-    /*==========================================================================*/
-    init( window: OBWFilteringMenuWindow, constrainToScreen: Bool = true ) {
+    /// Initializes an instance given a menu window.
+    init(window: OBWFilteringMenuWindow) {
         
         let screenFrame = window.screen?.frame ?? NSZeroRect
         
@@ -30,24 +28,26 @@ class OBWFilteringMenuWindowGeometry {
         let menuItemScreenLimits = interiorScreenLimits + menuView.outerMenuMargins
         
         let finalSize = NSSize(
-            width: min( totalMenuItemSize.width, menuItemScreenLimits.size.width ),
-            height: min( totalMenuItemSize.height, menuItemScreenLimits.size.height )
+            width: min(totalMenuItemSize.width, menuItemScreenLimits.size.width),
+            height: min(totalMenuItemSize.height, menuItemScreenLimits.size.height)
         )
         
-        self.finalBounds = NSRect( size: finalSize )
+        self.finalBounds = NSRect(size: finalSize)
         
-        if constrainToScreen {
-            self.constrainGeometryToScreen( allowWindowToGrowUpward: true )
-        }
+        self.constrainGeometryToScreen(allowWindowToGrowUpward: true)
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuWindowGeometry internal
-    
-    /*==========================================================================*/
-    func updateGeometryToDisplayMenuLocation( locationInMenu: NSPoint, atScreenLocation locationInScreen: NSPoint, allowWindowToGrowUpward: Bool ) -> Bool {
+    /// Updates the geometry to display the given menu location at a particular screen location.
+    /// - parameter locationInMenu: NSPoint - Defines a location within the menu.
+    /// - parameter locationInScreen: NSPoint - Defines a location on the screen to which `locationInMenu` should be aligned.
+    /// - parameter allowWindowToGrowUpward: Bool - If `true`, the top of the window may be adjusted upward to allow the entire menu to be visible on the screen.  If `false`, the menu window may be clipped at the bottom.
+    /// - returns: `true` if the geometry changed, `false` if not.
+    @discardableResult
+    func updateGeometryToDisplayMenuLocation(_ locationInMenu: NSPoint, atScreenLocation locationInScreen: NSPoint, allowWindowToGrowUpward: Bool = true) -> Bool {
         
-        guard NSScreen.screenContainingLocation( locationInScreen ) != nil else { return false }
+        guard NSScreen.screenContainingLocation(locationInScreen) != nil else {
+            return false
+        }
         
         let menuView = self.window.menuView
         let totalMenuItemSize = menuView.totalMenuItemSize
@@ -62,260 +62,248 @@ class OBWFilteringMenuWindowGeometry {
         let interiorFrameInScreen = menuFrameInScreen - menuView.outerMenuMargins
         
         var windowFrameInScreen = interiorFrameInScreen - OBWFilteringMenuWindow.interiorMargins
-        windowFrameInScreen.size = max( windowFrameInScreen.size, OBWFilteringMenuWindow.minimumFrameSize )
+        windowFrameInScreen.size = max(windowFrameInScreen.size, OBWFilteringMenuWindow.minimumFrameSize)
         
         self.frame = windowFrameInScreen
         
-        let menuItemBounds = NSRect( size: totalMenuItemSize )
+        let menuItemBounds = NSRect(size: totalMenuItemSize)
         self.initialBounds = menuItemBounds
         self.finalBounds = menuItemBounds
         
-        self.constrainGeometryToScreen( allowWindowToGrowUpward: allowWindowToGrowUpward )
+        self.constrainGeometryToScreen(allowWindowToGrowUpward: allowWindowToGrowUpward)
         
         return true
     }
     
-    /*==========================================================================*/
-    func updateGeometryToDisplayMenuLocation( locationInMenu: NSPoint, adjacentToScreenArea areaInScreen: NSRect, preferredAlignment: OBWFilteringMenuAlignment ) -> OBWFilteringMenuAlignment {
+    /// Updates the geometry to display the given menu location adjacent to a given area with a preferred alignment.
+    /// - parameter locationInMenu: NSPoint - Defines a location within the menu.
+    /// - parameter areaInScreen: NSRect - An area that the menu item should appear adjacent to.
+    /// - parameter preferredAlignment: OBWFilteringMenuAlignment - The preferred side where the menu item should be located.
+    /// - returns: The side where the menu item will appear.
+    @discardableResult
+    func updateGeometryToDisplayMenuLocation(_ locationInMenu: NSPoint, adjacentToScreenArea areaInScreen: NSRect, preferredAlignment: OBWFilteringMenu.SubmenuAlignment) -> OBWFilteringMenu.SubmenuAlignment {
         
-        let rightAlignmentLocation: NSPoint
+        let rightAlignmentLocation = NSPoint(
+            x: areaInScreen.maxX + 1.0,
+            y: (areaInScreen.height < self.frame.height ? areaInScreen.maxY : areaInScreen.midY)
+        )
         
-        if areaInScreen.height < self.frame.size.height {
-            rightAlignmentLocation = NSPoint( x: areaInScreen.maxX + 1.0, y: areaInScreen.maxY )
-        }
-        else {
-            rightAlignmentLocation = NSPoint( x: areaInScreen.maxX + 1.0, y: areaInScreen.midY )
-        }
+        let rightGeometry = OBWFilteringMenuWindowGeometry(window: window, displayingMenuLocation: locationInMenu, atScreenLocation: rightAlignmentLocation)
         
-        var rightGeometry: OBWFilteringMenuWindowGeometry? = OBWFilteringMenuWindowGeometry( window: self.window )
-        if let geometry = rightGeometry {
+        let leftAlignmentLocation = NSPoint(
+            x: areaInScreen.minX - self.frame.width - 1.0,
+            y: rightAlignmentLocation.y
+        )
+        
+        let leftGeometry = OBWFilteringMenuWindowGeometry(window: window, displayingMenuLocation: locationInMenu, atScreenLocation: leftAlignmentLocation)
+        
+        let finalGeometry: OBWFilteringMenuWindowGeometry
+        let finalAlignment: OBWFilteringMenu.SubmenuAlignment
+        
+        switch (leftGeometry, rightGeometry, preferredAlignment) {
             
-            if !geometry.updateGeometryToDisplayMenuLocation( locationInMenu, atScreenLocation: rightAlignmentLocation, allowWindowToGrowUpward: true ) {
-                rightGeometry = nil
-            }
-        }
-        
-        let leftAlignmentLocation: NSPoint
-        
-        if areaInScreen.height < self.frame.size.height {
+        case (nil, nil, _):
+            return preferredAlignment
             
-            leftAlignmentLocation = NSPoint(
-                x: areaInScreen.origin.x - self.frame.size.width - 1.0,
-                y: areaInScreen.maxY
-            )
-        }
-        else {
+        case (nil, let geometry?, _):
+            finalGeometry = geometry
+            finalAlignment = .right
             
-            leftAlignmentLocation = NSPoint(
-                x: areaInScreen.origin.x - self.frame.size.width - 1.0,
-                y: areaInScreen.midY
-            )
-        }
-    
-        var leftGeometry: OBWFilteringMenuWindowGeometry? = OBWFilteringMenuWindowGeometry( window: self.window )
-        if let geometry = leftGeometry {
+        case (let geometry?, nil, _):
+            finalGeometry = geometry
+            finalAlignment = .left
             
-            if !geometry.updateGeometryToDisplayMenuLocation( locationInMenu, atScreenLocation: leftAlignmentLocation, allowWindowToGrowUpward: true ) {
-                leftGeometry = nil
-            }
+        case (let leftGeometry?, _, .left):
+            finalGeometry = leftGeometry
+            finalAlignment = .left
+
+        case (_, let rightGeometry?, .right):
+            finalGeometry = rightGeometry
+            finalAlignment = .right
         }
         
-        guard rightGeometry != nil || leftGeometry != nil else { return preferredAlignment }
+        self.frame = finalGeometry.frame
+        self.totalMenuItemSize = finalGeometry.totalMenuItemSize
+        self.initialBounds = finalGeometry.initialBounds
+        self.finalBounds = finalGeometry.finalBounds
         
-        let windowGeometry: OBWFilteringMenuWindowGeometry
-        let alignment: OBWFilteringMenuAlignment
-        
-        if leftGeometry == nil {
-            windowGeometry = rightGeometry!
-            alignment = .Right
-        }
-        else if rightGeometry == nil {
-            windowGeometry = leftGeometry!
-            alignment = .Left
-        }
-        else {
-            
-            switch preferredAlignment {
-                
-            case .Left:
-                
-                if leftGeometry!.frame.origin.x != leftAlignmentLocation.x && rightGeometry!.frame.origin.x == rightAlignmentLocation.x {
-                    windowGeometry = rightGeometry!
-                    alignment = .Right
-                }
-                else {
-                    windowGeometry = leftGeometry!
-                    alignment = .Left
-                }
-                
-            case .Right:
-                
-                if rightGeometry!.frame.origin.x != rightAlignmentLocation.x && leftGeometry!.frame.origin.x == leftAlignmentLocation.x {
-                    windowGeometry = leftGeometry!
-                    alignment = .Left
-                }
-                else {
-                    windowGeometry = rightGeometry!
-                    alignment = .Right
-                }
-            }
-        }
-        
-        self.frame = windowGeometry.frame
-        self.totalMenuItemSize = windowGeometry.totalMenuItemSize
-        self.initialBounds = windowGeometry.initialBounds
-        self.finalBounds = windowGeometry.finalBounds
-        
-        return alignment
+        return finalAlignment
     }
     
-    /*==========================================================================*/
-    func updateGeometryWithResizedMenu() -> Bool {
+    /// Update the geometry to accommodate a resized menu.
+    func updateGeometryWithResizedMenu() {
         
-        let window = self.window
-        let menuView = window.menuView
-        let outerMenuMargins = menuView.outerMenuMargins
-        let interiorMargins = OBWFilteringMenuWindow.interiorMargins
-        
+        let menuView = self.window.menuView
         let totalMenuItemSize = menuView.totalMenuItemSize
         self.totalMenuItemSize = totalMenuItemSize
         
         var windowFrameInScreen = self.frame
-        var interiorFrameInScreen = windowFrameInScreen + interiorMargins
-        var menuFrameInScreen = interiorFrameInScreen + outerMenuMargins
+        var interiorFrameInScreen = windowFrameInScreen + OBWFilteringMenuWindow.interiorMargins
+        var menuFrameInScreen = interiorFrameInScreen + menuView.outerMenuMargins
         
         menuFrameInScreen.origin.y = menuFrameInScreen.maxY - totalMenuItemSize.height
         menuFrameInScreen.size.height = totalMenuItemSize.height
-        menuFrameInScreen.size.width = max( menuFrameInScreen.size.width, totalMenuItemSize.width )
+        menuFrameInScreen.size.width = max(menuFrameInScreen.size.width, totalMenuItemSize.width)
         
-        interiorFrameInScreen = menuFrameInScreen - outerMenuMargins
+        interiorFrameInScreen = menuFrameInScreen - menuView.outerMenuMargins
         
-        if let screenAnchor = window.screenAnchor {
+        if let screenAnchor = self.window.screenAnchor {
             
-            interiorFrameInScreen = OBWFilteringMenuWindowGeometry.constrainFrame( interiorFrameInScreen, toAnchorRect: screenAnchor )
+            interiorFrameInScreen = OBWFilteringMenuWindowGeometry.constrainFrame(interiorFrameInScreen, toAnchorRect: screenAnchor)
             
             if totalMenuItemSize.height == 0.0 {
-                interiorFrameInScreen.origin.y = screenAnchor.maxY - interiorFrameInScreen.size.height
+                interiorFrameInScreen.origin.y = screenAnchor.maxY - interiorFrameInScreen.height
             }
         }
         
-        windowFrameInScreen = interiorFrameInScreen - interiorMargins
-        windowFrameInScreen.size = max( windowFrameInScreen.size, OBWFilteringMenuWindow.minimumFrameSize )
+        windowFrameInScreen = interiorFrameInScreen - OBWFilteringMenuWindow.interiorMargins
+        windowFrameInScreen.size = max(windowFrameInScreen.size, OBWFilteringMenuWindow.minimumFrameSize)
         self.frame = windowFrameInScreen
         
-        self.initialBounds = NSRect( size: totalMenuItemSize )
-        self.finalBounds = NSRect( size: totalMenuItemSize )
+        self.initialBounds = NSRect(size: totalMenuItemSize)
+        self.finalBounds = NSRect(size: totalMenuItemSize)
         
-        self.constrainGeometryToScreen( allowWindowToGrowUpward: false )
-        
-        return true
+        self.constrainGeometryToScreen(allowWindowToGrowUpward: false)
     }
     
-    /*==========================================================================*/
-    func updateGeometryToDisplayMenuItemBounds( menuItemBounds: NSRect ) -> Bool {
+    /// Updates the window geometry to display the given area of the menu.  This is called when a menu's content scrolls.
+    /// - parameter requestedBounds: The desired visible bounds.
+    /// - returns: Returns `true` if the geometry changes, `false` if not.
+    @discardableResult
+    func updateGeometryToDisplayMenuItemBounds(_ requestedBounds: NSRect) -> Bool {
         
         let window = self.window
         
-        guard window.screen != nil else { return false }
+        guard window.screen != nil else {
+            return false
+        }
+        
         let menuView = window.menuView
         
         var initialBounds = self.initialBounds
-        let interiorMargins = OBWFilteringMenuWindow.interiorMargins
-        let outerMenuMargins = menuView.outerMenuMargins
         
         var windowFrameInScreen = self.frame
-        var interiorFrameInScreen = windowFrameInScreen + interiorMargins
-        var menuFrameInScreen = interiorFrameInScreen + outerMenuMargins
+        var interiorFrameInScreen = windowFrameInScreen + OBWFilteringMenuWindow.interiorMargins
+        var menuFrameInScreen = interiorFrameInScreen + menuView.outerMenuMargins
         
-        if menuFrameInScreen.size.height == menuItemBounds.size.height {
-            initialBounds.origin.y = menuItemBounds.origin.y
+        if menuFrameInScreen.height == requestedBounds.height {
+            // The menu size won't change (it's likely at the maximum allowable height).  Just update the bounds origin.
+            initialBounds.origin.y = requestedBounds.origin.y
             self.initialBounds = initialBounds
             return true
         }
         
-        menuFrameInScreen.origin.y += ( menuFrameInScreen.size.height - menuItemBounds.size.height )
-        menuFrameInScreen.size.height = menuItemBounds.size.height
+        menuFrameInScreen.origin.y -= (requestedBounds.height - menuFrameInScreen.height)
+        menuFrameInScreen.size.height = requestedBounds.height
         
-        interiorFrameInScreen = menuFrameInScreen - outerMenuMargins
-        windowFrameInScreen = interiorFrameInScreen - interiorMargins
-        windowFrameInScreen.size = max( windowFrameInScreen.size, OBWFilteringMenuWindow.minimumFrameSize )
+        interiorFrameInScreen = menuFrameInScreen - menuView.outerMenuMargins
+        windowFrameInScreen = interiorFrameInScreen - OBWFilteringMenuWindow.interiorMargins
+        windowFrameInScreen.size = max(windowFrameInScreen.size, OBWFilteringMenuWindow.minimumFrameSize)
         self.frame = windowFrameInScreen
         
-        self.initialBounds = menuItemBounds
-        self.finalBounds = NSRect( size: menuView.totalMenuItemSize )
+        self.initialBounds = requestedBounds
+        self.finalBounds = NSRect(size: menuView.totalMenuItemSize)
         
-        self.constrainGeometryToScreen( allowWindowToGrowUpward: true )
+        self.constrainGeometryToScreen(allowWindowToGrowUpward: true)
         
         return true
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuWindowGeometry private
+    
+    // MARK: - Private
     
     unowned private let window: OBWFilteringMenuWindow
+    
+    /// The current menu window frame rect (i.e. its location in screen coordinates)
     var frame: NSRect
+    
+    /// The maximum size of all of the menu's items.
     var totalMenuItemSize: NSSize
+    
+    /// The initial bounds rect of the menu items.
     var initialBounds: NSRect
+    
+    /// The maximum possible bounds rect of the menu items.
     var finalBounds: NSRect
     
-    static let screenMargins = NSEdgeInsets( top: 6.0, left: 6.0, bottom: 6.0, right: 6.0 )
+    /// The minimum distances from the edge of a menu window to the edge of its screen.
+    static let screenMargins = NSEdgeInsets(top: 6.0, left: 6.0, bottom: 6.0, right: 6.0)
     
-    /*==========================================================================*/
-    private func constrainGeometryToScreen( allowWindowToGrowUpward allowWindowToGrowUpward: Bool ) {
+    /// Conditionally initializes an instance given a menu window and a menu location that should be displayed at a given screen location.  Returns `nil` if the menu location cannot be displayed at the screen location.
+    /// - parameter window: OBWFilteringMenuWindow - The menu window.
+    /// - parameter locationInMenu: NSPoint - Defines a location within the menu.
+    /// - parameter locationInScreen: NSPoint - Defines a location on the screen to which `locationInMenu` should be aligned.
+    private convenience init?(window: OBWFilteringMenuWindow, displayingMenuLocation locationInMenu: NSPoint, atScreenLocation locationInScreen: NSPoint) {
         
-        guard let screen = self.window.screen else { return }
+        self.init(window: window)
+        
+        guard self.updateGeometryToDisplayMenuLocation(locationInMenu, atScreenLocation: locationInScreen) else {
+            return nil
+        }
+        
+        guard self.frame.minX == locationInScreen.x else {
+            return nil
+        }
+    }
+    
+    /// Constrains the geometry to the menu's screen.
+    /// - parameter allowWindowToGrowUpward: If `true`, the window frame may move upward to avoid clipping at the bottom.
+    private func constrainGeometryToScreen(allowWindowToGrowUpward: Bool) {
+        
+        guard let screen = self.window.screen else {
+            return
+        }
+        
         let menuView = window.menuView
         
         var windowFrame = self.frame
         let screenLimits = screen.frame + OBWFilteringMenuWindowGeometry.screenMargins
         
-        if windowFrame.size.width >= screenLimits.size.width {
-            windowFrame.origin.x = screenLimits.origin.x
-            windowFrame.size.width = screenLimits.size.width
+        if windowFrame.width >= screenLimits.width {
+            windowFrame.origin.x = screenLimits.minX
+            windowFrame.size.width = screenLimits.width
         }
-        else if windowFrame.origin.x < screenLimits.origin.x {
-            windowFrame.origin.x = screenLimits.origin.x
+        else if windowFrame.origin.x < screenLimits.minX {
+            windowFrame.origin.x = screenLimits.minX
         }
         else if windowFrame.maxX > screenLimits.maxX {
-            windowFrame.origin.x = screenLimits.maxX - windowFrame.size.width
+            windowFrame.origin.x = screenLimits.maxX - windowFrame.width
         }
         
         let outerMenuMargins = menuView.outerMenuMargins
         let interiorMargins = OBWFilteringMenuWindow.interiorMargins
         
-        let minimumWindowHeightAtBottomOfScreen = min( menuView.minimumHeightAtTop + interiorMargins.height + outerMenuMargins.height, screenLimits.size.height )
-        let minimumWindowHeightAtTopOfScreen = min( menuView.minimumHeightAtBottom + interiorMargins.height + outerMenuMargins.height, screenLimits.size.height )
+        let minimumWindowHeightAtBottomOfScreen = min(menuView.minimumHeightAtTop + interiorMargins.height + outerMenuMargins.height, screenLimits.height)
+        let minimumWindowHeightAtTopOfScreen = min(menuView.minimumHeightAtBottom + interiorMargins.height + outerMenuMargins.height, screenLimits.height)
         
         if windowFrame.origin.y > screenLimits.maxY - minimumWindowHeightAtTopOfScreen {
             windowFrame.origin.y = screenLimits.maxY - minimumWindowHeightAtTopOfScreen
         }
-        if windowFrame.maxY < screenLimits.origin.y + minimumWindowHeightAtBottomOfScreen {
-            windowFrame.origin.y = screenLimits.origin.y + minimumWindowHeightAtBottomOfScreen - windowFrame.size.height
+        if windowFrame.maxY < screenLimits.minY + minimumWindowHeightAtBottomOfScreen {
+            windowFrame.origin.y = screenLimits.minY + minimumWindowHeightAtBottomOfScreen - windowFrame.height
         }
         
-        if ( windowFrame.origin.y < screenLimits.origin.y ) && allowWindowToGrowUpward {
+        if windowFrame.minY < screenLimits.minY, allowWindowToGrowUpward {
             
             let distanceFreeAtTopOfScreen = screenLimits.maxY - windowFrame.maxY
             
             if distanceFreeAtTopOfScreen > 0.0 {
-                windowFrame.origin.y += min( screenLimits.origin.y - windowFrame.origin.y, distanceFreeAtTopOfScreen )
+                windowFrame.origin.y += min(screenLimits.origin.y - windowFrame.origin.y, distanceFreeAtTopOfScreen)
             }
         }
         
         let distanceToTrimFromBottomOfMenu: CGFloat
-        
-        if windowFrame.origin.y < screenLimits.origin.y {
+        if windowFrame.minY < screenLimits.minY {
             
-            distanceToTrimFromBottomOfMenu = screenLimits.origin.y - windowFrame.origin.y
+            distanceToTrimFromBottomOfMenu = screenLimits.minY - windowFrame.minY
             windowFrame.size.height -= distanceToTrimFromBottomOfMenu
-            windowFrame.origin.y = screenLimits.origin.y
+            windowFrame.origin.y = screenLimits.minY
         }
         else {
             distanceToTrimFromBottomOfMenu = 0.0
         }
         
         let distanceToTrimFromTopOfMenu: CGFloat
-        
         if windowFrame.maxY > screenLimits.maxY {
             
             distanceToTrimFromTopOfMenu = windowFrame.maxY - screenLimits.maxY
@@ -331,8 +319,8 @@ class OBWFilteringMenuWindowGeometry {
             
             var initialBounds = self.initialBounds
             initialBounds.origin.y += distanceToTrimFromBottomOfMenu
-            initialBounds.origin.y = max( initialBounds.origin.y, 0.0 )
-            initialBounds.size.height -= ( distanceToTrimFromBottomOfMenu + distanceToTrimFromTopOfMenu )
+            initialBounds.origin.y = max(initialBounds.minY, 0.0)
+            initialBounds.size.height -= (distanceToTrimFromBottomOfMenu + distanceToTrimFromTopOfMenu)
             self.initialBounds = initialBounds
         }
         
@@ -340,36 +328,31 @@ class OBWFilteringMenuWindowGeometry {
         let menuScreenLimits = interiorScreenLimits + outerMenuMargins
         
         var finalBounds = self.finalBounds
-        finalBounds.size.width = min( finalBounds.size.width, menuScreenLimits.size.width )
-        finalBounds.size.height = min( finalBounds.size.height, menuScreenLimits.size.height )
+        finalBounds.size.width = min(finalBounds.width, menuScreenLimits.width)
+        finalBounds.size.height = min(finalBounds.height, menuScreenLimits.height)
         self.finalBounds = finalBounds
     }
     
-    /*==========================================================================*/
-    private class func constrainFrame( frame: NSRect, toAnchorRect anchor: NSRect ) -> NSRect {
+    /// Vertically constrains a given frame to an anchor rect such that its top is never lower than the anchor's top, and its bottom is never higher than the anchor's bottom (unless it is smaller vertically than the anchor's height).
+    /// - parameter frame: NSRect - The frame to be constrained.
+    /// - parameter anchor: NSRect - The rect that constrains the coordinates of `frame`.
+    /// - returns: `frame` constrained to the vertical location of `anchor`.
+    private class func constrainFrame(_ frame: NSRect, toAnchorRect anchor: NSRect) -> NSRect {
         
-        let anchorBottom = anchor.origin.y
-        let anchorTop = anchor.origin.y + anchor.size.height
-        
-        let frameBottom = frame.origin.y
-        var frameTop = frame.origin.y + frame.size.height
-        
-        if ( frameBottom <= anchorBottom ) && ( frameTop >= anchorTop ) {
+        if frame.minY <= anchor.minY, frame.maxY >= anchor.maxY {
             return frame
         }
         
         var constrainedFrame = frame
         
-        if frameBottom > anchorBottom {
-            constrainedFrame.origin.y = anchorBottom
-            frameTop = constrainedFrame.origin.y + constrainedFrame.size.height
+        if constrainedFrame.minY > anchor.minY {
+            constrainedFrame.origin.y = anchor.minY
         }
         
-        if frameTop < anchorTop {
-            constrainedFrame.origin.y = anchorTop - constrainedFrame.size.height
+        if constrainedFrame.maxY < anchor.maxY {
+            constrainedFrame.origin.y = anchor.maxY - constrainedFrame.size.height
         }
         
         return constrainedFrame
     }
-    
 }

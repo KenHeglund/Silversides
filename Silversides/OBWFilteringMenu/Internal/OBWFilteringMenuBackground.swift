@@ -4,118 +4,99 @@
  Copyright (c) 2016 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-import Cocoa
+import AppKit
 
-/*==========================================================================*/
-
-struct OBWFilteringMenuCorners: OptionSetType {
-    
-    init( rawValue: UInt ) {
-        self.rawValue = rawValue & 0xF
-    }
-    
-    private(set) var rawValue: UInt
-    
-    static let TopLeft      = OBWFilteringMenuCorners( rawValue: 1 << 0 )
-    static let TopRight     = OBWFilteringMenuCorners( rawValue: 1 << 1 )
-    static let BottomLeft   = OBWFilteringMenuCorners( rawValue: 1 << 2 )
-    static let BottomRight  = OBWFilteringMenuCorners( rawValue: 1 << 3 )
-    
-    static let All: OBWFilteringMenuCorners = [ TopLeft, TopRight, BottomLeft, BottomRight ]
-}
-
-/*==========================================================================*/
-// MARK: -
-
+/// The background view of a menu window.  Its mask defines the outer shape of the window.
 class OBWFilteringMenuBackground: NSVisualEffectView {
     
-    /*==========================================================================*/
-    override init( frame frameRect: NSRect ) {
+    /// The preferred initializer.
+    override init(frame frameRect: NSRect) {
         
-        super.init( frame: frameRect )
+        super.init(frame: frameRect)
         
-        self.autoresizingMask = [ .ViewWidthSizable, .ViewHeightSizable ]
+        self.autoresizingMask = [.width, .height]
         self.autoresizesSubviews = true
         
-        self.material = .Menu
-        self.state = .Active
+        self.material = .menu
+        self.state = .active
         
         self.updateMaskImage()
     }
     
-    /*==========================================================================*/
-    required init?( coder: NSCoder ) {
-        fatalError( "init(coder:) has not been implemented" )
+    // Required initializer.  Not used.
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuBackground internal
     
-    /*==========================================================================*/
-    var roundedCorners = OBWFilteringMenuCorners.All {
+    // MARK: - OBWFilteringMenuBackground Interface
+    
+    /// Identifies the corner of the view that have a rounded appearance.
+    var roundedCorners = OBWFilteringMenuCorners.all {
         
-        didSet ( previousCorners ) {
+        didSet {
             self.updateMaskImage()
         }
     }
     
-    /*==========================================================================*/
-    // MARK: - OBWFilteringMenuBackground private
     
+    // MARK: - Private
+    
+    /// The radius of corners that are rounded.
     static let roundedCornerRadius: CGFloat = 6.0
+    
+    /// The radius of corners that are not rounded.
     static let squareCornerRadius: CGFloat = 0.0
     
-    private static var maskImageCache: [NSImage?] = (0...15).map { _ in return nil }
+    /// A cache of images containing various combinations of rounded corners.
+    private static var maskImageCache: [OBWFilteringMenuCorners:NSImage] = [:]
     
-    /*==========================================================================*/
-    func updateMaskImage() {
+    /// Update the current mask image.
+    private func updateMaskImage() {
         
-        let index = Int(self.roundedCorners.rawValue)
-        
-        var maskImage = OBWFilteringMenuBackground.maskImageCache[index]
-        
-        if maskImage == nil {
-            maskImage = OBWFilteringMenuBackground.maskImage( self.roundedCorners )
-            OBWFilteringMenuBackground.maskImageCache[index] = maskImage
+        if let existingImage = OBWFilteringMenuBackground.maskImageCache[self.roundedCorners] {
+            self.maskImage = existingImage
         }
-        
-        self.maskImage = maskImage
+        else {
+            self.maskImage = OBWFilteringMenuBackground.makeMaskImage(rounding: self.roundedCorners)
+            OBWFilteringMenuBackground.maskImageCache[self.roundedCorners] = self.maskImage
+        }
     }
     
-    /*==========================================================================*/
-    private static func maskImage( roundedCorners: OBWFilteringMenuCorners ) -> NSImage {
+    /// Constructs a resizeable image with the given corners rounded.
+    private static func makeMaskImage(rounding corners: OBWFilteringMenuCorners) -> NSImage {
         
         let roundedCornerRadius = OBWFilteringMenuBackground.roundedCornerRadius
         let squareCornerRadius = OBWFilteringMenuBackground.squareCornerRadius
         
-        let topLeftRadius = roundedCorners.contains( .TopLeft ) ? roundedCornerRadius : squareCornerRadius
-        let bottomLeftRadius = roundedCorners.contains( .BottomLeft ) ? roundedCornerRadius : squareCornerRadius
-        let bottomRightRadius = roundedCorners.contains( .BottomRight ) ? roundedCornerRadius : squareCornerRadius
-        let topRightRadius = roundedCorners.contains( .TopRight ) ? roundedCornerRadius : squareCornerRadius
+        let topLeftRadius = corners.contains(.topLeft) ? roundedCornerRadius : squareCornerRadius
+        let bottomLeftRadius = corners.contains(.bottomLeft) ? roundedCornerRadius : squareCornerRadius
+        let bottomRightRadius = corners.contains(.bottomRight) ? roundedCornerRadius : squareCornerRadius
+        let topRightRadius = corners.contains(.topRight) ? roundedCornerRadius : squareCornerRadius
         
         let bounds = NSRect(
             width: roundedCornerRadius * 3.0,
             height: roundedCornerRadius * 3.0
         )
         
-        let topLeftPoint = NSPoint( x: bounds.origin.x + topLeftRadius, y: bounds.maxY - topLeftRadius )
-        let bottomLeftPoint = NSPoint( x: bounds.origin.x + bottomLeftRadius, y: bounds.origin.y + bottomLeftRadius )
-        let bottomRightPoint = NSPoint( x: bounds.maxX - bottomRightRadius, y: bounds.origin.y + bottomRightRadius )
-        let topRightPoint = NSPoint( x: bounds.maxX - topRightRadius, y: bounds.maxY - topRightRadius )
+        let topLeftPoint = NSPoint(x: bounds.origin.x + topLeftRadius, y: bounds.maxY - topLeftRadius)
+        let bottomLeftPoint = NSPoint(x: bounds.origin.x + bottomLeftRadius, y: bounds.origin.y + bottomLeftRadius)
+        let bottomRightPoint = NSPoint(x: bounds.maxX - bottomRightRadius, y: bounds.origin.y + bottomRightRadius)
+        let topRightPoint = NSPoint(x: bounds.maxX - topRightRadius, y: bounds.maxY - topRightRadius)
         
         let path = NSBezierPath()
-        path.appendBezierPathWithArcWithCenter( bottomLeftPoint, radius: bottomLeftRadius, startAngle: -180.0, endAngle: -90.0 )
-        path.appendBezierPathWithArcWithCenter( bottomRightPoint, radius: bottomRightRadius, startAngle: -90.0, endAngle: 0.0 )
-        path.appendBezierPathWithArcWithCenter( topRightPoint, radius: topRightRadius, startAngle: 0.0, endAngle: 90.0 )
-        path.appendBezierPathWithArcWithCenter( topLeftPoint, radius: topLeftRadius, startAngle: 90.0, endAngle: 180.0 )
-        path.closePath()
+        path.appendArc(withCenter: bottomLeftPoint, radius: bottomLeftRadius, startAngle: -180.0, endAngle: -90.0)
+        path.appendArc(withCenter: bottomRightPoint, radius: bottomRightRadius, startAngle: -90.0, endAngle: 0.0)
+        path.appendArc(withCenter: topRightPoint, radius: topRightRadius, startAngle: 0.0, endAngle: 90.0)
+        path.appendArc(withCenter: topLeftPoint, radius: topLeftRadius, startAngle: 90.0, endAngle: 180.0)
+        path.close()
         
-        let maskImage = NSImage( size: bounds.size )
+        let maskImage = NSImage(size: bounds.size)
         maskImage.withLockedFocus {
             path.fill()
         }
         
-        maskImage.resizingMode = .Stretch
+        maskImage.resizingMode = .stretch
         maskImage.capInsets = NSEdgeInsets(
             top: roundedCornerRadius + 1.0,
             left: roundedCornerRadius + 1.0,
