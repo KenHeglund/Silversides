@@ -33,11 +33,10 @@ class OBWFilteringMenuItemScrollView: NSView {
         
         super.init(frame: .zero)
         
-        self.buildItemViews()
-        _ = self.repositionItemViews()
+        self.menuContentsDidChange()
         
         let itemParentViewFrame = itemParentView.frame
-        
+
         itemClipView.frame = itemParentViewFrame
         
         let upArrowFrame = NSRect(
@@ -134,6 +133,12 @@ class OBWFilteringMenuItemScrollView: NSView {
     /// Returns the bounds of the visible menu items.
     var menuItemBounds: NSRect {
         return self.convert(self.bounds, to: self.itemClipView)
+    }
+    
+    /// Rebuilds the subviews based on the current menu contents.
+    func menuContentsDidChange() {
+        self.buildItemViews()
+        self.repositionItemViews()
     }
     
     /// Returns the menu item at the given point.
@@ -461,7 +466,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     private func buildItemViews() {
         
         let itemParentView = self.itemParentView
-        assert(itemParentView.subviews.isEmpty)
+        itemParentView.subviews.forEach({ $0.removeFromSuperview() })
         
         var primaryItemViews: [OBWFilteringMenuItemView] = []
         
@@ -482,6 +487,7 @@ class OBWFilteringMenuItemScrollView: NSView {
     /// Positions the menu item views that are visible after applying the given keyboard modifier flags.
     /// - parameter modifierFlags: The keyboard modifier flags.
     /// - returns: Returns `true` if the overall size of the menu changed.
+    @discardableResult
     private func repositionItemViews(modifierFlags: NSEvent.ModifierFlags = []) -> Bool {
         
         let itemParentView = self.itemParentView

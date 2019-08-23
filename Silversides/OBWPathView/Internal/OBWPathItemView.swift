@@ -269,8 +269,8 @@ class OBWPathItemView: NSView {
     }
     
     /// Display the item's menu.
-    /// - parameter menuTrigger: The cause of the menu to be shown.
-    func displayItemMenu(_ menuTrigger: OBWPathItem.ActivationType) {
+    /// - parameter interaction: The type of interaction that the user will have with the menu.
+    func displayItemMenu(_ interaction: OBWPathItem.InteractionType) {
         
         guard
             let pathView = self.superview as? OBWPathView,
@@ -281,7 +281,7 @@ class OBWPathItemView: NSView {
         }
         
         // OBWFilteringMenu
-        if let filteringMenu = delegate.pathView(pathView, filteringMenuForItem: hitPathItem, activatedBy: menuTrigger) {
+        if let filteringMenu = delegate.pathView(pathView, filteringMenuForItem: hitPathItem, interaction: interaction) {
             
             let menuItem: OBWFilteringMenuItem?
             let alignment: OBWFilteringMenuItem.Alignment
@@ -304,7 +304,7 @@ class OBWPathItemView: NSView {
             let event: NSEvent?
             let highlightTarget: OBWFilteringMenu.HighlightTarget
             
-            switch menuTrigger {
+            switch interaction {
                 
             case .gui(let triggerEvent):
                 event = triggerEvent
@@ -319,7 +319,7 @@ class OBWPathItemView: NSView {
         }
         
         // NSMenu
-        else if let menu = delegate.pathView(pathView, menuForItem: hitPathItem, activatedBy: menuTrigger) {
+        else if let menu = delegate.pathView(pathView, menuForItem: hitPathItem, interaction: interaction) {
             
             let menuItem = menu.item(withTitle: hitPathItem.title)
             

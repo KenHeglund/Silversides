@@ -17,6 +17,8 @@ enum OBWFilteringMenuEventSubtype: Int16, CaseIterable {
     case periodic
     /// An accessible item was selected.
     case accessibleItemSelection
+    /// A menu has an asynchronous update available
+    case asyncMenuUpdate
     
     /// Initialize an instance from an NSEvent.
     init?(_ event: NSEvent) {

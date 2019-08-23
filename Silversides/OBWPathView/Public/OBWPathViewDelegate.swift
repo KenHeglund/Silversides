@@ -12,16 +12,16 @@ public protocol OBWPathViewDelegate: AnyObject {
     /// The user is interacting with a Path Item and the Path View is requesting an OBWFilteringMenu for that item.
     /// - parameter pathView: The Path View that contains the Path Item.
     /// - parameter pathItem: The Path Item that the user is interacting with.
-    /// - parameter activation: The type of activation that initiated the interaction.
+    /// - parameter interaction: The type of interaction that the user will have with the menu.
     /// - returns: An optional OBWFilteringMenu instance.
-    func pathView(_ pathView: OBWPathView, filteringMenuForItem pathItem: OBWPathItem, activatedBy activation: OBWPathItem.ActivationType) -> OBWFilteringMenu?
+    func pathView(_ pathView: OBWPathView, filteringMenuForItem pathItem: OBWPathItem, interaction: OBWPathItem.InteractionType) -> OBWFilteringMenu?
     
     /// The user is interacting with a Path Item and the Path View is requesting an NSMenu for that item.
     /// - parameter pathView: The Path View that contains the Path Item.
     /// - parameter pathItem: The Path Item that the user is interacting with.
-    /// - parameter activation: The type of activation that initiated the interaction.
+    /// - parameter interaction: The type of interaction that the user will have with the menu.
     /// - returns: An optional NSMenu instance.
-    func pathView(_ pathView: OBWPathView, menuForItem pathItem: OBWPathItem, activatedBy activation: OBWPathItem.ActivationType) -> NSMenu?
+    func pathView(_ pathView: OBWPathView, menuForItem pathItem: OBWPathItem, interaction: OBWPathItem.InteractionType) -> NSMenu?
     
     /// The Path View is requesting an accessibility description of itself.
     /// - parameter pathView: The Path View that is requesting the accessibility description.
@@ -44,13 +44,13 @@ public protocol OBWPathViewDelegate: AnyObject {
 // MARK: -
 
 /// Default OBWPathViewDelegate implementations.
-extension OBWPathViewDelegate {
+public extension OBWPathViewDelegate {
     
-    func pathView(_ pathView: OBWPathView, filteringMenuForItem pathItem: OBWPathItem, activatedBy activation: OBWPathItem.ActivationType) -> OBWFilteringMenu? {
+    func pathView(_ pathView: OBWPathView, filteringMenuForItem pathItem: OBWPathItem, interaction: OBWPathItem.InteractionType) -> OBWFilteringMenu? {
         return nil
     }
     
-    func pathView(_ pathView: OBWPathView, menuForItem: OBWPathItem, activatedBy: OBWPathItem.ActivationType) -> NSMenu? {
+    func pathView(_ pathView: OBWPathView, menuForItem pathItem: OBWPathItem, interaction: OBWPathItem.InteractionType) -> NSMenu? {
         return nil
     }
     

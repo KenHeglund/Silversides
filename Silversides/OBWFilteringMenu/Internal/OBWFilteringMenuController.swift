@@ -454,7 +454,8 @@ class OBWFilteringMenuController {
             return .cancel
         }
         
-        targetMenuWindow.menuView.handleKeyboardModifiersChangedEvent(event)
+        let modifierFlags = event.modifierFlags.intersection(OBWFilteringMenu.allowedModifierFlags)
+        targetMenuWindow.menuView.applyModifierFlags(modifierFlags)
         
         guard targetMenuWindow.accessibilityActive == false else {
             return .continue
@@ -547,6 +548,10 @@ class OBWFilteringMenuController {
             
         case .periodic:
             self.updateMenuWindowsBasedOnCursorLocation(in: event, continueCursorTracking: true)
+            return .continue
+            
+        case .asyncMenuUpdate:
+            self.performAsyncUpdateOfTopWindow()
             return .continue
         }
     }
@@ -649,6 +654,38 @@ class OBWFilteringMenuController {
                 self.delayedShowSubmenu(ofMenuItem: currentMenuItem)
             }
         }
+    }
+    
+    /// Perform an update of the topmost window.
+    private func performAsyncUpdateOfTopWindow() {
+        
+        guard let topmostWindow = self.menuWindowArray.last else {
+            return
+        }
+        
+        let topmostMenu = topmostWindow.filteringMenu
+        
+        guard let updateHandler = topmostMenu.asyncUpdateHandler else {
+            return
+        }
+        
+        topmostMenu.asyncUpdateHandler = nil
+        
+        updateHandler(topmostMenu)
+        
+        topmostWindow.menuView.menuContentsDidChange()
+        topmostWindow.displayUpdatedTotalMenuItemSize(constrainToAnchor: false)
+        
+        let menuItemBounds = topmostWindow.menuView.menuItemBounds
+        let menuLocation = NSPoint(x: menuItemBounds.minX, y: menuItemBounds.maxY)
+        let anchorInWindow = topmostWindow.screenAnchor!
+        topmostWindow.displayMenuLocation(menuLocation, adjacentToScreenArea: anchorInWindow, preferredAlignment: topmostWindow.alignmentFromPrevious)
+        
+        let modifierFlags = NSEvent.ModifierFlags(rawValue: UInt(GetCurrentEventKeyModifiers())).intersection(OBWFilteringMenu.allowedModifierFlags)
+        topmostWindow.menuView.applyModifierFlags(modifierFlags)
+        
+        self.resetCursorTrackingFromCursorLocation()
+        self.updateMenuCorners()
     }
     
     /// The generation counter that tracks requests to open a submenu.  Incremented upon each request to open a menu item's submenu.
@@ -911,6 +948,21 @@ class OBWFilteringMenuController {
     
     /// Used to track cursor movements between a menu item and its submenu.
     private var cursorTracking: OBWFilteringMenuCursorTracking? = nil
+    
+    /// Resets the cursor tracking session from the current cursor location.
+    private func resetCursorTrackingFromCursorLocation() {
+        
+        let cursorLocationInScreen = NSEvent.mouseLocation
+        let menuWindowUnderCursor = self.menuWindowAtScreenLocation(cursorLocationInScreen)
+        let cursorLocationInWindow = menuWindowUnderCursor?.convertFromScreen(cursorLocationInScreen) ?? NSPoint.zero
+        
+        if let menuItemUnderCursor = menuWindowUnderCursor?.menuItemAtLocation(cursorLocationInWindow) {
+            self.beginCursorTracking(from: menuItemUnderCursor)
+        }
+        else {
+            self.endCursorTracking()
+        }
+    }
     
     /// Begin a new cursor tracking session.
     /// - parameter menuItem: The menu item where tracking begins.

@@ -20,10 +20,11 @@
 		BE35703222F57D2C00E9E68C /* OBWFilteringMenuDebugView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35703122F57D2C00E9E68C /* OBWFilteringMenuDebugView.swift */; };
 		BE35703422F586A200E9E68C /* OBWFilteringMenuDebugWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35703322F586A200E9E68C /* OBWFilteringMenuDebugWindow.swift */; };
 		BE35703622F8255A00E9E68C /* OBWFilteringMenuItem+Alignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35703522F8255A00E9E68C /* OBWFilteringMenuItem+Alignment.swift */; };
-		BE3570382302B63F00E9E68C /* OBWPathItem+ActivationType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3570372302B63F00E9E68C /* OBWPathItem+ActivationType.swift */; };
+		BE3570382302B63F00E9E68C /* OBWPathItem+InteractionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3570372302B63F00E9E68C /* OBWPathItem+InteractionType.swift */; };
 		BE35703A2302B6F100E9E68C /* OBWPathViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3570392302B6F100E9E68C /* OBWPathViewDelegate.swift */; };
 		BE35703C2302BC4300E9E68C /* OBWPathView+ErrorType.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35703B2302BC4300E9E68C /* OBWPathView+ErrorType.swift */; };
 		BE35703E2302BCD100E9E68C /* OBWPathView+CompressionPriority.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35703D2302BCD100E9E68C /* OBWPathView+CompressionPriority.swift */; };
+		BE37F1D8230D46B200DBC5BA /* URL+Demo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE37F1D7230D46B200DBC5BA /* URL+Demo.swift */; };
 		BE44C8D51DA3F47E009517A5 /* OBWFilteringMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE44C8D41DA3F47E009517A5 /* OBWFilteringMenuController.swift */; };
 		BE44C8D71DA40305009517A5 /* OBWFilteringMenuControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE44C8D61DA40305009517A5 /* OBWFilteringMenuControllerTests.swift */; };
 		BE44C8D91DA55E8A009517A5 /* NSWindow+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE44C8D81DA55E8A009517A5 /* NSWindow+OBWExtension.swift */; };
@@ -135,10 +136,11 @@
 		BE35703122F57D2C00E9E68C /* OBWFilteringMenuDebugView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuDebugView.swift; sourceTree = "<group>"; };
 		BE35703322F586A200E9E68C /* OBWFilteringMenuDebugWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuDebugWindow.swift; sourceTree = "<group>"; };
 		BE35703522F8255A00E9E68C /* OBWFilteringMenuItem+Alignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenuItem+Alignment.swift"; sourceTree = "<group>"; };
-		BE3570372302B63F00E9E68C /* OBWPathItem+ActivationType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWPathItem+ActivationType.swift"; sourceTree = "<group>"; };
+		BE3570372302B63F00E9E68C /* OBWPathItem+InteractionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWPathItem+InteractionType.swift"; sourceTree = "<group>"; };
 		BE3570392302B6F100E9E68C /* OBWPathViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBWPathViewDelegate.swift; sourceTree = "<group>"; };
 		BE35703B2302BC4300E9E68C /* OBWPathView+ErrorType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWPathView+ErrorType.swift"; sourceTree = "<group>"; };
 		BE35703D2302BCD100E9E68C /* OBWPathView+CompressionPriority.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWPathView+CompressionPriority.swift"; sourceTree = "<group>"; };
+		BE37F1D7230D46B200DBC5BA /* URL+Demo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Demo.swift"; sourceTree = "<group>"; };
 		BE44C8D11DA19822009517A5 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		BE44C8D41DA3F47E009517A5 /* OBWFilteringMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuController.swift; sourceTree = "<group>"; };
 		BE44C8D61DA40305009517A5 /* OBWFilteringMenuControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuControllerTests.swift; sourceTree = "<group>"; };
@@ -346,6 +348,7 @@
 			children = (
 				BEC489E31D4C198100CE7AB8 /* AppDelegate.swift */,
 				BEC489E51D4C198100CE7AB8 /* ViewController.swift */,
+				BE37F1D7230D46B200DBC5BA /* URL+Demo.swift */,
 				BEC489E71D4C198100CE7AB8 /* Assets.xcassets */,
 				BEC489E91D4C198100CE7AB8 /* Main.storyboard */,
 				BEC489EC1D4C198100CE7AB8 /* Info.plist */,
@@ -431,7 +434,7 @@
 			isa = PBXGroup;
 			children = (
 				BEFDC9481D6FA0940005ACFF /* OBWPathItem.swift */,
-				BE3570372302B63F00E9E68C /* OBWPathItem+ActivationType.swift */,
+				BE3570372302B63F00E9E68C /* OBWPathItem+InteractionType.swift */,
 				BEFDC9491D6FA0940005ACFF /* OBWPathView.swift */,
 				BE35703B2302BC4300E9E68C /* OBWPathView+ErrorType.swift */,
 				BE3570392302B6F100E9E68C /* OBWPathViewDelegate.swift */,
@@ -633,7 +636,7 @@
 				BE35703222F57D2C00E9E68C /* OBWFilteringMenuDebugView.swift in Sources */,
 				BEFDC94A1D6FA0940005ACFF /* OBWPathItemView.swift in Sources */,
 				BEF9D5631DC2881300EA6FE0 /* NSImage+OBWExtension.swift in Sources */,
-				BE3570382302B63F00E9E68C /* OBWPathItem+ActivationType.swift in Sources */,
+				BE3570382302B63F00E9E68C /* OBWPathItem+InteractionType.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -669,6 +672,7 @@
 			files = (
 				BEC489E61D4C198100CE7AB8 /* ViewController.swift in Sources */,
 				BEC489E41D4C198100CE7AB8 /* AppDelegate.swift in Sources */,
+				BE37F1D8230D46B200DBC5BA /* URL+Demo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -889,7 +893,6 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = SilversidesDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				OTHER_SWIFT_FLAGS = "-DxUSE_NSMENU";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.SilversidesApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -902,7 +905,6 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = SilversidesDemo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				OTHER_SWIFT_FLAGS = "-DxUSE_NSMENU";
 				PRODUCT_BUNDLE_IDENTIFIER = com.orderedbytes.SilversidesApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

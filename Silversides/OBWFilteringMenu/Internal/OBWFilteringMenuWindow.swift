@@ -223,18 +223,16 @@ class OBWFilteringMenuWindow: NSWindow {
     }
     
     /// Sizes the window to display the menu after the size of its menu items changes.
-    func displayUpdatedTotalMenuItemSize() -> Bool {
+    func displayUpdatedTotalMenuItemSize(constrainToAnchor: Bool) {
         
         let geometry = OBWFilteringMenuWindowGeometry(window: self)
-        geometry.updateGeometryWithResizedMenu()
+        geometry.updateGeometryWithResizedMenu(constrainToAnchor: constrainToAnchor)
         
         self.applyWindowGeometry(geometry)
         
         self.scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
         
         NotificationCenter.default.post(name: OBWFilteringMenuWindow.totalItemSizeChangedNotification, object: self)
-        
-        return true
     }
     
     /// Sizes and positions the window according to the given geometry object.

@@ -131,7 +131,7 @@ class OBWFilteringMenuWindowGeometry {
     }
     
     /// Update the geometry to accommodate a resized menu.
-    func updateGeometryWithResizedMenu() {
+    func updateGeometryWithResizedMenu(constrainToAnchor: Bool) {
         
         let menuView = self.window.menuView
         let totalMenuItemSize = menuView.totalMenuItemSize
@@ -147,7 +147,7 @@ class OBWFilteringMenuWindowGeometry {
         
         interiorFrameInScreen = menuFrameInScreen - menuView.outerMenuMargins
         
-        if let screenAnchor = self.window.screenAnchor {
+        if constrainToAnchor, let screenAnchor = self.window.screenAnchor {
             
             interiorFrameInScreen = OBWFilteringMenuWindowGeometry.constrainFrame(interiorFrameInScreen, toAnchorRect: screenAnchor)
             
@@ -163,7 +163,7 @@ class OBWFilteringMenuWindowGeometry {
         self.initialBounds = NSRect(size: totalMenuItemSize)
         self.finalBounds = NSRect(size: totalMenuItemSize)
         
-        self.constrainGeometryToScreen(allowWindowToGrowUpward: false)
+        self.constrainGeometryToScreen(allowWindowToGrowUpward: constrainToAnchor == false)
     }
     
     /// Updates the window geometry to display the given area of the menu.  This is called when a menu's content scrolls.

@@ -190,7 +190,7 @@ public class OBWPathView: NSView {
         
         self.pathItemUpdate { 
             
-            for itemIndex in pathItems.indices.suffix(from: 0) {
+            for itemIndex in pathItems.indices {
                 try? self.setItem(pathItems[itemIndex], atIndex: itemIndex)
             }
             
@@ -204,10 +204,8 @@ public class OBWPathView: NSView {
     /// - throws: Throws `ErrorType.invalidIndex` if the index is out of range.
     public func item(atIndex index: Int) throws -> OBWPathItem {
         
-        let endIndex = self.itemViews.endIndex
-        
-        guard index >= 0 && index < endIndex else {
-            throw ErrorType.invalidIndex(index: index, endIndex: endIndex)
+        guard self.itemViews.indices.contains(index) else {
+            throw ErrorType.invalidIndex(index: index, endIndex: self.itemViews.endIndex)
         }
         
         guard let pathItem = self.itemViews[index].pathItem else {
@@ -223,15 +221,13 @@ public class OBWPathView: NSView {
     /// - throws: Throws `ErrorType.invalidIndex` if the index is out of range.
     public func setItem(_ item: OBWPathItem, atIndex index: Int) throws {
         
-        let endIndex = self.itemViews.endIndex
-        
-        guard index >= 0 && index <= endIndex else {
-            throw ErrorType.invalidIndex(index: index, endIndex: endIndex)
+        guard (self.itemViews.startIndex...self.itemViews.endIndex).contains(index) else {
+            throw ErrorType.invalidIndex(index: index, endIndex: self.itemViews.endIndex)
         }
         
         self.pathItemUpdate {
             
-            if index == endIndex {
+            if index == self.itemViews.endIndex {
                 
                 let pathViewBounds = self.bounds
                 
@@ -270,13 +266,12 @@ public class OBWPathView: NSView {
     /// - throws: Throws `ErrorType.invalidIndex` if the index is out of range.
     public func removeItemsFromIndex(_ index: Int) throws {
         
-        let endIndex = self.itemViews.endIndex
-        
-        guard index >= 0 && index <= endIndex else {
-            throw ErrorType.invalidIndex(index: index, endIndex: endIndex)
+        guard (self.itemViews.startIndex...self.itemViews.endIndex).contains(index) else {
+            throw ErrorType.invalidIndex(index: index, endIndex: self.itemViews.endIndex)
         }
         
-        if index == endIndex {
+        // An index equal to count is tolerated for symmetry with setItem(_:atIndex:).
+        if index == self.itemViews.endIndex {
             return
         }
         

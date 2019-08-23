@@ -299,6 +299,11 @@ class OBWFilteringMenuView: NSView {
         return minimumHeight
     }
     
+    /// Rebuilds the subviews based on the current menu contents.
+    func menuContentsDidChange() {
+        self.scrollView.menuContentsDidChange()
+    }
+    
     /// Handle a left mouse button down event.  The event is forwarded to the filter field if appropriate.  Otherwise, the event remains unhandled.
     func handleLeftMouseButtonDownEvent(_ event: NSEvent) -> OBWFilteringMenu.SessionState {
         
@@ -451,7 +456,7 @@ class OBWFilteringMenuView: NSView {
             filterField.stringValue = " "
             
             if let window = self.window as? OBWFilteringMenuWindow {
-                _ = window.displayUpdatedTotalMenuItemSize()
+                window.displayUpdatedTotalMenuItemSize(constrainToAnchor: true)
             }
         }
         
@@ -468,14 +473,12 @@ class OBWFilteringMenuView: NSView {
     }
     
     /// Handle a change to the currently pressed keyboard modifiers.
-    func handleKeyboardModifiersChangedEvent(_ event: NSEvent) {
-        
-        let modifierFlags = event.modifierFlags.intersection(OBWFilteringMenu.allowedModifierFlags)
+    func applyModifierFlags(_ modifierFlags: NSEvent.ModifierFlags) {
         
         if self.scrollView.applyModifierFlags(modifierFlags) {
             
             if let window = self.window as? OBWFilteringMenuWindow {
-                _ = window.displayUpdatedTotalMenuItemSize()
+                window.displayUpdatedTotalMenuItemSize(constrainToAnchor: true)
             }
         }
     }
@@ -486,7 +489,7 @@ class OBWFilteringMenuView: NSView {
         if self.scrollView.applyFilterResults(statusArray) {
             
             if let window = self.window as? OBWFilteringMenuWindow {
-                _ = window.displayUpdatedTotalMenuItemSize()
+                window.displayUpdatedTotalMenuItemSize(constrainToAnchor: true)
             }
         }
     }

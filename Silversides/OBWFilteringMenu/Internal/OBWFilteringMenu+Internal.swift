@@ -19,6 +19,7 @@ extension OBWFilteringMenu {
     
     /// Notify the delegate (if any) that the menu will begin tracking the cursor, last chance to provide the menu's items.
     func finalMenuItemsAreNeededNow() {
+        self.asyncUpdateHandler = nil
         self.delegate?.filteringMenuWillAppear(self)
     }
     

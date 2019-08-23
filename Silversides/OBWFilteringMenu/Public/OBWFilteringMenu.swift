@@ -137,6 +137,12 @@ public class OBWFilteringMenu {
         self.itemArray = []
     }
     
+    ///
+    public func asyncUpdate(with completion: @escaping (OBWFilteringMenu) -> Void) {
+        self.asyncUpdateHandler = completion
+        OBWFilteringMenuEventSubtype.asyncMenuUpdate.post(atStart: true)
+    }
+    
     /// Returns the filtering item with the given title (if any).
     public func itemWithTitle(_ title: String) -> OBWFilteringMenuItem? {
         return self.itemArray.first(where: { $0.title == title })
@@ -157,4 +163,8 @@ public class OBWFilteringMenu {
         }
     }
     
+    
+    // MARK: - Internal
+    
+    var asyncUpdateHandler: ((OBWFilteringMenu) -> Void)? = nil
 }
