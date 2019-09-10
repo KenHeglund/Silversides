@@ -44,5 +44,4 @@ class OBWFilteringMenuSeparatorItemView: OBWFilteringMenuItemView {
     override class func preferredSizeForMenuItem(_ menuItem: OBWFilteringMenuItem) -> NSSize {
         return NSSize(width: 10.0, height: 12.0)
     }
-    
 }

@@ -175,7 +175,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         preferredSize.height = max(preferredSize.height, submenuArrowSize.height)
         
         if menuItem.attributedTitle == nil {
-        
+            
             // Special cases for non-attributed titles with standard control font sizes
             let fontHeight = menuItem.font.pointSize
             

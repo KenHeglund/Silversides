@@ -22,7 +22,7 @@ enum OBWFilteringMenuEventSubtype: Int16, CaseIterable {
     
     /// Initialize an instance from an NSEvent.
     init?(_ event: NSEvent) {
-
+        
         guard let matchingCase = OBWFilteringMenuEventSubtype.allCases.first(where: { $0.rawValue == event.subtype.rawValue }) else {
             return nil
         }
@@ -53,4 +53,5 @@ extension OBWFilteringMenuEventSubtype {
         
         NSApp.postEvent(event, atStart: atStart)
     }
+    
 }

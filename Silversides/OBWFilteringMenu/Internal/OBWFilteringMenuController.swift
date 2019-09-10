@@ -630,7 +630,6 @@ class OBWFilteringMenuController {
         if currentMenu === self.topmostMenu {
             
             // The cursor is somewhere in the topmost menu.
-            
             currentMenu.highlightedItem = menuItemUnderCursor
             self.delayedShowSubmenu(ofMenuItem: menuItemUnderCursor)
         }
@@ -704,6 +703,7 @@ class OBWFilteringMenuController {
         
         self.delayedSubmenuParent = menuItem
         
+        
         let generation = self.delayedSubmenuGeneration + 1
         self.delayedSubmenuGeneration = generation
         
@@ -773,7 +773,8 @@ class OBWFilteringMenuController {
         NotificationCenter.default.post(name: OBWFilteringMenu.didBeginTrackingNotification, object: newMenu, userInfo: userInfo)
     }
     
-    /*==========================================================================*/
+    /// Select a menu item.
+    /// - parameter menuItem: The menu item to select.
     private func performSelectionOfItem(_ menuItem: OBWFilteringMenuItem) {
         
         guard
