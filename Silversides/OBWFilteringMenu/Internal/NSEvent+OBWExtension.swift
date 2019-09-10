@@ -121,7 +121,8 @@ extension NSEvent {
              .smartMagnify,
              .quickLook,
              .pressure,
-             .directTouch:
+             .directTouch,
+             .changeMode:
             return false
             
         @unknown default:
