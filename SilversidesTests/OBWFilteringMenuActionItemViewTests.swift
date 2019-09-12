@@ -22,12 +22,14 @@ class OBWFilteringMenuActionItemViewTests: XCTestCase {
     func testPreferredSizeForMenuItem() {
         
         let smallMenuItem = OBWFilteringMenuItem(title: "A")
-        let smallItemSize = OBWFilteringMenuItemView.preferredSizeForMenuItem(smallMenuItem)
+        let smallMenuItemView = OBWFilteringMenuItemView.makeViewWithMenuItem(smallMenuItem)
+        let smallItemSize = smallMenuItemView.preferredSize
         XCTAssertGreaterThan(smallItemSize.width, 0.0)
         XCTAssertGreaterThan(smallItemSize.height, 0.0)
         
         let largeMenuItem = OBWFilteringMenuItem(title: "A menu item with a much longer name")
-        let largeItemSize = OBWFilteringMenuItemView.preferredSizeForMenuItem(largeMenuItem)
+        let largeMenuItemView = OBWFilteringMenuItemView.makeViewWithMenuItem(largeMenuItem)
+        let largeItemSize = largeMenuItemView.preferredSize
         XCTAssertGreaterThan(largeItemSize.width, smallItemSize.width)
         XCTAssertEqual(largeItemSize.height, smallItemSize.height)
     }

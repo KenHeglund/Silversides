@@ -512,10 +512,12 @@ class OBWFilteringMenuItemScrollView: NSView {
                 primaryViewVisible = true
             }
             
+            let primaryItemPreferredSize = primaryItemView.preferredSize
+            
             let itemViewFrame = NSRect(
                 origin: itemViewOrigin,
                 width: itemParentBounds.size.width,
-                height: primaryItemView.preferredSize.height
+                height: primaryItemPreferredSize.height
             )
             
             if primaryItemView.frame != itemViewFrame {
@@ -587,7 +589,14 @@ class OBWFilteringMenuItemScrollView: NSView {
             
                 itemViewOrigin.y += visibleItemView.frame.size.height
                 
-                let itemSize = OBWFilteringMenuItemView.preferredSizeForMenuItem(visibleItemView.menuItem)
+                let itemSize: NSSize
+                if visibleItemView == primaryItemView {
+                    itemSize = primaryItemPreferredSize
+                }
+                else {
+                    itemSize = visibleItemView.preferredSize
+                }
+                
                 parentViewWidth = max(parentViewWidth, itemSize.width)
             }
         }

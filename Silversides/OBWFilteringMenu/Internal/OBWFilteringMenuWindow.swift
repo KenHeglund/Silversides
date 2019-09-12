@@ -152,7 +152,6 @@ class OBWFilteringMenuWindow: NSWindow {
             
             backgroundView.roundedCorners = newValue
             self.invalidateShadow()
-            self.displayIfNeeded()
         }
     }
     
@@ -261,7 +260,7 @@ class OBWFilteringMenuWindow: NSWindow {
             menuView.frame = menuViewFrame
             menuView.setMenuItemBoundsOriginY(windowGeometry.initialBounds.origin.y)
             
-            self.setFrame(newWindowFrame, display: true)
+            self.setFrame(newWindowFrame, display: false)
             self.invalidateShadow()
         }
     }

@@ -7,7 +7,7 @@
 import AppKit
 
 /// Application-specific NSEvent subtypes.
-enum OBWFilteringMenuEventSubtype: Int16, CaseIterable {
+enum OBWFilteringMenuEventSubtype: Int16 {
     
     /// The current application has become the foreground application.
     case applicationDidBecomeActive = 1
@@ -17,8 +17,12 @@ enum OBWFilteringMenuEventSubtype: Int16, CaseIterable {
     case periodic
     /// An accessible item was selected.
     case accessibleItemSelection
-    /// A menu has an asynchronous update available
-    case asyncMenuUpdate
+    /// A deferred menu update is ready to be performed.
+    case deferredMenuUpdateReady
+    
+}
+
+extension OBWFilteringMenuEventSubtype: CaseIterable {
     
     /// Initialize an instance from an NSEvent.
     init?(_ event: NSEvent) {
@@ -34,7 +38,7 @@ enum OBWFilteringMenuEventSubtype: Int16, CaseIterable {
 extension OBWFilteringMenuEventSubtype {
     
     /// Post a generic application-specific event with the receiver's subtype.
-    func post(atStart: Bool) {
+    func post(atStart: Bool, data1: Int = 0) {
         
         guard let event = NSEvent.otherEvent(
             with: .applicationDefined,
@@ -44,7 +48,7 @@ extension OBWFilteringMenuEventSubtype {
             windowNumber: 0,
             context: nil,
             subtype: self.rawValue,
-            data1: 0,
+            data1: data1,
             data2: 0
         ) else {
             assertionFailure("Failed to create an application-specific event")

@@ -69,11 +69,6 @@ public class OBWFilteringMenu {
         }
     }
     
-    /// Instance debug description.
-    public var description: String {
-        return "OBWFilteringMenu: \(self.title)"
-    }
-    
     /// Programmatically display the menu, optionally positioning an item at a specific location.
     /// - parameter menuItem: The filtering menu item to position.  May be nil.
     /// - parameter alignment: The location within the menu item to position at `locationInView`.
@@ -86,7 +81,10 @@ public class OBWFilteringMenu {
     @discardableResult
     public func popUpMenuPositioningItem(_ menuItem: OBWFilteringMenuItem?, aligning alignment: OBWFilteringMenuItem.Alignment, atPoint locationInView: NSPoint, inView view: NSView?, matchingWidth: Bool, withEvent event: NSEvent?, highlighting highlightTarget: OBWFilteringMenu.HighlightTarget) -> Bool {
         
-        self.finalMenuItemsAreNeededNow()
+        guard self.prepareForAppearance() == .now else {
+            assertionFailure("Menu should be ready to appear before calling popUpMenuPositioningItem()")
+            return false
+        }
         
         // Sanity check to make sure the given item isn't used unless it is actually in the receiver.
         guard let itemToDisplay = self.itemArray.first(where: { $0 === menuItem }) ?? self.itemArray.first else {
@@ -137,10 +135,17 @@ public class OBWFilteringMenu {
         self.itemArray = []
     }
     
-    ///
-    public func asyncUpdate(with completion: @escaping (OBWFilteringMenu) -> Void) {
-        self.asyncUpdateHandler = completion
-        OBWFilteringMenuEventSubtype.asyncMenuUpdate.post(atStart: true)
+    /// Show a menu that the delegate had delayed by returning .defer from the filteringMenuShouldAppear(_:) function.
+    /// - parameter updateHandler: A closure that should be called to finish configuring the menu.  The closure receives a reference to the receiver.
+    public func appearNow(with updateHandler: @escaping (OBWFilteringMenu) -> Void) {
+        
+        guard let updateGeneration = self.deferredUpdate?.generation else {
+            return
+        }
+        
+        self.deferredUpdate?.updateHandler = updateHandler
+        
+        OBWFilteringMenuEventSubtype.deferredMenuUpdateReady.post(atStart: true, data1: updateGeneration)
     }
     
     /// Returns the filtering item with the given title (if any).
@@ -166,5 +171,20 @@ public class OBWFilteringMenu {
     
     // MARK: - Internal
     
-    var asyncUpdateHandler: ((OBWFilteringMenu) -> Void)? = nil
+    /// Information about this menu's deferred update.
+    var deferredUpdate: DeferredUpdate? = nil
+    
+    /// The cause for displaying this menu as a submenu.
+    var submenuOpenMethod: SubmenuOpenMethod? = nil
+}
+
+
+extension OBWFilteringMenu: CustomDebugStringConvertible {
+    
+    /// Instance debug description.
+    public var debugDescription: String {
+        let address = Unmanaged.passUnretained(self).toOpaque()
+        return "OBWFilteringMenu <\(address)>: \(self.title)"
+    }
+    
 }

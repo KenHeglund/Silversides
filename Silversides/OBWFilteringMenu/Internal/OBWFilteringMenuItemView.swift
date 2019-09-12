@@ -43,7 +43,7 @@ class OBWFilteringMenuItemView: NSView {
     
     /// The preferred size of the view to display its contents.
     var preferredSize: NSSize {
-        return type(of: self).preferredSizeForMenuItem(self.menuItem)
+        fatalError("This must be overridden.")
     }
     
     /// Creates a OBWFilteringMenuItemView for the given menu item.
@@ -54,21 +54,6 @@ class OBWFilteringMenuItemView: NSView {
         }
         
         return OBWFilteringMenuActionItemView(menuItem: menuItem)
-    }
-    
-    /// Calculates the preferred view size for the given menu item.
-    class func preferredSizeForMenuItem(_ menuItem: OBWFilteringMenuItem) -> NSSize {
-        
-        if menuItem.isSeparatorItem {
-            return OBWFilteringMenuSeparatorItemView.preferredSizeForMenuItem(menuItem)
-        }
-        
-        return OBWFilteringMenuActionItemView.preferredSizeForMenuItem(menuItem)
-    }
-    
-    /// Adjusts the receiver's frame to its preferred size.
-    func sizeToFit() {
-        self.setFrameSize(self.preferredSize)
     }
     
     /// Applies the given status to the receiver and its alternate views.

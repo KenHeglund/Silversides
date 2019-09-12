@@ -17,10 +17,9 @@ extension OBWFilteringMenu {
         return self.font ?? self.parentItem?.menu?.displayFont ?? NSFont.menuFont(ofSize: 0.0)
     }
     
-    /// Notify the delegate (if any) that the menu will begin tracking the cursor, last chance to provide the menu's items.
-    func finalMenuItemsAreNeededNow() {
-        self.asyncUpdateHandler = nil
-        self.delegate?.filteringMenuWillAppear(self)
+    /// Prepare the menu for appearance.  The delegate may defer the menu's appearance.
+    func prepareForAppearance() -> DisplayTiming {
+        return self.delegate?.filteringMenuShouldAppear(self) ?? .now
     }
     
 }
@@ -53,6 +52,11 @@ extension OBWFilteringMenu {
         case none
     }
     
+    enum SubmenuOpenMethod {
+        case cursor
+        case keyboard
+        case accessibilityAPI
+    }
 }
 
 
@@ -76,4 +80,22 @@ extension OBWFilteringMenu.Key {
     static let currentHighlightedItem = OBWFilteringMenu.Key(rawValue: "OBWFilteringMenuCurrentHighlightedItemKey")
     /// Previously highlighted menu item.
     static let previousHighlightedItem = OBWFilteringMenu.Key(rawValue: "OBWFilteringMenuPreviousHighlightedItemKey")
+}
+
+
+extension OBWFilteringMenu {
+    
+    /// Holds information about the deferred appearance of a submenu.
+    struct DeferredUpdate {
+        
+        /// A copy of the controller's delayed submenu generation counter.
+        let generation: Int
+        /// A handler to give the delegate a chance to update the meun.
+        var updateHandler: ((OBWFilteringMenu) -> Void)? = nil
+        
+        init(generation: Int) {
+            self.generation = generation
+        }
+    }
+    
 }

@@ -480,13 +480,6 @@ class ViewController: NSViewController {
         return menuItem
     }()
     
-    /// A menu item that is shown when the content of a menu are being constructed.
-    private static var loadingMenuItem: OBWFilteringMenuItem = {
-        let menuItem = OBWFilteringMenuItem(title: "Loading…")
-        menuItem.enabled = false
-        return menuItem
-    }()
-    
     /// Interface outlets.
     @IBOutlet private var pathViewOutlet: OBWPathView! = nil
     @IBOutlet private var styledFilteringPopUpButtonOutlet: NSPopUpButton! = nil
@@ -650,24 +643,23 @@ class ViewController: NSViewController {
 extension ViewController: OBWFilteringMenuDelegate {
     
     /// The given menu is about to appear on-screen.  Perform final configuration of the menu.
-    func filteringMenuWillAppear(_ menu: OBWFilteringMenu) {
+    func filteringMenuShouldAppear(_ menu: OBWFilteringMenu) -> OBWFilteringMenu.DisplayTiming {
         
         let parentPath = menu.title
         guard FileManager.default.fileExists(atPath: parentPath) else {
-            return
+            return .now
         }
         
-        menu.removeAllItems()
-        menu.addItem(ViewController.loadingMenuItem)
+        #if DEFER_MENU_DISPLAY
         
         DispatchQueue.global(qos: .userInitiated).async {
             
             let parentURL = URL(fileURLWithPath: parentPath)
             let menuItems = self.makeFilteringMenuItems(forContentsAtURL: parentURL, subdirectories: true)
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.seconds(0)) {
                 
-                menu.asyncUpdate(with: {
+                menu.appearNow(with: {
                     filteringMenu in
                     
                     filteringMenu.removeAllItems()
@@ -683,6 +675,22 @@ extension ViewController: OBWFilteringMenuDelegate {
                 })
             }
         }
+        
+        return .later
+
+        #else
+        
+        menu.removeAllItems()
+        
+        let parentURL = URL(fileURLWithPath: parentPath)
+        let menuItems = self.makeFilteringMenuItems(forContentsAtURL: parentURL, subdirectories: true)
+        menu.addItems(menuItems)
+        
+        self.resizeMenu(menu, to: .small)
+        
+        return .now
+        
+        #endif
     }
     
     /// Returns accessibility help for the given menu item.
