@@ -790,7 +790,10 @@ class OBWFilteringMenuController {
         newWindow.makeKeyAndOrderFront(nil)
         
         self.menuWindowWithKeyboardFocus = self.menuWindowArray.last
-        self.beginCursorTracking(from: menuItem)
+        
+        if menuOpenMethod == .cursor {
+            self.beginCursorTracking(from: menuItem)
+        }
 
         let userInfo = [OBWFilteringMenu.Key.root : self.rootMenu]
         NotificationCenter.default.post(name: OBWFilteringMenu.didBeginTrackingNotification, object: newMenu, userInfo: userInfo)
