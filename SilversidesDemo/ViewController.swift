@@ -699,6 +699,10 @@ extension ViewController: OBWFilteringMenuDelegate {
     /// - returns: A help string.
     func filteringMenu(_ menu: OBWFilteringMenu, accessibilityHelpForItem menuItem: OBWFilteringMenuItem) -> String? {
         
+        if menuItem.isHeadingItem {
+            return nil
+        }
+        
         let menuItemHasSubmenu = (menuItem.submenu != nil)
         
         let folderFormat = NSLocalizedString("Click this button to interact with the %@ folder", comment: "Folder menu item help format")

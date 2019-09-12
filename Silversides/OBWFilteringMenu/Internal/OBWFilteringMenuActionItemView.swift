@@ -223,8 +223,13 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     
     /// Returns the view's accessibility role based on whether or not it has a subview.
     override func accessibilityRole() -> NSAccessibility.Role? {
+        
+        if self.menuItem.isHeadingItem  {
+            return  .staticText
+        }
+        
         let itemHasSubmenu = (self.menuItem.submenu != nil)
-        return (itemHasSubmenu ? NSAccessibility.Role.popUpButton : NSAccessibility.Role.button)
+        return (itemHasSubmenu ? .popUpButton : .button)
     }
     
     /// Returns the standard description of the view's accessibility role.
@@ -284,7 +289,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             }
         }
         
-        guard let title = menuItem.title else {
+        guard !menuItem.isHeadingItem, let title = menuItem.title else {
             return nil
         }
         
