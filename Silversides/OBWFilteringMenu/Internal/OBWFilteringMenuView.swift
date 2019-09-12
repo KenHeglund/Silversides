@@ -178,7 +178,12 @@ class OBWFilteringMenuView: NSView {
     
     /// Returns the accessibility visible children.
     override func accessibilityVisibleChildren() -> [Any]? {
-        return self.scrollView.accessibilityChildren()
+        
+        guard let scrollChildren = self.scrollView.accessibilityChildren() else {
+            return nil
+        }
+        
+        return NSAccessibility.unignoredChildren(from: scrollChildren)
     }
     
     /// The list is oriented vertically.

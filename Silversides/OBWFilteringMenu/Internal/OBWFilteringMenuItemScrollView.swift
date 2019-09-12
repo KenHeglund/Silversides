@@ -103,6 +103,19 @@ class OBWFilteringMenuItemScrollView: NSView {
     }
     
     
+    // MARK: -  NSAccessibility Implementation
+    
+    /// Returns the accessible children of the menu view.
+    override func accessibilityChildren() -> [Any]? {
+        
+        guard let parentViewChildren = self.itemParentView.accessibilityChildren() else {
+            return nil
+        }
+        
+        return NSAccessibility.unignoredChildren(from: parentViewChildren)
+    }
+    
+    
     // MARK: - OBWFilteringMenuItemScrollView Implementation
     
     /// The minimum height at the top of the menu is the minimum height of the first item.
