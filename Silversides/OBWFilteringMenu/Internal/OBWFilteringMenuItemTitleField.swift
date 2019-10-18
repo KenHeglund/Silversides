@@ -32,6 +32,7 @@ class OBWFilteringMenuItemTitleField: NSTextField {
         #endif
         
         self.updateAttributedStringValue()
+        self.sizeToFit()
     }
     
     /// Required initializer, currently unused.
@@ -42,9 +43,11 @@ class OBWFilteringMenuItemTitleField: NSTextField {
     
     // MARK: - OBWFilteringMenuItemTitleField implementation
     
+    /// The current filter status of the menu item.
     var filterStatus: OBWFilteringMenuItemFilterStatus? = nil {
         didSet {
             self.updateAttributedStringValue()
+            self.sizeToFit()
         }
     }
     

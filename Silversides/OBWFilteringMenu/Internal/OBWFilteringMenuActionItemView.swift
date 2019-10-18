@@ -52,41 +52,48 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         let indentation = CGFloat(self.menuItem.indentationLevel) * OBWFilteringMenuActionItemView.indentDistancePerLevel
         
-        let imageSize = self.menuItem.image?.size ?? NSZeroSize
+        let imageSize = self.menuItem.image?.size ?? .zero
         let imageFrame = NSRect(
             x: contentBounds.minX + indentation + imageMargins.left,
             y: floor(contentBounds.midY - (imageSize.height / 2.0)),
             size: imageSize
         )
         
-        let titleSize = OBWFilteringMenuActionItemView.preferredTitleTextFieldSize(for: self.menuItem)
-        let titleFrame = NSRect(
+        let titleSize = self.itemTitleField.frame.size
+        let titleFrameOrigin = NSPoint(
             x: (imageFrame.width > 0 ? imageFrame.maxX + imageMargins.right : contentBounds.minX + indentation),
-            y: floor(contentBounds.midY - (titleSize.height / 2.0)),
-            size: titleSize
+            y: floor(contentBounds.midY - (titleSize.height / 2.0))
         )
         
-        self.itemImageView.frame = imageFrame
-        self.itemTitleField.frame = titleFrame
+        if self.itemImageView.frame != imageFrame {
+            self.itemImageView.frame = imageFrame
+        }
+        if self.itemTitleField.frame.origin != titleFrameOrigin {
+            self.itemTitleField.setFrameOrigin(titleFrameOrigin)
+        }
         
         let arrowImageSize = self.submenuArrowImageView.frame.size
         let arrowImageOrigin = NSPoint(
             x: contentBounds.maxX - arrowImageSize.width,
             y: contentBounds.midY - floor(arrowImageSize.height / 2.0)
         )
-        self.submenuArrowImageView.setFrameOrigin(arrowImageOrigin)
+        if  self.submenuArrowImageView.frame.origin != arrowImageOrigin {
+            self.submenuArrowImageView.setFrameOrigin(arrowImageOrigin)
+        }
         
         let stateToTitleRatio: CGFloat = 0.6
         let stateImageSize = titleSize.height * stateToTitleRatio
         
         let stateImageFrame = NSRect(
             x: imageFrame.origin.x - OBWFilteringMenuActionItemView.statusImageRightMargin - stateImageSize,
-            y: titleFrame.origin.y + ((titleSize.height - stateImageSize) / 2.0),
+            y: titleFrameOrigin.y + ((titleSize.height - stateImageSize) / 2.0),
             width: stateImageSize,
             height: stateImageSize
         )
         
-        self.stateImageView.frame = stateImageFrame
+        if self.stateImageView.frame != stateImageFrame {
+            self.stateImageView.frame = stateImageFrame
+        }
     }
     
     /// The view is about to be drawn.
@@ -133,7 +140,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     // MARK: - OBWFilteringMenuItemView overrides
     
     /// Calculate the preferred view size needed to draw the given menu item.
-    override class func preferredSizeForMenuItem(_ menuItem: OBWFilteringMenuItem) -> NSSize {
+    override var preferredSize: NSSize {
         
         let interiorMargins = OBWFilteringMenuActionItemView.interiorMargins
         let imageMargins = OBWFilteringMenuActionItemView.imageMargins
@@ -151,7 +158,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             imageSize = .zero
         }
         
-        let titleSize = OBWFilteringMenuActionItemView.preferredTitleTextFieldSize(for: menuItem)
+        let titleSize =  self.itemTitleField.frame.size
         
         var preferredSize = NSSize(
             width: interiorMargins.width + imageSize.width + titleSize.width,
@@ -175,7 +182,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         preferredSize.height = max(preferredSize.height, submenuArrowSize.height)
         
         if menuItem.attributedTitle == nil {
-        
+            
             // Special cases for non-attributed titles with standard control font sizes
             let fontHeight = menuItem.font.pointSize
             
@@ -207,6 +214,19 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     
+    // MARK: - OBWFilteringMenuActionItemView implementation
+    
+    /// Shows the item's submenu spinner.
+    func showSubmenuSpinner() {
+        self.submenuArrowImageView.displayMode = .spinner
+    }
+    
+    /// Shows the item's submenu arrow.
+    func showSubmenuArrow() {
+        self.submenuArrowImageView.displayMode = .arrow
+    }
+    
+    
     // MARK: - NSAccessibility implementation
     
     /// The view is accessible.
@@ -216,8 +236,13 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     
     /// Returns the view's accessibility role based on whether or not it has a subview.
     override func accessibilityRole() -> NSAccessibility.Role? {
+        
+        if self.menuItem.isHeadingItem  {
+            return  .staticText
+        }
+        
         let itemHasSubmenu = (self.menuItem.submenu != nil)
-        return (itemHasSubmenu ? NSAccessibility.Role.popUpButton : NSAccessibility.Role.button)
+        return (itemHasSubmenu ? .popUpButton : .button)
     }
     
     /// Returns the standard description of the view's accessibility role.
@@ -277,7 +302,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
             }
         }
         
-        guard let title = menuItem.title else {
+        guard !menuItem.isHeadingItem, let title = menuItem.title else {
             return nil
         }
         
@@ -342,28 +367,6 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     /// The amount by which an item is indented for each indentation level.
     private static let indentDistancePerLevel: CGFloat = 12.0
     
-    /// Calculates the preferred text field size for the given menu item.
-    private class func preferredTitleTextFieldSize(for menuItem: OBWFilteringMenuItem) -> NSSize {
-        
-        let titleSize = OBWFilteringMenuItemTitleField.attributedTitle(for: menuItem)?.size() ?? .zero
-        
-        // Left and right bearing is space that is added between the origin and the sides of the glyphs.  The amount present doesn't seem to be readily available.
-        let horizontalPaddingToAccountForLeftAndRightBearing: CGFloat = 4.0
-        
-        var preferredViewSize = NSSize(
-            
-            width: ceil(titleSize.width + horizontalPaddingToAccountForLeftAndRightBearing),
-            
-            // This formula was determined by comparing the standard control text heights to the standard-size menu item heights and determining the best-fit, straight-line relationship.
-            height: round(0.9737 * titleSize.height + 1.7105)
-        )
-        
-        // Above about font size 65.0, the above formula yields a height that is smaller than the title bounds.  Use the bounds when that happens.
-        preferredViewSize.height = max(preferredViewSize.height, ceil(titleSize.height))
-        
-        return preferredViewSize
-    }
-    
     /// The menu's highlighted item changed.
     @objc private func highlightedItemDidChange(_ notification: Notification) {
         
@@ -376,6 +379,10 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         guard self.menuItem === oldItem || self.menuItem === newItem else {
             return
+        }
+        
+        if self.menuItem === oldItem {
+            self.showSubmenuArrow()
         }
         
         self.itemTitleField.needsDisplay = true

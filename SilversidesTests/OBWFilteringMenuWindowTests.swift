@@ -48,25 +48,9 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         // Larger menu width, window gets wider
         // Larger menu height, window gets taller
         
-        guard let commandEvent = NSEvent.keyEvent(
-            with: .flagsChanged,
-            location: .zero,
-            modifierFlags: [.command],
-            timestamp: ProcessInfo().systemUptime,
-            windowNumber: 0,
-            context: nil,
-            characters: "",
-            charactersIgnoringModifiers: "",
-            isARepeat: false,
-            keyCode: 0)
-        else {
-            XCTFail()
-            return
-        }
+        menuView.applyModifierFlags([.command])
         
-        menuView.handleKeyboardModifiersChangedEvent(commandEvent)
-        
-        geometry.updateGeometryWithResizedMenu()
+        geometry.updateGeometryWithResizedMenu(constrainToAnchor: true)
         window.applyWindowGeometry(geometry)
         
         let largerWindowFrame = window.frame
@@ -77,25 +61,9 @@ class OBWFilteringMenuWindowTests: XCTestCase {
         // Smaller menu width, window with remains unchanged
         // Smaller menu height, window height returns to inital height
         
-        guard let shiftEvent = NSEvent.keyEvent(
-            with: .flagsChanged,
-            location: .zero,
-            modifierFlags: [.shift],
-            timestamp: ProcessInfo().systemUptime,
-            windowNumber: 0,
-            context: nil,
-            characters: "",
-            charactersIgnoringModifiers: "",
-            isARepeat: false,
-            keyCode: 0)
-        else {
-            XCTFail()
-            return
-        }
+        menuView.applyModifierFlags([.shift])
         
-        menuView.handleKeyboardModifiersChangedEvent(shiftEvent)
-        
-        geometry.updateGeometryWithResizedMenu()
+        geometry.updateGeometryWithResizedMenu(constrainToAnchor: true)
         window.applyWindowGeometry(geometry)
         
         let reducedWindowFrame = window.frame

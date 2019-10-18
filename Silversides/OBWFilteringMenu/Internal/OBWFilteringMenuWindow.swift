@@ -152,7 +152,6 @@ class OBWFilteringMenuWindow: NSWindow {
             
             backgroundView.roundedCorners = newValue
             self.invalidateShadow()
-            self.displayIfNeeded()
         }
     }
     
@@ -223,18 +222,16 @@ class OBWFilteringMenuWindow: NSWindow {
     }
     
     /// Sizes the window to display the menu after the size of its menu items changes.
-    func displayUpdatedTotalMenuItemSize() -> Bool {
+    func displayUpdatedTotalMenuItemSize(constrainToAnchor: Bool) {
         
         let geometry = OBWFilteringMenuWindowGeometry(window: self)
-        geometry.updateGeometryWithResizedMenu()
+        geometry.updateGeometryWithResizedMenu(constrainToAnchor: constrainToAnchor)
         
         self.applyWindowGeometry(geometry)
         
         self.scrollTracking.reset(geometry.totalMenuItemSize, initialBounds: geometry.initialBounds, finalBounds: geometry.finalBounds)
         
         NotificationCenter.default.post(name: OBWFilteringMenuWindow.totalItemSizeChangedNotification, object: self)
-        
-        return true
     }
     
     /// Sizes and positions the window according to the given geometry object.
@@ -263,7 +260,7 @@ class OBWFilteringMenuWindow: NSWindow {
             menuView.frame = menuViewFrame
             menuView.setMenuItemBoundsOriginY(windowGeometry.initialBounds.origin.y)
             
-            self.setFrame(newWindowFrame, display: true)
+            self.setFrame(newWindowFrame, display: false)
             self.invalidateShadow()
         }
     }

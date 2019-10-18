@@ -82,15 +82,7 @@ class OBWPathViewTests: XCTestCase {
     
     func testThatImbalancedEndItemUpdateThrowsError() {
         
-        guard
-            let window = NSApp.windows.first,
-            let windowController = window.windowController,
-            let viewController = windowController.contentViewController as? ViewController,
-            let pathView = viewController.pathViewOutlet
-        else {
-            XCTFail()
-            return
-        }
+        let pathView = OBWPathView(frame: .zero)
         
         XCTAssertThrowsError(try pathView.endPathItemUpdate())
         
@@ -100,17 +92,9 @@ class OBWPathViewTests: XCTestCase {
         XCTAssertThrowsError(try pathView.endPathItemUpdate())
     }
     
-    func testThatPathViewItemCounts() {
+    func testThatPathViewItemCountsAreCorrect() {
         
-        guard
-            let window = NSApp.windows.first,
-            let windowController = window.windowController,
-            let viewController = windowController.contentViewController as? ViewController,
-            let pathView = viewController.pathViewOutlet
-        else {
-            XCTFail()
-            return
-        }
+        let pathView = OBWPathView(frame: .zero)
         
         pathView.setItems([])
         XCTAssertEqual(pathView.numberOfItems, 0)
@@ -133,15 +117,7 @@ class OBWPathViewTests: XCTestCase {
     
     func testThatRemoveItemsFromIndexThrowsProperly() {
         
-        guard
-            let window = NSApp.windows.first,
-            let windowController = window.windowController,
-            let viewController = windowController.contentViewController as? ViewController,
-            let pathView = viewController.pathViewOutlet
-        else {
-            XCTFail()
-            return
-        }
+        let pathView = OBWPathView(frame: .zero)
         
         let items: [OBWPathItem] = [
             OBWPathItem(title: "first", image: nil, representedObject: nil, style: .default, textColor: nil),
@@ -163,15 +139,7 @@ class OBWPathViewTests: XCTestCase {
     
     func testThatItemsAreReplacedProperly() {
         
-        guard
-            let window = NSApp.windows.first,
-            let windowController = window.windowController,
-            let viewController = windowController.contentViewController as? ViewController,
-            let pathView = viewController.pathViewOutlet
-        else {
-            XCTFail()
-            return
-        }
+        let pathView = OBWPathView(frame: .zero)
         
         let items: [OBWPathItem] = [
             OBWPathItem(title: "first", image: nil, representedObject: nil, style: .default, textColor: nil),

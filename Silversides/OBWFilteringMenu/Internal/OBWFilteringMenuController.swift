@@ -418,8 +418,7 @@ class OBWFilteringMenuController {
             if let highlightedItem = highlightedItem, highlightedItem.submenu != nil {
                 
                 self.endCursorTracking()
-                self.showSubmenu(ofMenuItem: highlightedItem, highlightFirstVisibleItem: true)
-                self.menuWindowWithKeyboardFocus = self.menuWindowArray.last
+                self.showSubmenu(ofMenuItem: highlightedItem, openedBy: .keyboard)
                 
                 return .continue
             }
@@ -454,7 +453,8 @@ class OBWFilteringMenuController {
             return .cancel
         }
         
-        targetMenuWindow.menuView.handleKeyboardModifiersChangedEvent(event)
+        let modifierFlags = event.modifierFlags.intersection(OBWFilteringMenu.allowedModifierFlags)
+        targetMenuWindow.menuView.applyModifierFlags(modifierFlags)
         
         guard targetMenuWindow.accessibilityActive == false else {
             return .continue
@@ -548,7 +548,33 @@ class OBWFilteringMenuController {
         case .periodic:
             self.updateMenuWindowsBasedOnCursorLocation(in: event, continueCursorTracking: true)
             return .continue
+            
+        case .deferredMenuUpdateReady:
+            self.handleDeferredMenuUpdate(with: event.data1)
+            return .continue
         }
+    }
+    
+    /// Handle an event that indicates that a deferred menu is prepared to be shown.
+    /// - parameter eventGeneration: The generation of the event that initiated the menu's appearance.
+    private func handleDeferredMenuUpdate(with eventGeneration: Int) {
+        
+        let delayedSubmenuParent = self.delayedSubmenuParent
+        self.delayedSubmenuParent = nil
+        
+        guard
+            let parentMenuItem = delayedSubmenuParent,
+            let newMenu = parentMenuItem.submenu,
+            let deferredUpdate = newMenu.deferredUpdate,
+            deferredUpdate.generation == eventGeneration,
+            let updateHandler = deferredUpdate.updateHandler
+        else {
+            return
+        }
+        
+        newMenu.deferredUpdate?.updateHandler = nil
+        updateHandler(newMenu)
+        self.showPreparedSubmenu(of: parentMenuItem)
     }
     
     
@@ -579,10 +605,6 @@ class OBWFilteringMenuController {
         
         self.lastHitMenuItem = menuItemUnderCursor
         
-        if let currentMenuWindow = menuWindowUnderCursor {
-            self.menuWindowWithKeyboardFocus = currentMenuWindow
-        }
-        
         if menuWindowUnderCursor !== self.menuWindowWithScrollFocus {
             menuWindowUnderCursor?.resetScrollTracking()
         }
@@ -612,7 +634,7 @@ class OBWFilteringMenuController {
                 // The cursor is no longer making progress toward the submenu.
                 self.endCursorTracking()
                 self.removeTopmostNonRootMenuWindow(withAnimation: true)
-                self.delayedShowSubmenu(ofMenuItem: nil)
+                self.cancelDelayedShowSubmenu()
             }
         }
         
@@ -625,9 +647,8 @@ class OBWFilteringMenuController {
         if currentMenu === self.topmostMenu {
             
             // The cursor is somewhere in the topmost menu.
-            
             currentMenu.highlightedItem = menuItemUnderCursor
-            self.delayedShowSubmenu(ofMenuItem: menuItemUnderCursor)
+            self.showSubmenu(ofMenuItem: menuItemUnderCursor, openedBy: .cursor)
         }
         else if let currentMenuItem = menuItemUnderCursor,
             let submenu = currentMenuItem.submenu,
@@ -646,25 +667,26 @@ class OBWFilteringMenuController {
             self.makeTopmostMenuWindow(currentMenuWindow, withAnimation: false)
             
             if let currentMenuItem = menuItemUnderCursor {
-                self.delayedShowSubmenu(ofMenuItem: currentMenuItem)
+                self.showSubmenu(ofMenuItem: currentMenuItem, openedBy: .cursor)
             }
         }
     }
     
     /// The generation counter that tracks requests to open a submenu.  Incremented upon each request to open a menu item's submenu.
-    private var delayedSubmenuGeneration = 0
+    private var delayedSubmenuGeneration: Int = 0
     
     /// The most recent menu item whose submenu was requested.
     private weak var delayedSubmenuParent: OBWFilteringMenuItem? = nil
     
     /// Presents the given menu item's submenu after a delay.
-    /// - parameter menuItem: The menu item whose submenu should be displayed (if any).  If `nil`, a previous request to show a submenu is cancelled.
-    private func delayedShowSubmenu(ofMenuItem menuItem: OBWFilteringMenuItem?) {
+    /// - parameter menuItem: The menu item whose submenu should be displayed (if any).
+    private func showSubmenu(ofMenuItem menuItem: OBWFilteringMenuItem?, openedBy openMethod: OBWFilteringMenu.SubmenuOpenMethod) {
         
         guard menuItem !== self.delayedSubmenuParent else {
             return
         }
         
+        self.delayedSubmenuParent?.submenu?.deferredUpdate = nil
         self.delayedSubmenuParent = menuItem
         
         let generation = self.delayedSubmenuGeneration + 1
@@ -674,8 +696,7 @@ class OBWFilteringMenuController {
             return
         }
         
-        let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(100)
-        DispatchQueue.main.asyncAfter(deadline: deadline) {
+        let showSubmenuHandler = {
             [weak self] in
             
             guard
@@ -683,33 +704,71 @@ class OBWFilteringMenuController {
                 generation == controller.delayedSubmenuGeneration,
                 let submenuParent = controller.delayedSubmenuParent,
                 let menu = submenuParent.menu,
-                menu === controller.topmostMenu
+                menu === controller.topmostMenu,
+                let newMenu = submenuParent.submenu
             else {
                 return
             }
             
-            controller.showSubmenu(ofMenuItem: submenuParent, highlightFirstVisibleItem: false)
-            controller.beginCursorTracking(from: submenuParent)
+            newMenu.submenuOpenMethod = openMethod
+            newMenu.deferredUpdate = OBWFilteringMenu.DeferredUpdate(generation: generation)
+            controller.prepareToShowSubmenu(ofMenuItem: submenuParent)
         }
+        
+        switch openMethod {
+        case .accessibilityAPI, .keyboard:
+            showSubmenuHandler()
+            
+        case .cursor:
+            let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(100)
+            DispatchQueue.main.asyncAfter(deadline: deadline, execute: showSubmenuHandler)
+        }
+    }
+    
+    private func cancelDelayedShowSubmenu() {
+        self.delayedSubmenuParent?.submenu?.deferredUpdate = nil
+        self.delayedSubmenuParent = nil
+        self.delayedSubmenuGeneration += 1
     }
     
     /// Shows the submenu of the given menu item.
     /// - parameter menuItem: The parent menu item of the submenu to be shown.
-    /// - parameter highlightFirstVisibleItem: If `true` the first visible item of the submenu will be highlighted.
-    private func showSubmenu(ofMenuItem menuItem: OBWFilteringMenuItem, highlightFirstVisibleItem: Bool) {
+    /// - parameter submenuOpenMethod: The action that caused the submenu to be displayed.
+    private func prepareToShowSubmenu(ofMenuItem menuItem: OBWFilteringMenuItem) {
         
         guard let newMenu = menuItem.submenu else {
             return
         }
         
-        newMenu.finalMenuItemsAreNeededNow()
+        switch newMenu.prepareForAppearance() {
+        case .now:
+            break
+            
+        case .later:
+            if
+                let menu = menuItem.menu,
+                let menuWindow = self.menuWindowForMenu(menu),
+                let itemView = menuWindow.menuView.viewForMenuItem(menuItem) as? OBWFilteringMenuActionItemView {
+                itemView.showSubmenuSpinner()
+            }
+            return
+        }
+        
+        self.showPreparedSubmenu(of: menuItem)
+    }
+    
+    /// Shows a submenu that has been prepared by the delegate.
+    /// - parameter menuItem: The menu item owning the submenu to be shown.
+    private func showPreparedSubmenu(of menuItem: OBWFilteringMenuItem) {
         
         guard
+            let newMenu = menuItem.submenu,
             newMenu.itemArray.isEmpty == false,
             let parentMenu = menuItem.menu,
             let parentMenuWindow = self.menuWindowForMenu(parentMenu),
             let screen = parentMenuWindow.screen,
-            let itemView = parentMenuWindow.menuView.viewForMenuItem(menuItem)
+            let itemView = parentMenuWindow.menuView.viewForMenuItem(menuItem) as? OBWFilteringMenuActionItemView,
+            let menuOpenMethod = newMenu.submenuOpenMethod
         else {
             return
         }
@@ -719,8 +778,12 @@ class OBWFilteringMenuController {
         
         self.menuWindowArray.append(newWindow)
         
-        if highlightFirstVisibleItem {
+        switch menuOpenMethod {
+        case .keyboard:
             newMenuView.selectFirstMenuItemView()
+            
+        case .cursor, .accessibilityAPI:
+            break
         }
         
         let menuItemBounds = newMenuView.menuItemBounds
@@ -732,11 +795,20 @@ class OBWFilteringMenuController {
         
         newWindow.makeKeyAndOrderFront(nil)
         
+        self.menuWindowWithKeyboardFocus = self.menuWindowArray.last
+        
+        if menuOpenMethod == .cursor {
+            self.beginCursorTracking(from: menuItem)
+        }
+        
+        itemView.showSubmenuArrow()
+        
         let userInfo = [OBWFilteringMenu.Key.root : self.rootMenu]
         NotificationCenter.default.post(name: OBWFilteringMenu.didBeginTrackingNotification, object: newMenu, userInfo: userInfo)
     }
     
-    /*==========================================================================*/
+    /// Select a menu item.
+    /// - parameter menuItem: The menu item to select.
     private func performSelectionOfItem(_ menuItem: OBWFilteringMenuItem) {
         
         guard
@@ -911,6 +983,21 @@ class OBWFilteringMenuController {
     
     /// Used to track cursor movements between a menu item and its submenu.
     private var cursorTracking: OBWFilteringMenuCursorTracking? = nil
+    
+    /// Resets the cursor tracking session from the current cursor location.
+    private func resetCursorTrackingFromCursorLocation() {
+        
+        let cursorLocationInScreen = NSEvent.mouseLocation
+        let menuWindowUnderCursor = self.menuWindowAtScreenLocation(cursorLocationInScreen)
+        let cursorLocationInWindow = menuWindowUnderCursor?.convertFromScreen(cursorLocationInScreen) ?? NSPoint.zero
+        
+        if let menuItemUnderCursor = menuWindowUnderCursor?.menuItemAtLocation(cursorLocationInWindow) {
+            self.beginCursorTracking(from: menuItemUnderCursor)
+        }
+        else {
+            self.endCursorTracking()
+        }
+    }
     
     /// Begin a new cursor tracking session.
     /// - parameter menuItem: The menu item where tracking begins.
@@ -1135,7 +1222,7 @@ class OBWFilteringMenuController {
         }
         
         if menuItem.submenu != nil {
-            self.showSubmenu(ofMenuItem: menuItem, highlightFirstVisibleItem: false)
+            self.showSubmenu(ofMenuItem: menuItem, openedBy: .accessibilityAPI)
             self.menuWindowWithKeyboardFocus = self.menuWindowArray.last
         }
         else if menuItem.enabled {
