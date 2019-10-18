@@ -214,6 +214,19 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
     }
     
     
+    // MARK: - OBWFilteringMenuActionItemView implementation
+    
+    /// Shows the item's submenu spinner.
+    func showSubmenuSpinner() {
+        self.submenuArrowImageView.displayMode = .spinner
+    }
+    
+    /// Shows the item's submenu arrow.
+    func showSubmenuArrow() {
+        self.submenuArrowImageView.displayMode = .arrow
+    }
+    
+    
     // MARK: - NSAccessibility implementation
     
     /// The view is accessible.
@@ -366,6 +379,10 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
         
         guard self.menuItem === oldItem || self.menuItem === newItem else {
             return
+        }
+        
+        if self.menuItem === oldItem {
+            self.showSubmenuArrow()
         }
         
         self.itemTitleField.needsDisplay = true

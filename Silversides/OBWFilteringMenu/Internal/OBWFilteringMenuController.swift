@@ -745,6 +745,12 @@ class OBWFilteringMenuController {
             break
             
         case .later:
+            if
+                let menu = menuItem.menu,
+                let menuWindow = self.menuWindowForMenu(menu),
+                let itemView = menuWindow.menuView.viewForMenuItem(menuItem) as? OBWFilteringMenuActionItemView {
+                itemView.showSubmenuSpinner()
+            }
             return
         }
         
@@ -761,7 +767,7 @@ class OBWFilteringMenuController {
             let parentMenu = menuItem.menu,
             let parentMenuWindow = self.menuWindowForMenu(parentMenu),
             let screen = parentMenuWindow.screen,
-            let itemView = parentMenuWindow.menuView.viewForMenuItem(menuItem),
+            let itemView = parentMenuWindow.menuView.viewForMenuItem(menuItem) as? OBWFilteringMenuActionItemView,
             let menuOpenMethod = newMenu.submenuOpenMethod
         else {
             return
@@ -794,7 +800,9 @@ class OBWFilteringMenuController {
         if menuOpenMethod == .cursor {
             self.beginCursorTracking(from: menuItem)
         }
-
+        
+        itemView.showSubmenuArrow()
+        
         let userInfo = [OBWFilteringMenu.Key.root : self.rootMenu]
         NotificationCenter.default.post(name: OBWFilteringMenu.didBeginTrackingNotification, object: newMenu, userInfo: userInfo)
     }
