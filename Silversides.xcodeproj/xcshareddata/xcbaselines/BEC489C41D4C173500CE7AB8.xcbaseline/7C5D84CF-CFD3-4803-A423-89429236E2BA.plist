@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>classNames</key>
+	<dict>
+		<key>OBWPathViewTests</key>
+		<dict>
+			<key>testThatTrimmingAPartiallyEmptyImageProducesAProperlySizedImage()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.0010356</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Aug 25, 2021 at 22:54:19</string>
+				</dict>
+			</dict>
+			<key>testThatTrimmingAnEmptyImageProducesNil()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>8.8477e-05</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Aug 25, 2021 at 22:54:19</string>
+				</dict>
+			</dict>
+			<key>testThatTrimmingAnOpaqueImageReturnsTheOriginalImage()</key>
+			<dict>
+				<key>com.apple.XCTPerformanceMetric_WallClockTime</key>
+				<dict>
+					<key>baselineAverage</key>
+					<real>0.00043133</real>
+					<key>baselineIntegrationDisplayName</key>
+					<string>Aug 25, 2021 at 22:54:19</string>
+				</dict>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>

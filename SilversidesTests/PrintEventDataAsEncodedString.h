@@ -4,7 +4,7 @@
  Copyright (c) 2019 Ken Heglund. All rights reserved.
  ===========================================================================*/
 
-#import <AppKit/AppKit.h>
+@import AppKit;
 
 NS_ASSUME_NONNULL_BEGIN
 
