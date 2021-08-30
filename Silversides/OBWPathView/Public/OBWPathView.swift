@@ -651,6 +651,7 @@ public class OBWPathView: NSView {
 			(context: NSAnimationContext) in
 			
 			context.duration = animationDuration
+			context.timingFunction = CAMediaTimingFunction(name: .easeIn)
 			
 			var itemOriginX = self.bounds.maxX
 			
