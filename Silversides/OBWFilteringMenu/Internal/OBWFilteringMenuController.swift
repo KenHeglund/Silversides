@@ -230,7 +230,7 @@ class OBWFilteringMenuController {
 				#endif
 				
 				let timeoutDate = Date(timeIntervalSinceNow: timeoutInterval)
-				guard let event = NSApp.nextEvent(matching: .any, until: timeoutDate, inMode: .default, dequeue: true) else {
+				guard let event = NSApp.nextEvent(matching: .any, until: timeoutDate, inMode: .eventTracking, dequeue: true) else {
 					result = .cancel
 					return
 				}
@@ -321,8 +321,14 @@ class OBWFilteringMenuController {
 					case .cursorUpdate:
 						break
 						
-					case .systemDefined, .appKitDefined:
+					case .systemDefined:
 						break
+						
+					case .appKitDefined:
+						if event.subtype.rawValue == 2 {
+							// No idea what this AppKit event is, but it seems to be sent when the application is about to resign the active state, either by clicking in another application’s window or by using the App Switcher.
+							result = .interrupt
+						}
 						
 					case .beginGesture, .endGesture:
 						break
