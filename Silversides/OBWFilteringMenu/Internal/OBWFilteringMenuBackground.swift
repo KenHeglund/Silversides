@@ -16,7 +16,7 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
 		self.autoresizingMask = [.width, .height]
 		self.autoresizesSubviews = true
 		
-		self.material = .menu
+		self.material = .windowBackground
 		self.state = .active
 		
 		self.updateMaskImage()
