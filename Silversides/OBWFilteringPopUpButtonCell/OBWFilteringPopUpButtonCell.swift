@@ -184,8 +184,8 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
 			if let title = item.title, !title.isEmpty {
 				standardMenuItem.title = title
 			}
-			else if let title = item.attributedTitle?.string, !title.isEmpty {
-				standardMenuItem.title = title
+			else if let title = item.attributedTitle, title.length != 0 {
+				standardMenuItem.attributedTitle = title
 			}
 			else {
 				standardMenuItem.title = self.placeholderTitle
