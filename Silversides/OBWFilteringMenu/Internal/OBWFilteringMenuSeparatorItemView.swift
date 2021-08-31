@@ -20,10 +20,10 @@ class OBWFilteringMenuSeparatorItemView: OBWFilteringMenuItemView {
 		
 		let knownAppearanceNames: [NSAppearance.Name] = [.darkAqua, .aqua]
 		if NSAppearance.current.bestMatch(from: knownAppearanceNames) == .darkAqua {
-			NSColor.secondaryLabelColor.withAlphaComponent(0.5).set()
+			NSColor.quaternaryLabelColor.set()
 		}
 		else {
-			NSColor.secondaryLabelColor.withAlphaComponent(0.25).set()
+			NSColor.quaternaryLabelColor.set()
 		}
 		
 		drawRect.fill()
