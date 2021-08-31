@@ -26,13 +26,13 @@ class OBWPathItemView: NSView {
 	
 	/// Additional common initialization
 	private func commonInitialization() {
-		self.currentWidth = self.bounds.size.width
+		self.currentWidth = self.bounds.width
 		self.idleWidth = self.currentWidth
 		self.preferredWidth = self.currentWidth
 		
-		self.addSubview(imageView)
-		self.addSubview(titleField)
-		self.addSubview(dividerView)
+		self.addSubview(self.imageView)
+		self.addSubview(self.titleField)
+		self.addSubview(self.dividerView)
 		
 		self.autoresizingMask = []
 		self.layerContentsRedrawPolicy = .duringViewResize
@@ -498,7 +498,7 @@ class OBWPathItemView: NSView {
 	/// - Parameter style: An `OBWPathItemStyle` containing the item’s title
 	/// style.
 	///
-	/// - Peturns: A newly created `NSFont`.
+	/// - Returns: A newly created `NSFont`.
 	private class func titleFontForPathItemStyle(_ style: OBWPathItemStyle) -> NSFont {
 		var displayFont = NSFont.controlContentFont(ofSize: OBWPathItemView.titleFontSize)
 		
@@ -562,6 +562,9 @@ class OBWPathItemView: NSView {
 	}
 	
 	/// Recalculates the minimum and preferred widths of the item view.
+	/// 
+	/// - Returns: `true` if the preferred width or minimum width changed,
+	/// otherwise `false`.
 	private func recalculateWidths() -> Bool {
 		var titleMargins = OBWPathItemView.titleMargins
 		var titleMinimumWidth = OBWPathItemView.minimumTitleWidthWithoutImage
