@@ -204,22 +204,6 @@ class OBWFilteringMenuItemFilterStatus {
 		self.alternateStatus?[key] = status
 	}
 	
-	/// Returns the `NSAttributedString` attributes for the highlighted section
-	/// of a menu item title.
-	private class func highlightAttributes() -> [NSAttributedString.Key: Any] {
-		let bundle = Bundle(for: OBWFilteringMenu.self)
-		let backgroundColor = NSColor(named: "MenuItemHighlightBackground", bundle: bundle) ?? NSColor(red: 1.0, green: 0.0, blue: 0.0, alpha: 0.5)
-		let underlineColor = NSColor(named: "MenuItemHighlightUnderline", bundle: bundle) ?? NSColor(red: 0.65, green: 0.00, blue: 0.0, alpha: 0.75)
-		
-		let highlightAttributes: [NSAttributedString.Key: Any] = [
-			.backgroundColor : backgroundColor,
-			.underlineColor : underlineColor,
-			.underlineStyle : 1,
-		]
-		
-		return highlightAttributes
-	}
-	
 	/// Applies a filter to the receiver.
 	///
 	/// - Parameter filter: The filter to apply.
@@ -240,7 +224,12 @@ class OBWFilteringMenuItemFilterStatus {
 		
 		let searchableTitle = self.searchableTitle
 		let workingHighlightedTitle = NSMutableAttributedString(attributedString: self.highlightedTitle)
-		let highlightAttributes = OBWFilteringMenuItemFilterStatus.highlightAttributes()
+		
+		let entireRange = NSRange(location: 0, length: workingHighlightedTitle.length)
+		workingHighlightedTitle.removeBoldFontTrait(from: entireRange)
+		workingHighlightedTitle.addAttribute(.foregroundColor, value: NSColor.secondaryLabelColor, range: entireRange)
+		
+		let nonMatchingTitle = NSAttributedString(attributedString: workingHighlightedTitle)
 		
 		var searchRange = searchableTitle.startIndex ..< searchableTitle.endIndex
 		var matchMask = MatchCriteria.all
@@ -251,6 +240,7 @@ class OBWFilteringMenuItemFilterStatus {
 			let filterSubstring = String(filterString[index])
 			
 			guard let caseInsensitiveRange = searchableTitle.range(of: filterSubstring, options: .caseInsensitive, range: searchRange, locale: nil) else {
+				self.highlightedTitle = nonMatchingTitle
 				self.matchScore = worstScore
 				return
 			}
@@ -278,7 +268,8 @@ class OBWFilteringMenuItemFilterStatus {
 				length: 1
 			)
 			
-			workingHighlightedTitle.addAttributes(highlightAttributes, range: highlightRange)
+			workingHighlightedTitle.addBoldFontTrait(to: highlightRange)
+			workingHighlightedTitle.addAttribute(.foregroundColor, value: NSColor.labelColor, range: highlightRange)
 			
 			lastMatchIndex = caseInsensitiveRange.lowerBound
 			searchRange = caseInsensitiveRange.upperBound ..< searchableTitle.endIndex
@@ -297,7 +288,10 @@ class OBWFilteringMenuItemFilterStatus {
 		
 		let searchableTitle = self.searchableTitle
 		let workingHighlightedTitle = NSMutableAttributedString(attributedString: self.highlightedTitle)
-		let highlightAttributes = OBWFilteringMenuItemFilterStatus.highlightAttributes()
+		
+		let entireRange = NSRange(location: 0, length: workingHighlightedTitle.length)
+		workingHighlightedTitle.removeBoldFontTrait(from: entireRange)
+		workingHighlightedTitle.addAttribute(.foregroundColor, value: NSColor.secondaryLabelColor, range: entireRange)
 		
 		var matchScore = worstScore
 		let matchingOptions = NSRegularExpression.MatchingOptions.reportCompletion
@@ -317,14 +311,15 @@ class OBWFilteringMenuItemFilterStatus {
 			
 			for rangeIndex in 0 ..< result.numberOfRanges {
 				
-				let resultRange = result.range(at: rangeIndex)
-				guard resultRange.location != NSNotFound else {
+				let highlightRange = result.range(at: rangeIndex)
+				guard highlightRange.location != NSNotFound else {
 					continue
 				}
 				
 				matchScore = bestScore
 				
-				workingHighlightedTitle.addAttributes(highlightAttributes, range: resultRange)
+				workingHighlightedTitle.addBoldFontTrait(to: highlightRange)
+				workingHighlightedTitle.addAttribute(.foregroundColor, value: NSColor.labelColor, range: highlightRange)
 			}
 		}
 		

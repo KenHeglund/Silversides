@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BE141D7426DC58AA00CC032E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BE141D7326DC56C100CC032E /* Assets.xcassets */; };
+		BE141D8E26DE161D00CC032E /* NSMutableAttributedString+OBWExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE141D8D26DE161D00CC032E /* NSMutableAttributedString+OBWExtensions.swift */; };
 		BE29533F1D7A2CC000EA47AB /* OBWFilteringMenuBackgroundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE29533E1D7A2CC000EA47AB /* OBWFilteringMenuBackgroundTests.swift */; };
 		BE35702022E1A24200E9E68C /* OBWFilteringMenu+Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35701F22E1A24200E9E68C /* OBWFilteringMenu+Notification.swift */; };
 		BE35702222E1A39D00E9E68C /* OBWFilteringMenu+Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE35702122E1A39D00E9E68C /* OBWFilteringMenu+Error.swift */; };
@@ -125,6 +126,7 @@
 		BE09C1D71FE7FA5100EC5E6E /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		BE09C1D81FE7FA5100EC5E6E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BE141D7326DC56C100CC032E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BE141D8D26DE161D00CC032E /* NSMutableAttributedString+OBWExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSMutableAttributedString+OBWExtensions.swift"; sourceTree = "<group>"; };
 		BE29533E1D7A2CC000EA47AB /* OBWFilteringMenuBackgroundTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuBackgroundTests.swift; sourceTree = "<group>"; };
 		BE35701F22E1A24200E9E68C /* OBWFilteringMenu+Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenu+Notification.swift"; sourceTree = "<group>"; };
 		BE35702122E1A39D00E9E68C /* OBWFilteringMenu+Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenu+Error.swift"; sourceTree = "<group>"; };
@@ -401,6 +403,7 @@
 				BE4685AF1D8CC6B800AC4B6F /* NSEvent+OBWExtension.swift */,
 				BE35702B22E94D2E00E9E68C /* NSGraphicsContext+OBWExtension.swift */,
 				BEF9D5621DC2881300EA6FE0 /* NSImage+OBWExtension.swift */,
+				BE141D8D26DE161D00CC032E /* NSMutableAttributedString+OBWExtensions.swift */,
 				BE44C8DA1DA72D92009517A5 /* NSRect+OBWExtension.swift */,
 				BEF9D5641DC28AEB00EA6FE0 /* NSScreen+OBWExtension.swift */,
 				BE7F3EDA1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift */,
@@ -604,6 +607,7 @@
 				BEBEECC81D77E59A0050D277 /* OBWFilteringMenuBackground.swift in Sources */,
 				BED4FE842306C41E003080E7 /* OBWColorFilledView.swift in Sources */,
 				BE35703C2302BC4300E9E68C /* OBWPathView+ErrorType.swift in Sources */,
+				BE141D8E26DE161D00CC032E /* NSMutableAttributedString+OBWExtensions.swift in Sources */,
 				BE4685CA1D91F53D00AC4B6F /* OBWFilteringMenuView.swift in Sources */,
 				BE35703622F8255A00E9E68C /* OBWFilteringMenuItem+Alignment.swift in Sources */,
 				BE9CB0BC1D8B0E0E00323D09 /* OBWFilteringMenuItemView.swift in Sources */,
