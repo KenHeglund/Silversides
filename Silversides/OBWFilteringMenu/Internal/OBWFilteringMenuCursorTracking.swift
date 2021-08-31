@@ -41,16 +41,18 @@ class OBWFilteringMenuCursorTracking {
 			NSColor.systemRed.withAlphaComponent(0.5).set()
 			path.stroke()
 		})
-		#endif
 		
 		OBWFilteringMenuDebugWindow.displayNow()
+		#endif
 	}
 	
 	/// Deinitialization.
 	deinit {
+		#if DEBUG_CURSOR_TRACKING
 		if let drawingIdentifier = self.debugDrawingIdentifier {
 			OBWFilteringMenuDebugWindow.removeDrawingHandler(withIdentifier: drawingIdentifier)
 		}
+		#endif
 	}
 	
 	
@@ -67,7 +69,9 @@ class OBWFilteringMenuCursorTracking {
 			self.recalculateLimitPath()
 			self.resetWaypoints()
 			
+			#if DEBUG_CURSOR_TRACKING
 			OBWFilteringMenuDebugWindow.displayNow()
+			#endif
 		}
 	}
 	

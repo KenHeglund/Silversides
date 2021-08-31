@@ -32,26 +32,32 @@ class OBWFilteringMenuDebugWindow: NSWindow {
 	// MARK: - OBWFilteringMenuDebugWindow Interface
 	
 	/// The shared instance, creating it if necessary.
-	static var shared: OBWFilteringMenuDebugWindow = {
-		let shared = OBWFilteringMenuDebugWindow()
-		OBWFilteringMenuDebugWindow.sharedOrNil = shared
-		return shared
-	}()
+	static var shared = OBWFilteringMenuDebugWindow()
 	
-	/// The shared instance, if it exists.
-	static private(set) var sharedOrNil: OBWFilteringMenuDebugWindow?
-	
-	/// Bring the window forward.
-	static func orderFront(_ sender: Any?) {
-		self.sharedOrNil?.orderFront(sender)
+	/// Prepares the shared debug window for drawing.  Drawing occurs in screen
+	/// coordinates.
+	static func prepare(for screen: NSScreen?) {
+		// Resize the window to fit the entire screen
+		let frameInScreen = screen?.frame ?? .zero
+		self.shared.setFrame(frameInScreen, display: true)
+		
+		// Resize the debug view to fit the entire window
+		let frameInWindow = NSRect(origin: .zero, size: frameInScreen.size)
+		self.shared.drawingView.frame = frameInWindow
+		
+		// Setup the coordinates of the debug view to match screen coordinates.
+		self.shared.drawingView.bounds = frameInScreen
+		
+		self.shared.orderFront(nil)
 	}
 	
 	/// Remove the window.
 	static func orderOut(_ sender: Any?) {
-		self.sharedOrNil?.orderOut(sender)
+		self.shared.orderOut(sender)
 	}
 	
-	/// Add a new drawing handler.
+	/// Add a new drawing handler.  The handler should perform drawing in the
+	/// screen coordinate system.
 	///
 	/// - Parameter handler: The drawing handler to remove.
 	///
@@ -59,7 +65,7 @@ class OBWFilteringMenuDebugWindow: NSWindow {
 	/// handler.
 	@discardableResult
 	static func addDrawingHandler(_ handler: @escaping DrawingHandler) -> UUID? {
-		return self.sharedOrNil?.drawingView.addDrawingHandler(handler)
+		return self.shared.drawingView.addDrawingHandler(handler)
 	}
 	
 	/// Remove an existing drawing handler.
@@ -68,18 +74,18 @@ class OBWFilteringMenuDebugWindow: NSWindow {
 	/// removed.  This value is obtained from the `addDrawingHandler(_:)`
 	/// function.
 	static func removeDrawingHandler(withIdentifier identifier: UUID) {
-		self.sharedOrNil?.drawingView.removeDrawingHandler(withIdentifier: identifier)
+		self.shared.drawingView.removeDrawingHandler(withIdentifier: identifier)
 	}
 	
 	/// Remove all drawing handlers
 	static func removeAllDrawingHandlers() {
-		self.sharedOrNil?.drawingView.removeAllDrawingHandlers()
+		self.shared.drawingView.removeAllDrawingHandlers()
 	}
 	
 	/// Redisplay the window.
 	static func displayNow() {
-		self.sharedOrNil?.drawingView.needsDisplay = true
-		self.sharedOrNil?.display()
+		self.shared.drawingView.needsDisplay = true
+		self.shared.display()
 	}
 	
 	

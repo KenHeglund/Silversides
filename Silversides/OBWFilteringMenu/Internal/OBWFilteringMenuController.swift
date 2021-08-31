@@ -104,15 +104,15 @@ class OBWFilteringMenuController {
 		NotificationCenter.default.post(name: OBWFilteringMenu.willBeginSessionNotification, object: self.rootMenu)
 		
 		#if DEBUG_CURSOR_TRACKING
-		_ = OBWFilteringMenuDebugWindow.shared
+		OBWFilteringMenuDebugWindow.prepare(for: self.menuWindowArray.first?.screen)
 		#endif
-		
-		OBWFilteringMenuDebugWindow.orderFront(self)
 		
 		let menuItemSelected = self.runEventLoop()
 		
+		#if DEBUG_CURSOR_TRACKING
 		OBWFilteringMenuDebugWindow.removeAllDrawingHandlers()
 		OBWFilteringMenuDebugWindow.orderOut(self)
+		#endif
 		
 		NotificationCenter.default.post(name: OBWFilteringMenu.didEndSessionNotification, object: self.rootMenu)
 		

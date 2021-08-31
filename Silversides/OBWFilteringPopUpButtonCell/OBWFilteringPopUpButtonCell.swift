@@ -54,12 +54,8 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
 		)
 		
 		#if DEBUG_MENU_ITEM_BASELINE
-		_ = OBWFilteringMenuDebugWindow.shared
-		
-		OBWFilteringMenuDebugWindow.addDrawingHandler({
-			[weak controlView]
-			debugView in
-			
+		OBWFilteringMenuDebugWindow.prepare(for: controlView.window?.screen)
+		OBWFilteringMenuDebugWindow.addDrawingHandler({ [weak controlView] debugView in
 			guard let localView = controlView else {
 				return
 			}
@@ -67,35 +63,25 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
 			let convertRectFromLocalToDraw: (NSRect) -> NSRect = {
 				rectInSourceView in
 				
-				guard
-					let localWindow = localView.window,
-					let debugWindow = debugView.window
-				else {
+				guard let localWindow = localView.window else {
 					return rectInSourceView
 				}
 				
 				let inLocalWindow = localView.convert(rectInSourceView, to: nil)
 				let inScreen = localWindow.convertToScreen(inLocalWindow)
-				let inDestWindow = debugWindow.convertFromScreen(inScreen)
-				let inDestView = debugView.convert(inDestWindow, from: nil)
-				return inDestView
+				return inScreen
 			}
 			
 			let convertPointFromLocalToDraw: (NSPoint) -> NSPoint = {
 				pointInSourceView in
 				
-				guard
-					let localWindow = localView.window,
-					let debugWindow = debugView.window
-				else {
+				guard let localWindow = localView.window else {
 					return pointInSourceView
 				}
 				
 				let inLocalWindow = localView.convert(pointInSourceView, to: nil)
 				let inScreen = localWindow.convertPoint(toScreen: inLocalWindow)
-				let inDestWindow = debugWindow.convertPoint(fromScreen: inScreen)
-				let inDestView = debugView.convert(inDestWindow, from: nil)
-				return inDestView
+				return inScreen
 			}
 			
 			NSColor.systemRed.withAlphaComponent(0.5).set()
