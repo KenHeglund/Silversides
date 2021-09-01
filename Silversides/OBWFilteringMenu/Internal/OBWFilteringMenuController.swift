@@ -322,7 +322,10 @@ class OBWFilteringMenuController {
 						break
 						
 					case .systemDefined:
-						break
+						#if DEBUG
+						Swift.print("system event type:\(event.type.rawValue)/\(event.subtype.rawValue)")
+						#endif
+						NSApp.sendEvent(event)
 						
 					case .appKitDefined:
 						// AppKit events are passed to the `NSApp` object.  Some events seem related to the notifications that are posted when the application becomes/resigns the active application status.  *Not* passing these events along seems to prevent those notifications from being posted.
