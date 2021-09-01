@@ -62,15 +62,14 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 		let highlightedTitle = status.highlightedTitle
 		XCTAssertNotNil(highlightedTitle)
 		
-		let underlinedIndicies = [ 1,3,5,7,9 ]
+		let highlightIndicies = [ 1,3,5,7,9 ]
 		
 		for index in 0 ..< highlightedTitle.length {
-			
-			if underlinedIndicies.contains(index) {
-				XCTAssertNotNil(highlightedTitle.attribute(.underlineStyle, at: index, effectiveRange: nil), "\(index)")
+			if highlightIndicies.contains(index) {
+				XCTAssertTrue(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
 			}
 			else {
-				XCTAssertNil(highlightedTitle.attribute(.underlineStyle, at: index, effectiveRange: nil), "\(index)")
+				XCTAssertFalse(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
 			}
 		}
 		
@@ -83,15 +82,14 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 		let highlightedTitle = status.highlightedTitle
 		XCTAssertNotNil(highlightedTitle)
 		
-		let underlinedIndicies = 2...4
+		let highlightIndicies = 2...4
 		
 		for index in 0 ..< highlightedTitle.length {
-			
-			if underlinedIndicies.contains(index) {
-				XCTAssertNotNil(highlightedTitle.attribute(.underlineStyle, at: index, effectiveRange: nil), "\(index)")
+			if highlightIndicies.contains(index) {
+				XCTAssertTrue(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
 			}
 			else {
-				XCTAssertNil(highlightedTitle.attribute(.underlineStyle, at: index, effectiveRange: nil), "\(index)")
+				XCTAssertFalse(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
 			}
 		}
 		
@@ -102,22 +100,24 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 		
 		menuItem.attributedTitle = NSAttributedString(
 			string: "sampleAttributedTitle",
-			attributes: [.foregroundColor : NSColor.red]
+			attributes: [
+				.foregroundColor : NSColor.red,
+				.font : NSFont.menuFont(ofSize: 13.0),
+			]
 		)
 		
 		let status = OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/t{2,}/")
 		let highlightedTitle = status.highlightedTitle
 		XCTAssertNotNil(highlightedTitle)
 		
-		let underlinedIndicies = 7...8
+		let highlightIndicies = 7...8
 		
 		for index in 0 ..< highlightedTitle.length {
-			
-			if underlinedIndicies.contains(index) {
-				XCTAssertNotNil(highlightedTitle.attribute(.underlineStyle, at: index, effectiveRange: nil), "\(index)")
+			if highlightIndicies.contains(index) {
+				XCTAssertTrue(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
 			}
 			else {
-				XCTAssertNil(highlightedTitle.attribute(.underlineStyle, at: index, effectiveRange: nil), "\(index)")
+				XCTAssertFalse(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
 			}
 		}
 		
@@ -167,5 +167,22 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 		XCTAssertEqual(regexFilterAlternates[shiftKey]?.matchScore, 0)
 		XCTAssertEqual(regexFilterAlternates[optionKey]?.matchScore, 0)
 		XCTAssertEqual(regexFilterAlternates[commandKey]?.matchScore, 3)
+	}
+}
+
+extension NSAttributedString {
+	/// Indicates whether the receiver uses a font with the given trait at the
+	/// given index.
+	///
+	/// - Parameters:
+	///   - trait: The font trait to test for.
+	///   - index: The location at which to test the font traits.
+	///
+	/// - Returns: `true` if the receiver uses a font with `trait` at `index`.
+	func hasFontTrait(_ trait: NSFontDescriptor.SymbolicTraits, at index: Int) -> Bool {
+		guard let font = self.attribute(.font, at: index, effectiveRange: nil) as? NSFont else {
+			return false
+		}
+		return font.fontDescriptor.symbolicTraits.contains(trait)
 	}
 }
