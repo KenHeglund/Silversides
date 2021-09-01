@@ -325,10 +325,8 @@ class OBWFilteringMenuController {
 						break
 						
 					case .appKitDefined:
-						if event.subtype.rawValue == 2 {
-							// No idea what this AppKit event is, but it seems to be sent when the application is about to resign the active state, either by clicking in another application’s window or by using the App Switcher.
-							result = .interrupt
-						}
+						// AppKit events are passed to the `NSApp` object.  Some events seem related to the notifications that are posted when the application becomes/resigns the active application status.  *Not* passing these events along seems to prevent those notifications from being posted.
+						NSApp.sendEvent(event)
 						
 					case .beginGesture, .endGesture:
 						break
