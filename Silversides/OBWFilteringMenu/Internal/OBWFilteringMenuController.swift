@@ -230,7 +230,7 @@ class OBWFilteringMenuController {
 				#endif
 				
 				let timeoutDate = Date(timeIntervalSinceNow: timeoutInterval)
-				guard let event = NSApp.nextEvent(matching: .any, until: timeoutDate, inMode: .eventTracking, dequeue: true) else {
+				guard let event = NSApp.nextEvent(matching: .any, until: timeoutDate, inMode: .default, dequeue: true) else {
 					result = .cancel
 					return
 				}
