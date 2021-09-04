@@ -235,22 +235,27 @@ class OBWFilteringMenuView: NSView {
 		
 		NSAccessibility.post(element: currentEditor, notification: NSAccessibility.Notification.focusedUIElementChanged)
 		
-		let filterString = filterField.stringValue
+		let filterString = filterField.stringValue.trimmingCharacters(in: .whitespaces)
 		let menu = self.filteringMenu
 		
 		let filterEventNumber = self.lastFilterEventNumber + 1
 		self.lastFilterEventNumber = filterEventNumber
 		
-		DispatchQueue.global(qos: .userInitiated).async {
-			
-			let statusArray = OBWFilteringMenuItemFilterStatus.filterStatus(menu, filterString: filterString)
-			
-			DispatchQueue.main.async {
-				guard self.lastFilterEventNumber == filterEventNumber else {
-					return
-				}
+		if filterString.isEmpty {
+			self.applyFilterResults(nil)
+		}
+		else {
+			DispatchQueue.global(qos: .userInitiated).async {
 				
-				self.applyFilterResults(statusArray)
+				let statusArray = OBWFilteringMenuItemFilterStatus.filterStatus(menu, filterString: filterString)
+				
+				DispatchQueue.main.async {
+					guard self.lastFilterEventNumber == filterEventNumber else {
+						return
+					}
+					
+					self.applyFilterResults(statusArray)
+				}
 			}
 		}
 	}
@@ -494,7 +499,7 @@ class OBWFilteringMenuView: NSView {
 	/// Applies filter status results to the menu.
 	///
 	/// - Parameter statusArray: The status to apply to the menu.
-	func applyFilterResults(_ statusArray: [OBWFilteringMenuItemFilterStatus]) {
+	func applyFilterResults(_ statusArray: [OBWFilteringMenuItemFilterStatus]?) {
 		if self.scrollView.applyFilterResults(statusArray) {
 			if let window = self.window as? OBWFilteringMenuWindow {
 				window.displayUpdatedTotalMenuItemSize(constrainToAnchor: true)

@@ -20,7 +20,6 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 		self.isSelectable = false
 		self.isBezeled = false
 		self.cell?.lineBreakMode = .byClipping
-		self.alphaValue = (self.menuItem.enabled && !self.menuItem.isHeadingItem ? 1.0 : 0.35)
 		
 		#if DEBUG_MENU_TINTING
 		self.drawsBackground = true
@@ -65,31 +64,29 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 	
 	/// Updates the title field’s attributed string value.
 	private func updateAttributedStringValue() {
-		let attributedStringValue: NSMutableAttributedString
-		if let filterStatus = self.filterStatus {
-			attributedStringValue = NSMutableAttributedString(attributedString: filterStatus.highlightedTitle)
-		}
-		else if let title = OBWFilteringMenuItemTitleField.attributedTitle(for: self.menuItem) {
-			attributedStringValue = NSMutableAttributedString(attributedString: title)
-		}
-		else {
-			attributedStringValue = NSMutableAttributedString()
+		let attributedTitle = OBWFilteringMenuItemTitleField.attributedTitle(for: self.menuItem)
+		
+		guard let annotatedTitle = self.filterStatus?.annotatedTitle else {
+			self.attributedStringValue = attributedTitle
+			return
 		}
 		
-		if attributedStringValue.attribute(.foregroundColor, at: 0, effectiveRange: nil) == nil {
-			let foregroundColor: NSColor
-			if menuItem.isHeadingItem || !menuItem.enabled {
-				foregroundColor = .labelColor
-			}
-			else if menuItem.isHighlighted {
-				foregroundColor = .selectedMenuItemTextColor
+		guard attributedTitle.string == annotatedTitle.string else {
+			assertionFailure("Expected “\(attributedTitle.string)” to be identical to “\(annotatedTitle.string)”")
+			self.attributedStringValue = attributedTitle
+			return
+		}
+		
+		let attributedStringValue = NSMutableAttributedString(attributedString: attributedTitle)
+		let entireRange = NSRange(location: 0, length: attributedStringValue.length)
+		
+		annotatedTitle.enumerateAttribute(.filterMatch, in: entireRange, options: []) { (value, range, stopPtr) in
+			if let value = value as? Bool, value {
+				attributedStringValue.addMatchingAttributes(in: range)
 			}
 			else {
-				foregroundColor = .labelColor
+				attributedStringValue.addNonmatchingAttributes(in: range)
 			}
-			
-			let range = NSMakeRange(0, attributedStringValue.length)
-			attributedStringValue.addAttribute(.foregroundColor, value: foregroundColor, range: range)
 		}
 		
 		self.attributedStringValue = NSAttributedString(attributedString: attributedStringValue)
@@ -100,24 +97,66 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 	/// - Parameter menuItem: The menu item to build the attributed title from.
 	///
 	/// - Returns: An attributed string containing the title of `menuItem`.
-	class func attributedTitle(for menuItem: OBWFilteringMenuItem) -> NSAttributedString? {
+	class func attributedTitle(for menuItem: OBWFilteringMenuItem) -> NSAttributedString {
 		if let itemAttributedTitle = menuItem.attributedTitle, itemAttributedTitle.length > 0 {
 			return itemAttributedTitle
 		}
 		
 		guard let itemTitle = menuItem.title, !itemTitle.isEmpty else {
-			return nil
+			return NSAttributedString()
 		}
 		
 		let paragraphStyle = NSMutableParagraphStyle()
-		paragraphStyle.setParagraphStyle(NSParagraphStyle.default)
+		paragraphStyle.setParagraphStyle(.default)
 		paragraphStyle.lineBreakMode = .byTruncatingTail
+		
+		let foregroundColor: NSColor
+		if menuItem.isHeadingItem || !menuItem.enabled {
+			foregroundColor = .disabledControlTextColor
+		}
+		else if menuItem.isHighlighted {
+			foregroundColor = .selectedMenuItemTextColor
+		}
+		else {
+			foregroundColor = .labelColor
+		}
 		
 		let attributes: [NSAttributedString.Key: Any] = [
 			.font : menuItem.font,
+			.foregroundColor : foregroundColor,
 			.paragraphStyle : paragraphStyle,
 		]
 		
 		return NSAttributedString(string: itemTitle, attributes: attributes)
+	}
+}
+
+private extension NSMutableAttributedString {
+	/// Adds attributes to the receiver that indicate the given range is a
+	/// filter match.
+	///
+	/// - Parameter range: The portion of the receiver to add attributes to.
+	func addMatchingAttributes(in range: NSRange) {
+		self.addBoldFontTrait(to: range)
+	}
+	
+	/// Adds attributes to the receiver that indicate the given range is not a
+	/// filter match.
+	///
+	/// - Parameter range: The portion of the receiver to add attributes to.
+	func addNonmatchingAttributes(in range: NSRange) {
+		self.removeBoldFontTrait(from: range)
+		
+		self.enumerateAttribute(.foregroundColor, in: range, options: []) { (value, range, stopPtr) in
+			let dimmedColor: NSColor
+			if let color = value as? NSColor {
+				dimmedColor = color.withSystemEffect(.disabled)
+			}
+			else {
+				assertionFailure("Not expecting to fail to find a foreground color")
+				dimmedColor = NSColor.systemRed.withSystemEffect(.disabled)
+			}
+			self.addAttribute(.foregroundColor, value: dimmedColor, range: range)
+		}
 	}
 }

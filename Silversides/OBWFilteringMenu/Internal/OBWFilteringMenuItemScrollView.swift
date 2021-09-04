@@ -431,19 +431,20 @@ class OBWFilteringMenuItemScrollView: NSView {
 	/// - parameter filterResults: The filter result array.
 	///
 	/// - returns: Returns `true` if the overall size of the menu changed.
-	func applyFilterResults(_ filterResults: [OBWFilteringMenuItemFilterStatus]) -> Bool {
+	func applyFilterResults(_ filterResults: [OBWFilteringMenuItemFilterStatus]?) -> Bool {
 		let itemViewArray = self.primaryItemViews
 		
-		for index in filterResults.indices {
-			
-			let status = filterResults[index]
-			let itemView = itemViewArray[index]
-			
-			guard status.menuItem === itemView.menuItem else {
-				continue
+		if let filterResults = filterResults, filterResults.count == itemViewArray.count {
+			for (status, itemView) in zip(filterResults, itemViewArray) {
+				guard status.menuItem === itemView.menuItem else {
+					continue
+				}
+				
+				itemView.applyFilterStatus(status)
 			}
-			
-			itemView.applyFilterStatus(status)
+		}
+		else {
+			itemViewArray.forEach({ $0.applyFilterStatus(nil) })
 		}
 		
 		return self.repositionItemViews(modifierFlags: self.currentModifierFlags)

@@ -206,7 +206,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
 	/// Applies the given filter status to the view.
 	///
 	/// - Parameter status: The status object to apply to the view.
-	override func applyFilterStatus(_ status: OBWFilteringMenuItemFilterStatus) {
+	override func applyFilterStatus(_ status: OBWFilteringMenuItemFilterStatus?) {
 		super.applyFilterStatus(status)
 		self.itemTitleField.filterStatus = status
 	}

@@ -57,15 +57,20 @@ class OBWFilteringMenuItemView: NSView {
 	}
 	
 	/// Applies the given status to the receiver and its alternate views.
-	func applyFilterStatus(_ status: OBWFilteringMenuItemFilterStatus) {
+	func applyFilterStatus(_ status: OBWFilteringMenuItemFilterStatus?) {
 		self.filterStatus = status
 		
-		guard let alternateStatus = status.alternateStatus else {
-			return
+		if let status = status {
+			guard let alternateStatus = status.alternateStatus else {
+				return
+			}
+			
+			for (key, view) in self.alternateViews {
+				view.filterStatus = alternateStatus[key]
+			}
 		}
-		
-		for (key, view) in self.alternateViews {
-			view.filterStatus = alternateStatus[key]
+		else {
+			self.alternateViews.forEach({ $0.value.filterStatus = nil })
 		}
 	}
 }
