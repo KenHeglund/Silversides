@@ -67,7 +67,12 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 		let attributedTitle = OBWFilteringMenuItemTitleField.attributedTitle(for: self.menuItem)
 		
 		guard let annotatedTitle = self.filterStatus?.annotatedTitle else {
-			self.attributedStringValue = attributedTitle
+			if self.menuItem.enabled {
+				self.attributedStringValue = attributedTitle
+			}
+			else {
+				self.attributedStringValue = attributedTitle.applying(systemEffect: .disabled)
+			}
 			return
 		}
 		
