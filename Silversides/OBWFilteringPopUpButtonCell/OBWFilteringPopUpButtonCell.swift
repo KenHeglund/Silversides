@@ -33,25 +33,56 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
 		
 		// These offsets were determined experimentally on macOS 10.14.
 		let horizontalOffset: CGFloat
-		switch controlSize {
-			case .mini:
-				horizontalOffset = -11.0
-			case .small:
-				horizontalOffset = -13.0
-			case .regular,
-				 .large:
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				switch controlSize {
+					case .mini:
+						horizontalOffset = -12.0
+					case .small:
+						horizontalOffset = -13.0
+					case .regular,
+						 .large:
+						fallthrough
+					@unknown default:
+						horizontalOffset = -13.0
+				}
+				
+			case .leftToRight:
 				fallthrough
 			@unknown default:
-				horizontalOffset = -12.0
+				switch controlSize {
+					case .mini:
+						horizontalOffset = -11.0
+					case .small:
+						horizontalOffset = -13.0
+					case .regular,
+						 .large:
+						fallthrough
+					@unknown default:
+						horizontalOffset = -12.0
+				}
 		}
 		
 		let alignmentFrame = controlView.alignmentRect(forFrame: controlView.frame)
 		let alignmentBounds = controlView.convert(alignmentFrame, from: controlView.superview)
 		let baselineOffset = controlView.firstBaselineOffsetFromTop
-		let baselineOrigin = NSPoint(
-			x: alignmentBounds.minX + horizontalOffset,
-			y: (controlView.isFlipped ? alignmentBounds.minY + baselineOffset : alignmentBounds.maxY - baselineOffset)
-		)
+		
+		let baselineOrigin: NSPoint
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				baselineOrigin = NSPoint(
+					x: alignmentBounds.maxX - horizontalOffset,
+					y: (controlView.isFlipped ? alignmentBounds.minY + baselineOffset : alignmentBounds.maxY - baselineOffset)
+				)
+
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				baselineOrigin = NSPoint(
+					x: alignmentBounds.minX + horizontalOffset,
+					y: (controlView.isFlipped ? alignmentBounds.minY + baselineOffset : alignmentBounds.maxY - baselineOffset)
+				)
+		}
 		
 		#if DEBUG_MENU_ITEM_BASELINE
 		OBWFilteringMenuDebugWindow.prepare(for: controlView.window?.screen)

@@ -50,43 +50,111 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
 		let indentation = CGFloat(self.menuItem.indentationLevel) * OBWFilteringMenuActionItemView.indentDistancePerLevel
 		
 		let imageSize = self.menuItem.image?.size ?? .zero
-		let imageFrame = NSRect(
-			x: contentBounds.minX + indentation + imageMargins.left,
-			y: floor(contentBounds.midY - (imageSize.height / 2.0)),
-			size: imageSize
-		)
 		
-		let titleSize = self.itemTitleField.frame.size
-		let titleFrameOrigin = NSPoint(
-			x: (imageFrame.width > 0 ? imageFrame.maxX + imageMargins.right : contentBounds.minX + indentation),
-			y: floor(contentBounds.midY - (titleSize.height / 2.0))
-		)
+		let imageFrameOffset: NSSize
+		switch self.menuItem.controlSize {
+			case .mini:
+				imageFrameOffset = .zero
+				
+			case .small:
+				imageFrameOffset = NSSize(width: 0, height: -1)
+				
+			case .regular, .large:
+				fallthrough
+			@unknown default:
+				imageFrameOffset = NSSize(width: 0, height: -1)
+		}
+		
+		let imageFrame: NSRect
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				imageFrame = NSRect(
+					x: contentBounds.maxX - indentation - imageSize.width + imageFrameOffset.width,
+					y: floor(contentBounds.midY - (imageSize.height / 2.0)) + imageFrameOffset.height,
+					size: imageSize
+				)
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				imageFrame = NSRect(
+					x: contentBounds.minX + indentation + imageMargins.leading + imageFrameOffset.width,
+					y: floor(contentBounds.midY - (imageSize.height / 2.0)) + imageFrameOffset.height,
+					size: imageSize
+				)
+		}
+		
+		let titleFrameSize = self.itemTitleField.frame.size
+		let titleFrame: NSRect
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				titleFrame = NSRect(
+					x: (imageFrame.width > 0 ? imageFrame.minX - imageMargins.trailing : contentBounds.maxX - indentation) - titleFrameSize.width,
+					y: floor(contentBounds.midY - (titleFrameSize.height / 2.0)),
+					size: titleFrameSize
+				)
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				titleFrame = NSRect(
+					x: (imageFrame.width > 0 ? imageFrame.maxX + imageMargins.trailing : contentBounds.minX + indentation),
+					y: floor(contentBounds.midY - (titleFrameSize.height / 2.0)),
+					size: titleFrameSize
+				)
+		}
 		
 		if self.itemImageView.frame != imageFrame {
 			self.itemImageView.frame = imageFrame
 		}
-		if self.itemTitleField.frame.origin != titleFrameOrigin {
-			self.itemTitleField.setFrameOrigin(titleFrameOrigin)
+		if self.itemTitleField.frame.origin != titleFrame.origin {
+			self.itemTitleField.setFrameOrigin(titleFrame.origin)
 		}
 		
 		let arrowImageSize = self.submenuArrowImageView.frame.size
-		let arrowImageOrigin = NSPoint(
-			x: contentBounds.maxX - arrowImageSize.width,
-			y: contentBounds.midY - floor(arrowImageSize.height / 2.0)
-		)
+		let arrowImageOrigin: NSPoint
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				arrowImageOrigin = NSPoint(
+					x: contentBounds.minX,
+					y: contentBounds.midY - floor(arrowImageSize.height / 2.0)
+				)
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				arrowImageOrigin = NSPoint(
+					x: contentBounds.maxX - arrowImageSize.width,
+					y: contentBounds.midY - floor(arrowImageSize.height / 2.0)
+				)
+		}
+		
 		if  self.submenuArrowImageView.frame.origin != arrowImageOrigin {
 			self.submenuArrowImageView.setFrameOrigin(arrowImageOrigin)
 		}
 		
 		let stateToTitleRatio: CGFloat = 0.6
-		let stateImageSize = titleSize.height * stateToTitleRatio
-		
-		let stateImageFrame = NSRect(
-			x: imageFrame.origin.x - OBWFilteringMenuActionItemView.statusImageRightMargin - stateImageSize,
-			y: titleFrameOrigin.y + ((titleSize.height - stateImageSize) / 2.0),
-			width: stateImageSize,
-			height: stateImageSize
-		)
+		let stateImageSize = titleFrameSize.height * stateToTitleRatio
+		let stateImageFrame: NSRect
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				stateImageFrame = NSRect(
+					x: imageFrame.maxX + OBWFilteringMenuActionItemView.statusImageTrailingMargin,
+					y: titleFrame.minY + ((titleFrameSize.height - stateImageSize) / 2.0),
+					width: stateImageSize,
+					height: stateImageSize
+				)
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				stateImageFrame = NSRect(
+					x: imageFrame.minX - OBWFilteringMenuActionItemView.statusImageTrailingMargin - stateImageSize,
+					y: titleFrame.minY + ((titleFrameSize.height - stateImageSize) / 2.0),
+					width: stateImageSize,
+					height: stateImageSize
+				)
+		}
 		
 		if self.stateImageView.frame != stateImageFrame {
 			self.stateImageView.frame = stateImageFrame
@@ -158,10 +226,10 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
 		)
 		
 		if imageSize.width > 0.0 {
-			preferredSize.width += imageMargins.left
+			preferredSize.width += imageMargins.leading
 			
 			if titleSize.width > 0.0 {
-				preferredSize.width += imageMargins.right
+				preferredSize.width += imageMargins.trailing
 			}
 		}
 		
@@ -200,7 +268,10 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
 		let indentation = CGFloat(menuItem.indentationLevel) * OBWFilteringMenuActionItemView.indentDistancePerLevel
 		preferredSize.width += indentation
 		
-		return preferredSize
+		return NSSize(
+			width: preferredSize.width.rounded(.awayFromZero),
+			height: preferredSize.height.rounded(.awayFromZero)
+		)
 	}
 	
 	/// Applies the given filter status to the view.
@@ -362,16 +433,29 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
 		return stateImageView
 	}()
 	
-	/// Padding to the right of the status image.
-	private static let statusImageRightMargin: CGFloat = 5.0
+	/// Padding to the trailing side of the status image.
+	private static let statusImageTrailingMargin: CGFloat = 5.0
 	
 	/// Margins between the item image view and its contents.
-	private static let interiorMargins = NSEdgeInsets(top: 0.0, left: 19.0, bottom: 0.0, right: 10.0)
+	private static var interiorMargins: NSEdgeInsets {
+		NSEdgeInsets(top: 0.0, leading: 19.0, bottom: 0.0, trailing: 10.0)
+	}
 	
 	/// Margins around the icon image.
-	private static let imageMargins = NSEdgeInsets(top: 2.0, left: 2.0, bottom: 2.0, right: 2.0)
+	private static var imageMargins: NSEdgeInsets {
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				return NSEdgeInsets(top: 2.0, leading: 2.0, bottom: 2.0, trailing: 4.0)
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				return NSEdgeInsets(top: 2.0, leading: 2.0, bottom: 2.0, trailing: 2.0)
+		}
+	}
 	
-	/// Padding between the title and the arrow indicating that there is a submenu.
+	/// Padding between the title and the arrow indicating that there is a
+	/// submenu.
 	private static let titleToSubmenuArrowSpacing: CGFloat = 37.0
 	
 	/// The amount by which an item is indented for each indentation level.

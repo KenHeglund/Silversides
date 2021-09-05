@@ -82,10 +82,10 @@ class OBWFilteringMenuSubmenuImageView: NSView {
 	private func updateImage() {
 		if let _ = self.menuItem.submenu, self.displayMode == .arrow {
 			if self.menuItem.isHighlighted {
-				self.arrowImageView.image = OBWFilteringMenuArrows.selectedRightArrow
+				self.arrowImageView.image = OBWFilteringMenuArrows.selectedTrailingArrow
 			}
 			else {
-				self.arrowImageView.image = OBWFilteringMenuArrows.unselectedRightArrow
+				self.arrowImageView.image = OBWFilteringMenuArrows.unselectedTrailingArrow
 			}
 			
 			if self.arrowImageView.superview == nil {

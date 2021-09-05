@@ -47,6 +47,8 @@
 		BE4685C81D91F44400AC4B6F /* OBWFilteringMenuScrollTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4685C71D91F44400AC4B6F /* OBWFilteringMenuScrollTrackingTests.swift */; };
 		BE4685CA1D91F53D00AC4B6F /* OBWFilteringMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4685C91D91F53D00AC4B6F /* OBWFilteringMenuView.swift */; };
 		BE4685CC1D91F8E900AC4B6F /* NSControl+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */; };
+		BE54953A26E4BE620058822D /* NSAttributedString+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE54953926E4BE620058822D /* NSAttributedString+OBWExtension.swift */; };
+		BE54954226E4DB4A0058822D /* OBWFilteringMenuItem+Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE54954126E4DB4A0058822D /* OBWFilteringMenuItem+Internal.swift */; };
 		BE7F3ED91DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7F3ED81DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift */; };
 		BE7F3EDB1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7F3EDA1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift */; };
 		BE9CB0B21D8469BC00323D09 /* OBWFilteringMenuWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */; };
@@ -166,6 +168,8 @@
 		BE4685C71D91F44400AC4B6F /* OBWFilteringMenuScrollTrackingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuScrollTrackingTests.swift; sourceTree = "<group>"; };
 		BE4685C91D91F53D00AC4B6F /* OBWFilteringMenuView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuView.swift; sourceTree = "<group>"; };
 		BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSControl+OBWExtension.swift"; sourceTree = "<group>"; };
+		BE54953926E4BE620058822D /* NSAttributedString+OBWExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+OBWExtension.swift"; sourceTree = "<group>"; };
+		BE54954126E4DB4A0058822D /* OBWFilteringMenuItem+Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenuItem+Internal.swift"; sourceTree = "<group>"; };
 		BE7F3ED81DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuViewTests.swift; sourceTree = "<group>"; };
 		BE7F3EDA1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSSize+OBWExtensions.swift"; sourceTree = "<group>"; };
 		BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuWindow.swift; sourceTree = "<group>"; };
@@ -386,6 +390,7 @@
 				BE35703322F586A200E9E68C /* OBWFilteringMenuDebugWindow.swift */,
 				BE4685B31D8F3A3000AC4B6F /* OBWFilteringMenuEventSource.swift */,
 				BE35702922E5AB3B00E9E68C /* OBWFilteringMenuEventSubtype.swift */,
+				BE54954126E4DB4A0058822D /* OBWFilteringMenuItem+Internal.swift */,
 				BE9CB0B71D8656DE00323D09 /* OBWFilteringMenuItemFilterStatus.swift */,
 				BE4685B91D8F89E300AC4B6F /* OBWFilteringMenuItemScrollView.swift */,
 				BE35702F22EC617C00E9E68C /* OBWFilteringMenuItemTitleField.swift */,
@@ -399,6 +404,7 @@
 				BED4FE832306C41E003080E7 /* OBWColorFilledView.swift */,
 				BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */,
 				BEBD932221E258DD00CC1679 /* NSAppearance+OBWExtension.swift */,
+				BE54953926E4BE620058822D /* NSAttributedString+OBWExtension.swift */,
 				BEF9D5661DC28B4000EA6FE0 /* NSEdgeInsets+OBWExtension.swift */,
 				BE4685AF1D8CC6B800AC4B6F /* NSEvent+OBWExtension.swift */,
 				BE35702B22E94D2E00E9E68C /* NSGraphicsContext+OBWExtension.swift */,
@@ -626,12 +632,14 @@
 				BE4685B01D8CC6B800AC4B6F /* NSEvent+OBWExtension.swift in Sources */,
 				BE35702822E5647700E9E68C /* OBWFilteringMenuCorners.swift in Sources */,
 				BEF9D5671DC28B4000EA6FE0 /* NSEdgeInsets+OBWExtension.swift in Sources */,
+				BE54953A26E4BE620058822D /* NSAttributedString+OBWExtension.swift in Sources */,
 				BE35702A22E5AB3B00E9E68C /* OBWFilteringMenuEventSubtype.swift in Sources */,
 				BE9DFB082303C1EA008DD378 /* OBWFilteringMenuController+Keys.swift in Sources */,
 				BE4685BA1D8F89E300AC4B6F /* OBWFilteringMenuItemScrollView.swift in Sources */,
 				BEFDC93E1D6F4B570005ACFF /* OBWFilteringMenuItem.swift in Sources */,
 				BE35703022EC617C00E9E68C /* OBWFilteringMenuItemTitleField.swift in Sources */,
 				BEB815D622E187C0009B2172 /* OBWFilteringMenuDelegate.swift in Sources */,
+				BE54954226E4DB4A0058822D /* OBWFilteringMenuItem+Internal.swift in Sources */,
 				BE35702E22EC165100E9E68C /* OBWFilteringMenuSubmenuImageView.swift in Sources */,
 				BEFDC93C1D6F2FE80005ACFF /* OBWFilteringMenu.swift in Sources */,
 				BE9CB0BE1D8B1F6900323D09 /* OBWFilteringMenuActionItemView.swift in Sources */,

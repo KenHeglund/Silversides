@@ -63,9 +63,37 @@ class OBWFilteringMenuArrows {
 		return image
 	}()
 	
+	/// Returns an image containing an arrow pointed in the trailing direction.
+	/// Suitable for use in a selected menu item.
+	static var selectedTrailingArrow: NSImage {
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				return OBWFilteringMenuArrows.selectedLeftArrow
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				return OBWFilteringMenuArrows.selectedRightArrow
+		}
+	}
+	
+	/// Returns an image containing an arrow pointed in the trailing direction.
+	/// Suitable for use in an unselected menu item.
+	static var unselectedTrailingArrow: NSImage {
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				return OBWFilteringMenuArrows.unselectedLeftArrow
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				return OBWFilteringMenuArrows.unselectedRightArrow
+		}
+	}
+	
 	/// Returns an image containing an arrow pointed to the right, suitable for
 	/// use in a selected menu item.
-	static let selectedRightArrow: NSImage = {
+	private static let selectedRightArrow: NSImage = {
 		let path = OBWFilteringMenuArrows.rightArrowPath
 		let imageSize = NSIntegralRect(path.bounds).size
 		
@@ -83,7 +111,7 @@ class OBWFilteringMenuArrows {
 	
 	/// Returns an image containing an arrow pointed to the right, suitable for
 	/// use in an unselected menu item.
-	static let unselectedRightArrow: NSImage = {
+	private static let unselectedRightArrow: NSImage = {
 		let path = OBWFilteringMenuArrows.rightArrowPath
 		let imageSize = NSIntegralRect(path.bounds).size
 		
@@ -101,7 +129,7 @@ class OBWFilteringMenuArrows {
 	
 	/// Returns an image containing an arrow pointed to the left, suitable for
 	/// use in a selected menu item.
-	static let selectedLeftArrow: NSImage = {
+	private static let selectedLeftArrow: NSImage = {
 		let path = OBWFilteringMenuArrows.leftArrowPath
 		let imageSize = NSIntegralRect(path.bounds).size
 		
@@ -119,7 +147,7 @@ class OBWFilteringMenuArrows {
 	
 	/// Returns an image containing an arrow pointed to the left, suitable for
 	/// use in an unselected menu item.
-	static let unselectedLeftArrow: NSImage = {
+	private static let unselectedLeftArrow: NSImage = {
 		let path = OBWFilteringMenuArrows.leftArrowPath
 		let imageSize = NSIntegralRect(path.bounds).size
 		
