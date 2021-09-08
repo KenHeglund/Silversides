@@ -352,15 +352,36 @@ class OBWPathItemView: NSView {
 			if let hitItem = filteringMenu.itemWithTitle(hitPathItem.title) {
 				menuItem = hitItem
 				alignment = .baseline
-				itemLocation = NSPoint(
-					x: self.bounds.minX - self.imageView.frame.width - OBWPathItemView.imageMargins.right,
-					y: self.bounds.maxY - self.firstBaselineOffsetFromTop
-				)
+				
+				switch NSApp.userInterfaceLayoutDirection {
+					case .rightToLeft:
+						itemLocation = NSPoint(
+							x: self.bounds.maxX + self.imageView.frame.width + OBWPathItemView.imageMargins.trailing,
+							y: self.bounds.maxY - self.firstBaselineOffsetFromTop
+						)
+
+					case .leftToRight:
+						fallthrough
+					@unknown default:
+						itemLocation = NSPoint(
+							x: self.bounds.minX - self.imageView.frame.width - OBWPathItemView.imageMargins.trailing,
+							y: self.bounds.maxY - self.firstBaselineOffsetFromTop
+						)
+				}
 			}
 			else {
 				menuItem = nil
 				alignment = .topLeft
-				itemLocation = NSPoint(x: self.bounds.minX, y: self.bounds.maxY)
+				
+				switch NSApp.userInterfaceLayoutDirection {
+					case .rightToLeft:
+						itemLocation = NSPoint(x: self.bounds.maxX, y: self.bounds.maxY)
+
+					case .leftToRight:
+						fallthrough
+					@unknown default:
+						itemLocation = NSPoint(x: self.bounds.minX, y: self.bounds.maxY)
+				}
 			}
 			
 			let event: NSEvent?

@@ -69,7 +69,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
 		switch NSApp.userInterfaceLayoutDirection {
 			case .rightToLeft:
 				imageFrame = NSRect(
-					x: contentBounds.maxX - indentation - imageSize.width + imageFrameOffset.width,
+					x: contentBounds.maxX - indentation - imageMargins.leading - imageSize.width + imageFrameOffset.width,
 					y: floor(contentBounds.midY - (imageSize.height / 2.0)) + imageFrameOffset.height,
 					size: imageSize
 				)
@@ -445,7 +445,7 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
 	private static var imageMargins: NSEdgeInsets {
 		switch NSApp.userInterfaceLayoutDirection {
 			case .rightToLeft:
-				return NSEdgeInsets(top: 2.0, leading: 2.0, bottom: 2.0, trailing: 4.0)
+				return NSEdgeInsets(top: 2.0, leading: 2.0, bottom: 2.0, trailing: 2.0)
 				
 			case .leftToRight:
 				fallthrough
