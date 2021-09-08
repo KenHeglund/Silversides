@@ -38,27 +38,53 @@ extension NSEdgeInsets {
 	
 	/// The leading inset.
 	var leading: CGFloat {
-		switch NSApp.userInterfaceLayoutDirection {
-			case .rightToLeft:
-				return self.right
-				
-			case .leftToRight:
-				fallthrough
-			@unknown default:
-				return self.left
+		get {
+			switch NSApp.userInterfaceLayoutDirection {
+				case .rightToLeft:
+					return self.right
+					
+				case .leftToRight:
+					fallthrough
+				@unknown default:
+					return self.left
+			}
+		}
+		set {
+			switch NSApp.userInterfaceLayoutDirection {
+				case .rightToLeft:
+					self.right = newValue
+					
+				case .leftToRight:
+					fallthrough
+				@unknown default:
+					self.left = newValue
+			}
 		}
 	}
 	
 	// The trailing inset.
 	var trailing: CGFloat {
-		switch NSApp.userInterfaceLayoutDirection {
-			case .rightToLeft:
-				return self.left
-				
-			case .leftToRight:
-				fallthrough
-			@unknown default:
-				return self.right
+		get {
+			switch NSApp.userInterfaceLayoutDirection {
+				case .rightToLeft:
+					return self.left
+					
+				case .leftToRight:
+					fallthrough
+				@unknown default:
+					return self.right
+			}
+		}
+		set {
+			switch NSApp.userInterfaceLayoutDirection {
+				case .rightToLeft:
+					self.left = newValue
+					
+				case .leftToRight:
+					fallthrough
+				@unknown default:
+					self.right = newValue
+			}
 		}
 	}
 	

@@ -28,7 +28,6 @@ extension OBWFilteringMenu {
 
 // Additional types for internal use only.
 extension OBWFilteringMenu {
-	#warning("Usage of these values needs to be re-evaluated to verify that behavior is correct with a right-to-left layout direction.")
 	/// An enum that describes which side of a menu item its submenu will appear.
 	enum SubmenuAlignment {
 		/// The submenu will appear on the leading side.  (The left side in a

@@ -111,10 +111,24 @@ class OBWFilteringMenuWindowGeometry {
 		
 		let leftGeometry = OBWFilteringMenuWindowGeometry(window: window, displayingMenuLocation: locationInMenu, atScreenLocation: leftAlignmentLocation)
 		
+		let leadingGeometry: OBWFilteringMenuWindowGeometry?
+		let trailingGeometry: OBWFilteringMenuWindowGeometry?
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				leadingGeometry = rightGeometry
+				trailingGeometry = leftGeometry
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				leadingGeometry = leftGeometry
+				trailingGeometry = rightGeometry
+		}
+		
 		let finalGeometry: OBWFilteringMenuWindowGeometry
 		let finalAlignment: OBWFilteringMenu.SubmenuAlignment
 		
-		switch (leftGeometry, rightGeometry, preferredAlignment) {
+		switch (leadingGeometry, trailingGeometry, preferredAlignment) {
 			
 			case (nil, nil, _):
 				return preferredAlignment
@@ -127,12 +141,12 @@ class OBWFilteringMenuWindowGeometry {
 				finalGeometry = geometry
 				finalAlignment = .leading
 				
-			case (let leftGeometry?, _, .leading):
-				finalGeometry = leftGeometry
+			case (let leadingGeometry?, _, .leading):
+				finalGeometry = leadingGeometry
 				finalAlignment = .leading
 				
-			case (_, let rightGeometry?, .trailing):
-				finalGeometry = rightGeometry
+			case (_, let trailingGeometry?, .trailing):
+				finalGeometry = trailingGeometry
 				finalAlignment = .trailing
 		}
 		

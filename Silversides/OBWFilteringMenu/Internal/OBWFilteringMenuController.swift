@@ -952,62 +952,59 @@ class OBWFilteringMenuController {
 	
 	/// Updates the rounded/squared state of the menu windows.
 	private func updateMenuCorners() {
-		guard let firstWindow = self.menuWindowArray.last else {
+		var windowsToUpdate = self.menuWindowArray.suffix(2)
+		
+		guard let lastWindow = windowsToUpdate.popLast() else {
 			return
 		}
 		
-		let menuCount = self.menuWindowArray.count
+		guard let previousWindow = windowsToUpdate.last else {
+			lastWindow.roundedCorners = .all
+			return
+		}
 		
-		if menuCount >= 2 {
-			
-			let secondWindow = self.menuWindowArray[menuCount-2]
-			
-			if firstWindow.alignmentFromPrevious == .trailing {
-				self.updateRoundedCornersBetween(leftWindow: secondWindow, rightWindow: firstWindow)
-				firstWindow.roundedCorners.formUnion([.topRight, .bottomRight])
-			}
-			else {
-				self.updateRoundedCornersBetween(leftWindow: firstWindow, rightWindow: secondWindow)
-				firstWindow.roundedCorners.formUnion([.topLeft, .bottomLeft])
-			}
+		if lastWindow.alignmentFromPrevious == .trailing {
+			self.updateRoundedCornersBetween(leadingWindow: previousWindow, trailingWindow: lastWindow)
+			lastWindow.roundedCorners.formUnion([.topTrailing, .bottomTrailing])
 		}
 		else {
-			firstWindow.roundedCorners = .all
+			self.updateRoundedCornersBetween(leadingWindow: lastWindow, trailingWindow: previousWindow)
+			lastWindow.roundedCorners.formUnion([.topLeading, .bottomLeading])
 		}
 	}
 	
 	/// Updates the rounded corners of two adjacent windows.
 	///
 	/// - Parameters:
-	///   - leftWindow: The leftmost of two windows.
-	///   - rightWindow: The rightmost of two windows.
-	private func updateRoundedCornersBetween(leftWindow: OBWFilteringMenuWindow, rightWindow: OBWFilteringMenuWindow) {
-		if leftWindow.frame.maxY > rightWindow.frame.maxY {
-			leftWindow.roundedCorners.insert(.topRight)
+	///   - leadingWindow: The window on the leading side.
+	///   - trailingWindow: The window on the trailing side.
+	private func updateRoundedCornersBetween(leadingWindow: OBWFilteringMenuWindow, trailingWindow: OBWFilteringMenuWindow) {
+		if leadingWindow.frame.maxY > trailingWindow.frame.maxY {
+			leadingWindow.roundedCorners.insert(.topTrailing)
 		}
 		else {
-			leftWindow.roundedCorners.remove(.topRight)
+			leadingWindow.roundedCorners.remove(.topTrailing)
 		}
 		
-		if leftWindow.frame.minY < rightWindow.frame.minY {
-			leftWindow.roundedCorners.insert(.bottomRight)
+		if leadingWindow.frame.minY < trailingWindow.frame.minY {
+			leadingWindow.roundedCorners.insert(.bottomTrailing)
 		}
 		else {
-			leftWindow.roundedCorners.remove(.bottomRight)
+			leadingWindow.roundedCorners.remove(.bottomTrailing)
 		}
 		
-		if rightWindow.frame.maxY > leftWindow.frame.maxY {
-			rightWindow.roundedCorners.insert(.topLeft)
+		if trailingWindow.frame.maxY > leadingWindow.frame.maxY {
+			trailingWindow.roundedCorners.insert(.topLeading)
 		}
 		else {
-			rightWindow.roundedCorners.remove(.topLeft)
+			trailingWindow.roundedCorners.remove(.topLeading)
 		}
 		
-		if rightWindow.frame.minY < leftWindow.frame.minY {
-			rightWindow.roundedCorners.insert(.bottomLeft)
+		if trailingWindow.frame.minY < leadingWindow.frame.minY {
+			trailingWindow.roundedCorners.insert(.bottomLeading)
 		}
 		else {
-			rightWindow.roundedCorners.remove(.bottomLeft)
+			trailingWindow.roundedCorners.remove(.bottomLeading)
 		}
 	}
 	

@@ -86,38 +86,76 @@ class OBWPathItemView: NSView {
 		
 		let imageView = self.imageView
 		
-		let imageHeight = itemViewBounds.size.height - imageMargins.bottom - imageMargins.top
+		let imageHeight = itemViewBounds.size.height - imageMargins.height
 		
-		let imageFrame = NSRect(
-			x: itemViewBounds.minX + imageMargins.left,
-			y: itemViewBounds.minY + imageMargins.bottom,
-			width: imageHeight,
-			height: imageHeight
-		)
+		let imageFrame: NSRect
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				imageFrame = NSRect(
+					x: itemViewBounds.maxX - imageMargins.leading - imageHeight,
+					y: itemViewBounds.minY + imageMargins.bottom,
+					width: imageHeight,
+					height: imageHeight
+				)
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				imageFrame = NSRect(
+					x: itemViewBounds.minX + imageMargins.leading,
+					y: itemViewBounds.minY + imageMargins.bottom,
+					width: imageHeight,
+					height: imageHeight
+				)
+		}
 		
 		imageView.frame = imageFrame
 		
 		if imageView.isHidden == false {
-			titleMargins.left = imageMargins.left + imageFrame.width + max(imageMargins.right, titleMargins.left)
+			titleMargins.leading = imageMargins.leading + imageFrame.width + max(imageMargins.trailing, titleMargins.leading)
 		}
 		
 		let dividerView = self.dividerView
 		let dividerImageSize = dividerView.image?.size ?? NSSize.zero
 		
-		var dividerFrame = NSRect(
-			x: itemViewBounds.minX + itemViewBounds.width - dividerMargins.right - dividerImageSize.width,
-			y: ((itemViewBounds.height - dividerImageSize.height) / 2.0).rounded(.down),
-			width: dividerImageSize.width,
-			height: dividerImageSize.height
-		)
+		var dividerFrame: NSRect
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				dividerFrame = NSRect(
+					x: itemViewBounds.minX + dividerMargins.trailing,
+					y: ((itemViewBounds.height - dividerImageSize.height) / 2.0).rounded(.down),
+					width: dividerImageSize.width,
+					height: dividerImageSize.height
+				)
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				dividerFrame = NSRect(
+					x: itemViewBounds.maxX - dividerMargins.trailing - dividerImageSize.width,
+					y: ((itemViewBounds.height - dividerImageSize.height) / 2.0).rounded(.down),
+					width: dividerImageSize.width,
+					height: dividerImageSize.height
+				)
+		}
 		
-		let minimumDividerOriginX = itemViewBounds.minX + self.minimumWidth - (dividerMargins.right + dividerImageSize.width)
-		dividerFrame.origin.x = max(dividerFrame.minX, minimumDividerOriginX)
+		let leadingDividerOriginX: CGFloat
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				leadingDividerOriginX = itemViewBounds.maxX - self.minimumWidth + dividerMargins.trailing
+				dividerFrame.origin.x = min(dividerFrame.minX, leadingDividerOriginX)
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				leadingDividerOriginX = itemViewBounds.minX + self.minimumWidth - (dividerMargins.trailing + dividerImageSize.width)
+				dividerFrame.origin.x = max(dividerFrame.minX, leadingDividerOriginX)
+		}
 		
 		dividerView.frame = dividerFrame
 		
 		if dividerView.isHidden == false {
-			titleMargins.right = dividerMargins.right + dividerFrame.width + min(dividerMargins.left, titleMargins.right)
+			titleMargins.trailing = dividerMargins.trailing + dividerFrame.width + min(dividerMargins.leading, titleMargins.trailing)
 		}
 		
 		let titleField = self.titleField
@@ -125,12 +163,26 @@ class OBWPathItemView: NSView {
 		// This is the distance from the top of the ESCPathItemView to the desired text baseline.
 		let desiredDistanceFromTopOfViewToTitleBaseline: CGFloat = 16.0
 		
-		var titleFrame = NSRect(
-			x: titleMargins.left,
-			y: 0.0,
-			width: itemViewBounds.width - titleMargins.width,
-			height: itemViewBounds.height - desiredDistanceFromTopOfViewToTitleBaseline + self.titleField.firstBaselineOffsetFromTop
-		)
+		var titleFrame: NSRect
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				titleFrame = NSRect(
+					x: itemViewBounds.minX + titleMargins.trailing,
+					y: itemViewBounds.minY,
+					width: itemViewBounds.width - titleMargins.width,
+					height: itemViewBounds.height - desiredDistanceFromTopOfViewToTitleBaseline + self.titleField.firstBaselineOffsetFromTop
+				)
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				titleFrame = NSRect(
+					x: itemViewBounds.minX + titleMargins.leading,
+					y: itemViewBounds.minY,
+					width: itemViewBounds.width - titleMargins.width,
+					height: itemViewBounds.height - desiredDistanceFromTopOfViewToTitleBaseline + self.titleField.firstBaselineOffsetFromTop
+				)
+		}
 		
 		OBWPathItemView.offscreenTextField.attributedStringValue = titleField.attributedStringValue
 		OBWPathItemView.offscreenTextField.sizeToFit()
@@ -293,7 +345,6 @@ class OBWPathItemView: NSView {
 		
 		// OBWFilteringMenu
 		if let filteringMenu = delegate.pathView(pathView, filteringMenuForItem: hitPathItem, interaction: interaction) {
-			
 			let menuItem: OBWFilteringMenuItem?
 			let alignment: OBWFilteringMenuItem.Alignment
 			let itemLocation: NSPoint
@@ -330,7 +381,6 @@ class OBWPathItemView: NSView {
 		
 		// NSMenu
 		else if let menu = delegate.pathView(pathView, menuForItem: hitPathItem, interaction: interaction) {
-			
 			let menuItem = menu.item(withTitle: hitPathItem.title)
 			
 			let minorVersion = ProcessInfo().operatingSystemVersion.minorVersion
@@ -423,25 +473,19 @@ class OBWPathItemView: NSView {
 	private static let disabledViewAlpha: CGFloat = 0.5
 	
 	/// Margins around the image view.
-	private static let imageMargins: NSEdgeInsets = {
-		let minorVersion = ProcessInfo().operatingSystemVersion.minorVersion
-		
-		if minorVersion <= 10 {
-			return NSEdgeInsets(top: 3.0, left: 4.0, bottom: 3.0, right: 2.0)
-		}
-		else if minorVersion < 14 {
-			return NSEdgeInsets(top: 3.0, left: 5.0, bottom: 4.0, right: 2.0)
-		}
-		else {
-			return NSEdgeInsets(top: 5.0, left: 4.0, bottom: 4.0, right: 2.0)
-		}
-	}()
+	private static var imageMargins: NSEdgeInsets {
+		NSEdgeInsets(top: 5.0, leading: 4.0, bottom: 4.0, trailing: 2.0)
+	}
 	
 	/// Margins around the title text field.
-	private static let titleMargins = NSEdgeInsets(top: 4.0, left: 2.0, bottom: 4.0, right: 2.0)
+	private static var titleMargins: NSEdgeInsets {
+		NSEdgeInsets(top: 4.0, leading: 2.0, bottom: 4.0, trailing: 2.0)
+	}
 	
 	/// Margins around the divider view.
-	private static let dividerMargins = NSEdgeInsets(top: 0.0, left: 3.0, bottom: 0.0, right: 2.0)
+	private static var dividerMargins: NSEdgeInsets {
+		NSEdgeInsets(top: 0.0, leading: 3.0, bottom: 0.0, trailing: 2.0)
+	}
 	
 	/// Minimum width of the title view.
 	private static let minimumTitleWidthWithoutImage: CGFloat = 20.0
@@ -455,7 +499,7 @@ class OBWPathItemView: NSView {
 			.foregroundColor : NSColor(white: 0.55, alpha: 1.0),
 		]
 		
-		let string = "⟩" as NSString // \xE2\x9F\xA9
+		let string = "⟩" as NSString // \xE2\x9F\xA9 - This character reverses in an RTL layout direction.
 		let stringBounds = string.boundingRect(with: .zero, options: [], attributes: attributes)
 		
 		let sourceFrame = NSRect(
@@ -468,29 +512,7 @@ class OBWPathItemView: NSView {
 			string.draw(at: .zero, withAttributes: attributes)
 		}
 		
-		guard let dividerImage = sourceImage.imageByTrimmingTransparentEdges() else {
-			return sourceImage
-		}
-		
-		let maskImage = NSImage(size: dividerImage.size)
-		maskImage.withLockedFocus {
-			
-			let colors: [NSColor] = [.black, .clear, .clear]
-			let locations: [CGFloat] = [0.0, 0.65, 1.0]
-			
-			guard let gradient = NSGradient(colors: colors, atLocations: locations, colorSpace: .genericRGB) else {
-				return
-			}
-			
-			let destinationRect = NSRect(size: dividerImage.size)
-			gradient.draw(in: destinationRect, angle: 0.0)
-		}
-		
-		dividerImage.withLockedFocus {
-			maskImage.draw(at: .zero, from: .zero, operation: .destinationOut, fraction: 1.0)
-		}
-		
-		return dividerImage
+		return sourceImage.imageByTrimmingTransparentEdges() ?? sourceImage
 	}()
 	
 	/// Builds the font to be used to draw the item’s title.
@@ -572,9 +594,8 @@ class OBWPathItemView: NSView {
 		let imageView = self.imageView
 		
 		if imageView.isHidden == false {
-			
 			let imageFrameWidth = self.bounds.height - OBWPathItemView.imageMargins.height
-			titleMargins.left = OBWPathItemView.imageMargins.left + imageFrameWidth + max(OBWPathItemView.imageMargins.right, OBWPathItemView.titleMargins.left)
+			titleMargins.leading = OBWPathItemView.imageMargins.leading + imageFrameWidth + max(OBWPathItemView.imageMargins.trailing, OBWPathItemView.titleMargins.leading)
 			titleMinimumWidth = 0.0
 		}
 		
@@ -588,7 +609,7 @@ class OBWPathItemView: NSView {
 			
 			let dividerImageSize = dividerImage.size
 			
-			titleMargins.right = OBWPathItemView.dividerMargins.right + dividerImageSize.width + min(OBWPathItemView.dividerMargins.left, OBWPathItemView.titleMargins.right)
+			titleMargins.trailing = OBWPathItemView.dividerMargins.trailing + dividerImageSize.width + min(OBWPathItemView.dividerMargins.leading, OBWPathItemView.titleMargins.trailing)
 		}
 		
 		let currentMinimumWidth = self.minimumWidth
@@ -598,7 +619,6 @@ class OBWPathItemView: NSView {
 		var newPreferredWidth = newMinimumWidth
 		
 		if let cell = self.titleField.cell, let pathItem = self.pathItem {
-			
 			if pathItem.title.isEmpty == false {
 				let titlePreferredWidth = ceil(cell.cellSize.width)
 				newPreferredWidth = (titleMargins.left + max(titlePreferredWidth, titleMinimumWidth) + titleMargins.right)
