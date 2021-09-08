@@ -77,8 +77,10 @@ class OBWPathItemView: NSView {
 		return self.titleField.firstBaselineOffsetFromTop + (self.bounds.maxY - self.titleField.frame.maxY)
 	}
 	
-	/// Layout the subviews.
-	override func layout() {
+	/// Resize the receiver’s subviews.
+	///
+	/// - Parameter oldSize: The old size of the receiver.
+	override func resizeSubviews(withOldSize oldSize: NSSize) {
 		let itemViewBounds = self.bounds
 		var titleMargins = OBWPathItemView.titleMargins
 		let imageMargins = OBWPathItemView.imageMargins
@@ -191,8 +193,6 @@ class OBWPathItemView: NSView {
 		titleFrame.size.height = fieldHeight
 		
 		titleField.frame = titleFrame
-		
-		super.layout()
 	}
 	
 	

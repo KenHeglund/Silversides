@@ -25,8 +25,6 @@ public class OBWPathView: NSView {
 	
 	/// Additional common initialization.
 	private func commonInitialization() {
-		self.autoresizesSubviews = false
-		
 		let options: NSTrackingArea.Options = [.mouseEnteredAndExited, .mouseMoved, .activeAlways, .inVisibleRect]
 		let trackingArea = NSTrackingArea(rect: self.bounds, options: options, owner: self, userInfo: nil)
 		self.addTrackingArea(trackingArea)
@@ -105,11 +103,10 @@ public class OBWPathView: NSView {
 	
 	// MARK: - NSView overrides
 	
-	/// Resize the view.
+	/// Resize the receiver’s subviews.
 	///
-	/// - Parameter oldSize: The previous superview size.
-	override public func resize(withOldSuperviewSize oldSize: NSSize) {
-		super.resize(withOldSuperviewSize: oldSize)
+	/// - Parameter oldSize: The old size of the receiver.
+	override public func resizeSubviews(withOldSize oldSize: NSSize) {
 		self.updateCurrentItemViewWidths()
 		self.adjustItemViewFrames(withAnimation: false)
 	}
