@@ -25,15 +25,28 @@ class OBWFilteringMenuView: NSView {
 		
 		let menuFont = menu.displayFont
 		let filterFieldSize = NSControl.controlSizeForFontSize(menuFont.pointSize)
+		let filterFrame: NSRect
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				filterFrame = NSRect(
+					x: OBWFilteringMenuView.filterMargins.trailing,
+					y: 0.0,
+					width: initialFrame.width - OBWFilteringMenuView.filterMargins.width,
+					height: filterFieldSize.standardMenuHeight
+				)
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				filterFrame = NSRect(
+					x: OBWFilteringMenuView.filterMargins.leading,
+					y: 0.0,
+					width: initialFrame.width - OBWFilteringMenuView.filterMargins.width,
+					height: filterFieldSize.standardMenuHeight
+				)
+		}
 		
-		let filterFrame = NSRect(
-			x: OBWFilteringMenuView.filterMargins.left,
-			y: 0.0,
-			width: initialFrame.width - OBWFilteringMenuView.filterMargins.width,
-			height: filterFieldSize.standardMenuHeight
-		)
-		
-		let filterField = NSTextField(frame: filterFrame)
+		let filterField = NSSearchField(frame: filterFrame)
 		filterField.font = menuFont
 		filterField.cell?.controlSize = filterFieldSize
 		filterField.bezelStyle = .roundedBezel
@@ -264,7 +277,7 @@ class OBWFilteringMenuView: NSView {
 	// MARK: - OBWFilteringMenuView Interface
 	
 	/// Margins around the filter text field.
-	static let filterMargins = NSEdgeInsets(top: 4.0, left: 20.0, bottom: 4.0, right: 20.0)
+	static let filterMargins = NSEdgeInsets(top: 4.0, leading: 20.0, bottom: 4.0, trailing: 20.0)
 	
 	/// Returns the total size of all of the current menu items.
 	var totalMenuItemSize: NSSize {
