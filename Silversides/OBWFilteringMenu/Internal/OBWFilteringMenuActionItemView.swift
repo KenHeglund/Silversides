@@ -37,6 +37,14 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
 		NotificationCenter.default.removeObserver(self, name: OBWFilteringMenu.highlightedItemDidChangeNotification, object: nil)
 	}
 	
+	/// Localizable strings.
+	enum Localizable: CaseLocalizable {
+		/// Filtering menu item (without submenu) accessibility help format.
+		case itemWithoutSubmenuHelpFormat
+		/// Filtering menu item (with submenu) accessibility help format.
+		case itemWithSubmenuHelpFormat
+	}
+	
 	
 	// MARK: - NSView overrides
 	
@@ -388,9 +396,8 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
 			return nil
 		}
 		
-		let itemWithoutSubmenuFormat = NSLocalizedString("Click this button to select the %@ item", comment: "Filtering menu item (without submenu) accessibility help format")
-		let itemWithSubmenuFormat = NSLocalizedString("Click this button to interact with the %@ item", comment: "Filtering menu item (with submenu) accessibility help format")
-		
+		let itemWithoutSubmenuFormat = Localizable.itemWithoutSubmenuHelpFormat.localized
+		let itemWithSubmenuFormat = Localizable.itemWithSubmenuHelpFormat.localized
 		let format = menuItem.submenu == nil ? itemWithoutSubmenuFormat : itemWithSubmenuFormat
 		
 		return String.localizedStringWithFormat(format, title)

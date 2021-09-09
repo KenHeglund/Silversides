@@ -48,6 +48,14 @@ public class OBWPathView: NSView {
 		NotificationCenter.default.removeObserver(self)
 	}
 	
+	/// Localizable strings
+	enum Localizable: CaseLocalizable {
+		/// PathView accessibility role description format.
+		case roleDescriptionFormat
+		/// Default accessibility description.
+		case emptyPathDescription
+	}
+	
 	
 	// MARK: - NSResponder overrides
 	
@@ -138,12 +146,11 @@ public class OBWPathView: NSView {
 	///
 	/// - Returns: The description of an accessible list.
 	override public func accessibilityRoleDescription() -> String? {
-		let descriptionFormat = NSLocalizedString("path element %@", comment: "PathView accessibility role description format")
-		
 		guard let standardDescription = NSAccessibility.Role.list.description(with: nil) else {
 			return nil
 		}
 		
+		let descriptionFormat = Localizable.roleDescriptionFormat.localized
 		return String.localizedStringWithFormat(descriptionFormat, standardDescription)
 	}
 	
@@ -151,7 +158,7 @@ public class OBWPathView: NSView {
 	///
 	/// - Returns: The Path View’s accessibility value.
 	override public func accessibilityValueDescription() -> String? {
-		return self.delegate?.pathViewAccessibilityDescription(self) ?? "Empty Path"
+		return self.delegate?.pathViewAccessibilityDescription(self) ?? Localizable.emptyPathDescription.localized
 	}
 	
 	/// Returns the accessibile children of the receiver.

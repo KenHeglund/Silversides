@@ -1,0 +1,34 @@
+/* 
+  Localizable.strings
+  Silversides
+
+  Created by Ken Heglund on 9/8/21.
+  Copyright © 2021 OrderedBytes. All rights reserved.
+*/
+
+/* Filtering menu item (without submenu) accessibility help format. */
+"OBWFilteringMenuActionItemView.itemWithoutSubmenuHelpFormat" = "Click this button to select the %@ item";
+
+/* Filtering menu item (with submenu) accessibility help format. */
+"OBWFilteringMenuActionItemView.itemWithSubmenuHelpFormat" = "Click this button to interact with the %@ item";
+
+
+/* The title of the filter field that appears at the top of a menu when the user begins typing. */
+"OBWFilteringMenuView.filterFieldAccessibilityTitle" = "Filter";
+
+/* Help text for the filtering menu's editable text field. */
+"OBWFilteringMenuView.filterFieldHelp" = "The text in this field filters the items that appear in this menu";
+
+/* Text that appears in the background of a menu’s filter field when it contains no user-entered text. */
+"OBWFilteringMenuView.filterPlaceholder" = "Filter";
+
+
+/* PathItemView accessibility role description. */
+"OBWPathItemView.roleDescriptionFormat" = "path element %@";
+
+
+/* PathView accessibility role description format. */
+"OBWPathView.roleDescriptionFormat" = "path element %@";
+
+/* Default accessibility description. */
+"OBWPathView.emptyPathDescription" = "Empty Path";

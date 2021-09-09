@@ -49,6 +49,9 @@
 		BE4685CC1D91F8E900AC4B6F /* NSControl+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */; };
 		BE54953A26E4BE620058822D /* NSAttributedString+OBWExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE54953926E4BE620058822D /* NSAttributedString+OBWExtension.swift */; };
 		BE54954226E4DB4A0058822D /* OBWFilteringMenuItem+Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE54954126E4DB4A0058822D /* OBWFilteringMenuItem+Internal.swift */; };
+		BE54955B26E9D2160058822D /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = BE54955D26E9D2160058822D /* Localizable.strings */; };
+		BE54956126E9F5280058822D /* CaseLocalizable.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE54956026E9F5280058822D /* CaseLocalizable.swift */; };
+		BE54956526EAA2170058822D /* CaseLocalizableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE54956426EAA2170058822D /* CaseLocalizableTests.swift */; };
 		BE7F3ED91DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7F3ED81DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift */; };
 		BE7F3EDB1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7F3EDA1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift */; };
 		BE9CB0B21D8469BC00323D09 /* OBWFilteringMenuWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */; };
@@ -170,6 +173,9 @@
 		BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSControl+OBWExtension.swift"; sourceTree = "<group>"; };
 		BE54953926E4BE620058822D /* NSAttributedString+OBWExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAttributedString+OBWExtension.swift"; sourceTree = "<group>"; };
 		BE54954126E4DB4A0058822D /* OBWFilteringMenuItem+Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OBWFilteringMenuItem+Internal.swift"; sourceTree = "<group>"; };
+		BE54955C26E9D2160058822D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		BE54956026E9F5280058822D /* CaseLocalizable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseLocalizable.swift; sourceTree = "<group>"; };
+		BE54956426EAA2170058822D /* CaseLocalizableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseLocalizableTests.swift; sourceTree = "<group>"; };
 		BE7F3ED81DC3049600DF7C8A /* OBWFilteringMenuViewTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuViewTests.swift; sourceTree = "<group>"; };
 		BE7F3EDA1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSSize+OBWExtensions.swift"; sourceTree = "<group>"; };
 		BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OBWFilteringMenuWindow.swift; sourceTree = "<group>"; };
@@ -308,6 +314,7 @@
 		BEC489C91D4C173500CE7AB8 /* SilversidesTests */ = {
 			isa = PBXGroup;
 			children = (
+				BE54956426EAA2170058822D /* CaseLocalizableTests.swift */,
 				BE4685BF1D91F20F00AC4B6F /* OBWFilteringMenuActionItemViewTests.swift */,
 				BE29533E1D7A2CC000EA47AB /* OBWFilteringMenuBackgroundTests.swift */,
 				BE44C8D61DA40305009517A5 /* OBWFilteringMenuControllerTests.swift */,
@@ -347,6 +354,7 @@
 			isa = PBXGroup;
 			children = (
 				BEC489DB1D4C193500CE7AB8 /* Info.plist */,
+				BE54955D26E9D2160058822D /* Localizable.strings */,
 				BE141D7326DC56C100CC032E /* Assets.xcassets */,
 			);
 			path = Resources;
@@ -402,6 +410,7 @@
 				BE9CB0B11D8469BC00323D09 /* OBWFilteringMenuWindow.swift */,
 				BEFDC94D1D6FB01C0005ACFF /* OBWFilteringMenuWindowGeometry.swift */,
 				BED4FE832306C41E003080E7 /* OBWColorFilledView.swift */,
+				BE54956026E9F5280058822D /* CaseLocalizable.swift */,
 				BE4685CB1D91F8E900AC4B6F /* NSControl+OBWExtension.swift */,
 				BEBD932221E258DD00CC1679 /* NSAppearance+OBWExtension.swift */,
 				BE54953926E4BE620058822D /* NSAttributedString+OBWExtension.swift */,
@@ -574,6 +583,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE141D7426DC58AA00CC032E /* Assets.xcassets in Resources */,
+				BE54955B26E9D2160058822D /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -610,6 +620,7 @@
 				BE9CB0B81D8656DE00323D09 /* OBWFilteringMenuItemFilterStatus.swift in Sources */,
 				BE7F3EDB1DC30F4200DF7C8A /* NSSize+OBWExtensions.swift in Sources */,
 				BEB815D822E18B8E009B2172 /* OBWFilteringMenu+Internal.swift in Sources */,
+				BE54956126E9F5280058822D /* CaseLocalizable.swift in Sources */,
 				BEBEECC81D77E59A0050D277 /* OBWFilteringMenuBackground.swift in Sources */,
 				BED4FE842306C41E003080E7 /* OBWColorFilledView.swift in Sources */,
 				BE35703C2302BC4300E9E68C /* OBWPathView+ErrorType.swift in Sources */,
@@ -670,6 +681,7 @@
 				BE9CF7FE230A7E1A00F721D0 /* XCTestCase+WaitForInterval.swift in Sources */,
 				BE4685C81D91F44400AC4B6F /* OBWFilteringMenuScrollTrackingTests.swift in Sources */,
 				BEC489CB1D4C173500CE7AB8 /* OBWPathViewTests.swift in Sources */,
+				BE54956526EAA2170058822D /* CaseLocalizableTests.swift in Sources */,
 				BE44C8D71DA40305009517A5 /* OBWFilteringMenuControllerTests.swift in Sources */,
 				BE9CB0BA1D86AA3300323D09 /* OBWFilteringMenuItemFilterStatusTests.swift in Sources */,
 				BE4685B61D8F3E6D00AC4B6F /* OBWFilteringMenuEventSourceTests.swift in Sources */,
@@ -708,6 +720,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		BE54955D26E9D2160058822D /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BE54955C26E9D2160058822D /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		BEC489E91D4C198100CE7AB8 /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

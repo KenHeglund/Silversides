@@ -38,6 +38,11 @@ class OBWPathItemView: NSView {
 		self.layerContentsRedrawPolicy = .duringViewResize
 	}
 	
+	enum Localizable: CaseLocalizable {
+		/// PathItemView accessibility role description.
+		case roleDescriptionFormat
+	}
+	
 	
 	// MARK: - NSResponder overrides
 	
@@ -216,13 +221,11 @@ class OBWPathItemView: NSView {
 	///
 	/// - Returns: The description of pop-up button.
 	override func accessibilityRoleDescription() -> String? {
-		
-		let descriptionFormat = NSLocalizedString("path element %@", comment: "PathItemView accessibility role description")
-		
 		guard let standardDescription = NSAccessibility.Role.popUpButton.description(with: nil) else {
 			return nil
 		}
 		
+		let descriptionFormat = Localizable.roleDescriptionFormat.localized
 		return String.localizedStringWithFormat(descriptionFormat, standardDescription)
 	}
 	
@@ -288,6 +291,9 @@ class OBWPathItemView: NSView {
 	
 	/// The width the item view will be when it is not under the cursor.
 	var idleWidth: CGFloat = 0.0
+	
+	
+	// MARK: - Private
 	
 	/// The preferred width of the item view is wide enough to show the entire
 	/// title without compressing the font.

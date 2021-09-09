@@ -48,19 +48,16 @@ class OBWFilteringMenuView: NSView {
 		
 		let filterField = NSSearchField(frame: filterFrame)
 		filterField.font = menuFont
-		filterField.cell?.controlSize = filterFieldSize
 		filterField.bezelStyle = .roundedBezel
-		filterField.cell?.focusRingType = .none
-		filterField.cell?.isScrollable = true
-		(filterField.cell as? NSTextFieldCell)?.placeholderString = "Filter"
 		filterField.autoresizingMask = [.width, .minYMargin]
 		filterField.isHidden = true
+		filterField.cell?.controlSize = filterFieldSize
+		filterField.cell?.focusRingType = .none
+		filterField.cell?.isScrollable = true
+		filterField.cell?.setAccessibilityTitle(Localizable.filterFieldAccessibilityTitle.localized)
+		filterField.cell?.setAccessibilityHelp(Localizable.filterFieldHelp.localized)
+		(filterField.cell as? NSTextFieldCell)?.placeholderString = Localizable.filterPlaceholder.localized
 		self.filterField  = filterField
-		
-		let filterFieldTitle = NSLocalizedString("Filter", comment: "The title of a filtering menu's editable text field")
-		let filterFieldHelp = NSLocalizedString("The text in this field filters the items that appear in this menu", comment: "Help text for the filtering menu's editable text field")
-		filterField.cell?.setAccessibilityTitle(filterFieldTitle)
-		filterField.cell?.setAccessibilityHelp(filterFieldHelp)
 		
 		let scrollView = OBWFilteringMenuItemScrollView(menu: menu, minimumWidth: minimumWidth)
 		self.scrollView = scrollView
@@ -86,6 +83,18 @@ class OBWFilteringMenuView: NSView {
 	/// Deinitialization.
 	deinit {
 		NotificationCenter.default.removeObserver(self, name: NSText.didChangeNotification, object: nil)
+	}
+	
+	/// Localizable strings.
+	enum Localizable: CaseLocalizable {
+		/// The title of the filter field that appears at the top of a menu when
+		/// the user begins typing.
+		case filterFieldAccessibilityTitle
+		/// Help text for the filtering menu’s editable filter field.
+		case filterFieldHelp
+		/// Text that appears in the background of a menu’s filter field when it
+		/// contains no user-entered text.
+		case filterPlaceholder
 	}
 	
 	
