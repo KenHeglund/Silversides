@@ -37,8 +37,8 @@ class OBWFilteringMenuSubmenuImageView: NSView {
 		self.spinner.isDisplayedWhenStopped = false
 		self.spinner.style = .spinning
 		
-		// This removes the background from the `NSProgressIndicator` ... no idea why or how.
-		self.spinner.appearance = NSAppearance(named: .aqua)
+		// The appearance of the spinner is always `.darkAqua` because it is only ever visible on a selected menu item.  When a menu item is selected, the submenu arrow is always light/white in color.  The `.darkAqua` appearance will match that color.
+		self.spinner.appearance = NSAppearance(named: .darkAqua)
 	}
 	
 	// Required initializer.
