@@ -59,40 +59,38 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 		let menuItem = OBWFilteringMenuItem(title: "sampleTitle")
 		
 		let status = OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "apeil")
-		let highlightedTitle = status.highlightedTitle
-		XCTAssertNotNil(highlightedTitle)
+		let annotatedTitle = status.annotatedTitle
+		XCTAssertNotNil(annotatedTitle)
 		
 		let highlightIndicies = [ 1,3,5,7,9 ]
 		
-		for index in 0 ..< highlightedTitle.length {
+		for index in 0 ..< annotatedTitle.length {
 			if highlightIndicies.contains(index) {
-				XCTAssertTrue(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
+				XCTAssertEqual(annotatedTitle.attribute(.filterMatch, at: index, effectiveRange: nil) as? Bool, true, "\(index)")
 			}
 			else {
-				XCTAssertFalse(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
+				XCTAssertNil(annotatedTitle.attribute(.filterMatch, at: index, effectiveRange: nil), "\(index)")
 			}
 		}
-		
 	}
 	
 	func testRegExFilterHighlight() throws {
 		let menuItem = OBWFilteringMenuItem(title: "sampleTitle")
 		
 		let status = OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/[l-p]{3}/")
-		let highlightedTitle = status.highlightedTitle
-		XCTAssertNotNil(highlightedTitle)
+		let annotatedTitle = status.annotatedTitle
+		XCTAssertNotNil(annotatedTitle)
 		
 		let highlightIndicies = 2...4
 		
-		for index in 0 ..< highlightedTitle.length {
+		for index in 0 ..< annotatedTitle.length {
 			if highlightIndicies.contains(index) {
-				XCTAssertTrue(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
+				XCTAssertEqual(annotatedTitle.attribute(.filterMatch, at: index, effectiveRange: nil) as? Bool, true, "\(index)")
 			}
 			else {
-				XCTAssertFalse(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
+				XCTAssertNil(annotatedTitle.attribute(.filterMatch, at: index, effectiveRange: nil), "\(index)")
 			}
 		}
-		
 	}
 	
 	func testMenuItemWithAttributedTitle() throws {
@@ -107,20 +105,19 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 		)
 		
 		let status = OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/t{2,}/")
-		let highlightedTitle = status.highlightedTitle
-		XCTAssertNotNil(highlightedTitle)
+		let annotatedTitle = status.annotatedTitle
+		XCTAssertNotNil(annotatedTitle)
 		
 		let highlightIndicies = 7...8
 		
-		for index in 0 ..< highlightedTitle.length {
+		for index in 0 ..< annotatedTitle.length {
 			if highlightIndicies.contains(index) {
-				XCTAssertTrue(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
+				XCTAssertEqual(annotatedTitle.attribute(.filterMatch, at: index, effectiveRange: nil) as? Bool, true, "\(index)")
 			}
 			else {
-				XCTAssertFalse(highlightedTitle.hasFontTrait(.bold, at: index), "\(index)")
+				XCTAssertNil(annotatedTitle.attribute(.filterMatch, at: index, effectiveRange: nil), "\(index)")
 			}
 		}
-		
 	}
 	
 	func testSeparatorItemMatching() throws {
