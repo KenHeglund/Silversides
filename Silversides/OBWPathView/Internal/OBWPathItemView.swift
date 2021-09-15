@@ -500,19 +500,13 @@ class OBWPathItemView: NSView {
 	private static let disabledViewAlpha: CGFloat = 0.5
 	
 	/// Margins around the image view.
-	private static var imageMargins: NSEdgeInsets {
-		NSEdgeInsets(top: 5.0, leading: 4.0, bottom: 4.0, trailing: 2.0)
-	}
+	private static var imageMargins = NSEdgeInsets(top: 5.0, leading: 4.0, bottom: 4.0, trailing: 2.0)
 	
 	/// Margins around the title text field.
-	private static var titleMargins: NSEdgeInsets {
-		NSEdgeInsets(top: 4.0, leading: 2.0, bottom: 4.0, trailing: 2.0)
-	}
+	private static var titleMargins = NSEdgeInsets(top: 4.0, leading: 2.0, bottom: 4.0, trailing: 2.0)
 	
 	/// Margins around the divider view.
-	private static var dividerMargins: NSEdgeInsets {
-		NSEdgeInsets(top: 0.0, leading: 3.0, bottom: 0.0, trailing: 2.0)
-	}
+	private static var dividerMargins = NSEdgeInsets(top: 0.0, leading: 3.0, bottom: 0.0, trailing: 2.0)
 	
 	/// Minimum width of the title view.
 	private static let minimumTitleWidthWithoutImage: CGFloat = 20.0

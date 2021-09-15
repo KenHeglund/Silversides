@@ -26,6 +26,16 @@ extension NSEdgeInsets {
 		}
 	}
 	
+	/// Initialization with all dimensions set to the same value.
+	///
+	/// - Parameter distance: The inset of all edges.
+	init(distance: CGFloat) {
+		self.init(top: distance, left: distance, bottom: distance, right: distance)
+	}
+	
+	/// Instance with all insets set to zero.
+	static var zero = NSEdgeInsetsZero
+	
 	/// The sum of the left and right inset distances.
 	var width: CGFloat {
 		self.left + self.right

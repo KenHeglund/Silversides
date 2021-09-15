@@ -444,22 +444,10 @@ class OBWFilteringMenuActionItemView: OBWFilteringMenuItemView {
 	private static let statusImageTrailingMargin: CGFloat = 5.0
 	
 	/// Margins between the item image view and its contents.
-	private static var interiorMargins: NSEdgeInsets {
-		NSEdgeInsets(top: 0.0, leading: 19.0, bottom: 0.0, trailing: 10.0)
-	}
+	private static var interiorMargins = NSEdgeInsets(top: 0.0, leading: 19.0, bottom: 0.0, trailing: 10.0)
 	
 	/// Margins around the icon image.
-	private static var imageMargins: NSEdgeInsets {
-		switch NSApp.userInterfaceLayoutDirection {
-			case .rightToLeft:
-				return NSEdgeInsets(top: 2.0, leading: 2.0, bottom: 2.0, trailing: 2.0)
-				
-			case .leftToRight:
-				fallthrough
-			@unknown default:
-				return NSEdgeInsets(top: 2.0, leading: 2.0, bottom: 2.0, trailing: 2.0)
-		}
-	}
+	private static var imageMargins = NSEdgeInsets(distance: 2.0)
 	
 	/// Padding between the title and the arrow indicating that there is a
 	/// submenu.

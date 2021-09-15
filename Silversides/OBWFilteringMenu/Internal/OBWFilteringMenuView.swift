@@ -304,7 +304,7 @@ class OBWFilteringMenuView: NSView {
 		let filterField = self.filterField
 		
 		guard filterField.isHidden == false else {
-			return NSEdgeInsetsZero
+			return .zero
 		}
 		
 		let filterAreaHeight = OBWFilteringMenuView.filterMargins.height + filterField.frame.height

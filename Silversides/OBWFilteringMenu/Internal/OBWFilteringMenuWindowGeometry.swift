@@ -262,7 +262,7 @@ class OBWFilteringMenuWindowGeometry {
 	
 	/// The minimum distances from the edge of a menu window to the edge of its
 	/// screen.
-	static let screenMargins = NSEdgeInsets(top: 6.0, left: 6.0, bottom: 6.0, right: 6.0)
+	static let screenMargins = NSEdgeInsets(distance: 6.0)
 	
 	/// Conditionally initializes an instance given a menu window and a menu
 	/// location that should be displayed at a given screen location.  Returns

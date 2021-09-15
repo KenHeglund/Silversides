@@ -99,12 +99,7 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
 		}
 		
 		maskImage.resizingMode = .stretch
-		maskImage.capInsets = NSEdgeInsets(
-			top: roundedCornerRadius + 1.0,
-			left: roundedCornerRadius + 1.0,
-			bottom: roundedCornerRadius + 1.0,
-			right: roundedCornerRadius + 1.0
-		)
+		maskImage.capInsets = NSEdgeInsets(distance: roundedCornerRadius + 1.0)
 		
 		return maskImage
 	}

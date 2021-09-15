@@ -32,7 +32,7 @@ extension NSImage {
 		
 		let queue = DispatchQueue.global()
 		let group = DispatchGroup()
-		var edgeInsets = NSEdgeInsets()
+		var edgeInsets = NSEdgeInsetsZero
 		
 		// Find top inset
 		queue.async(group: group, execute: DispatchWorkItem(block: {
