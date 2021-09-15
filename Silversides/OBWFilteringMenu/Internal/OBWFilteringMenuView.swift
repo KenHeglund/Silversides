@@ -487,9 +487,6 @@ class OBWFilteringMenuView: NSView {
 			filterField.setFrameOrigin(filterFieldFrame.origin)
 			filterField.isHidden = false
 			
-			// Set the string value to an initial non-empty string that will get selected and replaced by the typed character.  This prods the search field to display the cancel button.
-			filterField.stringValue = " "
-			
 			if let window = self.window as? OBWFilteringMenuWindow {
 				window.displayUpdatedTotalMenuItemSize(constrainToAnchor: true)
 			}
