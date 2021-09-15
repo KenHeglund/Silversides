@@ -463,7 +463,7 @@ class OBWFilteringMenuView: NSView {
 				
 				return .continue
 				
-			case kVK_LeftArrow, kVK_RightArrow, kVK_Space, kVK_Return, kVK_ANSI_KeypadEnter:
+			case kVK_LeftArrow, kVK_RightArrow, kVK_Space, kVK_Return, kVK_ANSI_KeypadEnter, kVK_Delete, kVK_ForwardDelete:
 				if let currentEditor = currentEditor {
 					currentEditor.keyDown(with: event)
 					return .continue
