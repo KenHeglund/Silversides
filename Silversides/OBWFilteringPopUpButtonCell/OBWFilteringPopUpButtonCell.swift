@@ -67,22 +67,10 @@ public class OBWFilteringPopUpButtonCell: NSPopUpButtonCell {
 		let alignmentBounds = controlView.convert(alignmentFrame, from: controlView.superview)
 		let baselineOffset = controlView.firstBaselineOffsetFromTop
 		
-		let baselineOrigin: NSPoint
-		switch NSApp.userInterfaceLayoutDirection {
-			case .rightToLeft:
-				baselineOrigin = NSPoint(
-					x: alignmentBounds.maxX - horizontalOffset,
-					y: (controlView.isFlipped ? alignmentBounds.minY + baselineOffset : alignmentBounds.maxY - baselineOffset)
-				)
-
-			case .leftToRight:
-				fallthrough
-			@unknown default:
-				baselineOrigin = NSPoint(
-					x: alignmentBounds.minX + horizontalOffset,
-					y: (controlView.isFlipped ? alignmentBounds.minY + baselineOffset : alignmentBounds.maxY - baselineOffset)
-				)
-		}
+		let baselineOrigin = NSPoint(
+			x: alignmentBounds.leadingX +>> horizontalOffset,
+			y: (controlView.isFlipped ? alignmentBounds.minY + baselineOffset : alignmentBounds.maxY - baselineOffset)
+		)
 		
 		#if DEBUG_MENU_ITEM_BASELINE
 		OBWFilteringMenuDebugWindow.prepare(for: controlView.window?.screen)

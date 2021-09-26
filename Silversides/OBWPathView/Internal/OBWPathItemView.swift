@@ -170,26 +170,12 @@ class OBWPathItemView: NSView {
 		// This is the distance from the top of the ESCPathItemView to the desired text baseline.
 		let desiredDistanceFromTopOfViewToTitleBaseline: CGFloat = 16.0
 		
-		var titleFrame: NSRect
-		switch NSApp.userInterfaceLayoutDirection {
-			case .rightToLeft:
-				titleFrame = NSRect(
-					x: itemViewBounds.minX + titleMargins.trailing,
-					y: itemViewBounds.minY,
-					width: itemViewBounds.width - titleMargins.width,
-					height: itemViewBounds.height - desiredDistanceFromTopOfViewToTitleBaseline + self.titleField.firstBaselineOffsetFromTop
-				)
-				
-			case .leftToRight:
-				fallthrough
-			@unknown default:
-				titleFrame = NSRect(
-					x: itemViewBounds.minX + titleMargins.leading,
-					y: itemViewBounds.minY,
-					width: itemViewBounds.width - titleMargins.width,
-					height: itemViewBounds.height - desiredDistanceFromTopOfViewToTitleBaseline + self.titleField.firstBaselineOffsetFromTop
-				)
-		}
+		var titleFrame = NSRect(
+			x: itemViewBounds.minX + titleMargins.left,
+			y: itemViewBounds.minY,
+			width: itemViewBounds.width - titleMargins.width,
+			height: itemViewBounds.height - desiredDistanceFromTopOfViewToTitleBaseline + self.titleField.firstBaselineOffsetFromTop
+		)
 		
 		OBWPathItemView.offscreenTextField.attributedStringValue = titleField.attributedStringValue
 		OBWPathItemView.offscreenTextField.sizeToFit()
@@ -358,36 +344,15 @@ class OBWPathItemView: NSView {
 			if let hitItem = filteringMenu.itemWithTitle(hitPathItem.title) {
 				menuItem = hitItem
 				alignment = .baseline
-				
-				switch NSApp.userInterfaceLayoutDirection {
-					case .rightToLeft:
-						itemLocation = NSPoint(
-							x: self.bounds.maxX + self.imageView.frame.width + OBWPathItemView.imageMargins.trailing,
-							y: self.bounds.maxY - self.firstBaselineOffsetFromTop
-						)
-
-					case .leftToRight:
-						fallthrough
-					@unknown default:
-						itemLocation = NSPoint(
-							x: self.bounds.minX - self.imageView.frame.width - OBWPathItemView.imageMargins.trailing,
-							y: self.bounds.maxY - self.firstBaselineOffsetFromTop
-						)
-				}
+				itemLocation = NSPoint(
+					x: self.bounds.leadingX ->> self.imageView.frame.width ->> OBWPathItemView.imageMargins.trailing,
+					y: self.bounds.maxY - self.firstBaselineOffsetFromTop
+				)
 			}
 			else {
 				menuItem = nil
 				alignment = .topLeft
-				
-				switch NSApp.userInterfaceLayoutDirection {
-					case .rightToLeft:
-						itemLocation = NSPoint(x: self.bounds.maxX, y: self.bounds.maxY)
-
-					case .leftToRight:
-						fallthrough
-					@unknown default:
-						itemLocation = NSPoint(x: self.bounds.minX, y: self.bounds.maxY)
-				}
+				itemLocation = NSPoint(x: self.bounds.leadingX, y: self.bounds.maxY)
 			}
 			
 			let event: NSEvent?

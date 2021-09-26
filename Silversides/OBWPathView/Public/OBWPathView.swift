@@ -264,12 +264,12 @@ public class OBWPathView: NSView {
 				
 				let pathViewBounds = self.bounds
 				
+				let lastFrameTrailing = self.itemViews.last?.frame.trailingX ?? pathViewBounds.leadingX
 				var newItemViewFrame: NSRect
 				switch NSApp.userInterfaceLayoutDirection {
 					case .rightToLeft:
-						let lastFrameLeading = self.itemViews.last?.frame.minX ?? pathViewBounds.maxX
 						newItemViewFrame = NSRect(
-							x: min(pathViewBounds.minX, lastFrameLeading) - 50.0,
+							x: min(pathViewBounds.minX, lastFrameTrailing) - 50.0,
 							y: pathViewBounds.minY,
 							width: 50.0,
 							height: pathViewBounds.height
@@ -278,7 +278,6 @@ public class OBWPathView: NSView {
 					case .leftToRight:
 						fallthrough
 					@unknown default:
-						let lastFrameTrailing = self.itemViews.last?.frame.maxX ?? pathViewBounds.minX
 						newItemViewFrame = NSRect(
 							x: max(pathViewBounds.maxX, lastFrameTrailing),
 							y: pathViewBounds.minY,
@@ -443,17 +442,7 @@ public class OBWPathView: NSView {
 	private func updatePreferredWidthRequirementsForCursorLocation(_ locationInView: NSPoint) -> Bool {
 		let cursorIsInParent = NSPointInRect(locationInView, self.bounds)
 		
-		var itemLeadingEdge: CGFloat
-		switch NSApp.userInterfaceLayoutDirection {
-			case .rightToLeft:
-				itemLeadingEdge = self.bounds.maxX
-				
-			case .leftToRight:
-				fallthrough
-			@unknown default:
-				itemLeadingEdge = self.bounds.minX
-		}
-		
+		var itemLeadingEdge = self.bounds.leadingX
 		var anItemHasBeenCollapsed = false
 		var anItemHasBeenExpanded = false
 		
@@ -465,32 +454,22 @@ public class OBWPathView: NSView {
 			
 			let itemWidthToTest = (anItemHasBeenCollapsed ? itemView.preferredWidth : itemView.currentWidth)
 			
-			let itemTrailingEdge: CGFloat
+			let itemTrailingEdge = itemLeadingEdge +>> itemWidthToTest
 			let cursorIsInItem: Bool
 			switch NSApp.userInterfaceLayoutDirection {
 				case .rightToLeft:
-					itemTrailingEdge = itemLeadingEdge - itemWidthToTest
 					cursorIsInItem = (locationInView.x >= itemTrailingEdge && locationInView.x < itemLeadingEdge)
 					
 				case .leftToRight:
 					fallthrough
 				@unknown default:
-					itemTrailingEdge = itemLeadingEdge + itemWidthToTest
 					cursorIsInItem = (locationInView.x >= itemLeadingEdge && locationInView.x < itemTrailingEdge)
 			}
 			
 			let preferredWidthIsRequired = (cursorIsInParent && cursorIsInItem)
 			
 			if itemView.preferredWidthRequired == preferredWidthIsRequired {
-				switch NSApp.userInterfaceLayoutDirection {
-					case .rightToLeft:
-						itemLeadingEdge -= itemWidthToTest
-						
-					case .leftToRight:
-						fallthrough
-					@unknown default:
-						itemLeadingEdge += itemWidthToTest
-				}
+				itemLeadingEdge = itemTrailingEdge
 				continue
 			}
 			
@@ -498,27 +477,11 @@ public class OBWPathView: NSView {
 			
 			if preferredWidthIsRequired {
 				anItemHasBeenExpanded = true
-				switch NSApp.userInterfaceLayoutDirection {
-					case .rightToLeft:
-						itemLeadingEdge -= itemWidthToTest
-						
-					case .leftToRight:
-						fallthrough
-					@unknown default:
-						itemLeadingEdge += itemWidthToTest
-				}
+				itemLeadingEdge = itemTrailingEdge
 			}
 			else {
 				anItemHasBeenCollapsed = true
-				switch NSApp.userInterfaceLayoutDirection {
-					case .rightToLeft:
-						itemLeadingEdge -= itemView.idleWidth
-						
-					case .leftToRight:
-						fallthrough
-					@unknown default:
-						itemLeadingEdge += itemView.idleWidth
-				}
+				itemLeadingEdge +=>> itemView.idleWidth
 			}
 		}
 		
@@ -685,16 +648,7 @@ public class OBWPathView: NSView {
 			
 			context.duration = animationDuration
 			
-			var itemOriginX: CGFloat
-			switch NSApp.userInterfaceLayoutDirection {
-				case .rightToLeft:
-					itemOriginX = self.bounds.maxX
-					
-				case .leftToRight:
-					fallthrough
-				@unknown default:
-					itemOriginX = self.bounds.minX
-			}
+			var itemOriginX = self.bounds.leadingX
 			
 			for itemView in self.itemViews {
 				var itemFrame = itemView.frame
@@ -715,15 +669,7 @@ public class OBWPathView: NSView {
 				
 				itemView.needsDisplay = true
 				
-				switch NSApp.userInterfaceLayoutDirection {
-					case .rightToLeft:
-						itemOriginX -= itemFrame.width
-						
-					case .leftToRight:
-						fallthrough
-					@unknown default:
-						itemOriginX += itemFrame.width
-				}
+				itemOriginX +=>> itemFrame.width
 			}
 			
 		}, completionHandler: nil)
@@ -740,16 +686,7 @@ public class OBWPathView: NSView {
 			context.duration = animationDuration
 			context.timingFunction = CAMediaTimingFunction(name: .easeIn)
 			
-			var itemOriginX: CGFloat
-			switch NSApp.userInterfaceLayoutDirection {
-				case .rightToLeft:
-					itemOriginX = self.bounds.minX
-					
-				case .leftToRight:
-					fallthrough
-				@unknown default:
-					itemOriginX = self.bounds.maxX
-			}
+			var itemOriginX = self.bounds.trailingX
 			
 			for itemView in terminatedViews {
 				var itemFrame = itemView.frame
@@ -769,15 +706,7 @@ public class OBWPathView: NSView {
 				
 				itemView.needsDisplay = true
 				
-				switch NSApp.userInterfaceLayoutDirection {
-					case .rightToLeft:
-						itemOriginX -= itemFrame.width
-						
-					case .leftToRight:
-						fallthrough
-					@unknown default:
-						itemOriginX += itemFrame.width
-				}
+				itemOriginX +=>> itemFrame.width
 			}
 			
 		}, completionHandler: {

@@ -102,4 +102,30 @@ extension NSRect {
 	init(x: CGFloat, y: CGFloat, size: NSSize) {
 		self.init(x: x, y: y, width: size.width, height: size.height)
 	}
+	
+	/// The horizontal location of the leading edge.
+	var leadingX: CGFloat {
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				return self.maxX
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				return self.minX
+		}
+	}
+	
+	/// The horizontal location of the trailing edge.
+	var trailingX: CGFloat {
+		switch NSApp.userInterfaceLayoutDirection {
+			case .rightToLeft:
+				return self.minX
+				
+			case .leftToRight:
+				fallthrough
+			@unknown default:
+				return self.maxX
+		}
+	}
 }

@@ -25,26 +25,12 @@ class OBWFilteringMenuView: NSView {
 		
 		let menuFont = menu.displayFont
 		let filterFieldSize = NSControl.controlSizeForFontSize(menuFont.pointSize)
-		let filterFrame: NSRect
-		switch NSApp.userInterfaceLayoutDirection {
-			case .rightToLeft:
-				filterFrame = NSRect(
-					x: OBWFilteringMenuView.filterMargins.trailing,
-					y: 0.0,
-					width: initialFrame.width - OBWFilteringMenuView.filterMargins.width,
-					height: filterFieldSize.standardMenuHeight
-				)
-				
-			case .leftToRight:
-				fallthrough
-			@unknown default:
-				filterFrame = NSRect(
-					x: OBWFilteringMenuView.filterMargins.leading,
-					y: 0.0,
-					width: initialFrame.width - OBWFilteringMenuView.filterMargins.width,
-					height: filterFieldSize.standardMenuHeight
-				)
-		}
+		let filterFrame = NSRect(
+			x: OBWFilteringMenuView.filterMargins.left,
+			y: 0.0,
+			width: initialFrame.width - OBWFilteringMenuView.filterMargins.width,
+			height: filterFieldSize.standardMenuHeight
+		)
 		
 		let filterField = NSSearchField(frame: filterFrame)
 		filterField.font = menuFont

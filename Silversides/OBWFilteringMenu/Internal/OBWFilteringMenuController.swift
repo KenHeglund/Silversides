@@ -148,17 +148,7 @@ class OBWFilteringMenuController {
 		
 		rootMenuWindow.screenAnchor = screenAnchor
 		
-		let menuLocation: NSPoint
-		switch NSApp.userInterfaceLayoutDirection {
-			case .rightToLeft:
-				menuLocation = NSPoint(x: itemViewFrame.maxX, y: itemViewFrame.maxY)
-				
-			case .leftToRight:
-				fallthrough
-			@unknown default:
-				menuLocation = NSPoint(x: itemViewFrame.minX, y: itemViewFrame.maxY)
-		}
-		
+		let menuLocation = NSPoint(x: itemViewFrame.leadingX, y: itemViewFrame.maxY)
 		let screenLocation = NSPoint(x: locationInScreen.x, y: locationInScreen.y + itemBaselineOffset)
 		rootMenuWindow.displayMenuLocation(menuLocation, atScreenLocation: screenLocation, allowWindowToGrowUpward: false)
 	}
