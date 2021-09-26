@@ -686,7 +686,8 @@ public class OBWPathView: NSView {
 			context.duration = animationDuration
 			context.timingFunction = CAMediaTimingFunction(name: .easeIn)
 			
-			var itemOriginX = self.bounds.trailingX
+			// Use a target frame origin that is beyond the trailing side of the path view frame to prevent the surviving path item views from overlapping the terminated views during the animation.  The `.easeIn` timing function seems to have a slower acceleration than the `.easeInEaseOut` timing function that resulted in overlapping views when the surviving views were expanding to fill the entire path view.
+			var itemOriginX = self.bounds.trailingX +>> self.bounds.width
 			
 			for itemView in terminatedViews {
 				var itemFrame = itemView.frame
