@@ -139,11 +139,10 @@ extension CaseLocalizable {
 		let fullyQualifiedCaseType = String(reflecting: self)
 		let caseTypeHierarchy = fullyQualifiedCaseType.components(separatedBy: ".")
 		
-		var enclosingClass: AnyClass?
-		_ = (0..<caseTypeHierarchy.count).lazy.map({ caseTypeHierarchy.dropLast($0) }).first {
-			enclosingClass = NSClassFromString($0.joined(separator: "."))
-			return enclosingClass != nil
-		}
+		let enclosingClass: AnyClass? = (0..<caseTypeHierarchy.count).lazy.compactMap({
+			let typeName = caseTypeHierarchy.dropLast($0).joined(separator: ".")
+			return NSClassFromString(typeName)
+		}).first
 		
 		return enclosingClass
 	}
