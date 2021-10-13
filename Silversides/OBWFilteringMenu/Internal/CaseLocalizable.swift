@@ -94,14 +94,18 @@ extension CaseLocalizable {
 	}
 	
 	var localizationKey: String {
-		[self.localizationKeyPrefix, "\(self)"].compactMap({ $0 }).joined(separator: ".")
+		let suffix = Self.basicTypeName(of: self)
+		if let prefix = self.localizationKeyPrefix {
+			return prefix + Self.localizationKeySeparator + suffix
+		}
+		else {
+			return suffix
+		}
 	}
 	
 	var localizationKeyPrefix: String? {
-		// Currently (Xcode 12.4, Swift 5), `String(reflecting:)` returns a string containing the fully-qualified type of the argument.  If that string changes in a future Swift, then this `localizationKey` property will probably break.
-		let fullyQualifiedType = String(reflecting: Self.self)
+		let fullyQualifiedType = Self.fullyQualifiedTypeName(of: Self.self)
 		guard !fullyQualifiedType.isEmpty else {
-			assertionFailure("No `CaseLocalizable` type information available.  Check the behavior of `String(reflecting:)`.")
 			return nil
 		}
 		
@@ -110,18 +114,17 @@ extension CaseLocalizable {
 			return fullyQualifiedType
 		}
 		
-		let enclosingClassName = "\(enclosingClass)"
-		let caseTypeComponents = fullyQualifiedType.components(separatedBy: ".")
+		let enclosingClassName = Self.basicTypeName(of: enclosingClass)
+		let caseTypeComponents = fullyQualifiedType.components(separatedBy: Self.typeNameSeparator)
 		let abbreviatedTypeComponents = caseTypeComponents.drop(while: { $0 != enclosingClassName })
 		
-		// The abbreviated type is expected to have three components: the enclosing class type, the type that conforms to `CaseLocalizable`, and the case that the key is being constructed for.
+		// The abbreviated type is expected to have at least two components: the enclosing class type and the type that conforms to `CaseLocalizable`.
 		guard abbreviatedTypeComponents.count >= 2 else {
 			assertionFailure("`CaseLocalizable` appears to be adopted by a class type (“\(fullyQualifiedType)”).  This is unexpected.")
 			return nil
 		}
 		
-		let prefix = abbreviatedTypeComponents.dropLast()
-		return "\(prefix.joined(separator: "."))"
+		return abbreviatedTypeComponents.dropLast().joined(separator: Self.localizationKeySeparator)
 	}
 	
 	var localizationBundle: Bundle {
@@ -135,15 +138,46 @@ extension CaseLocalizable {
 	
 	/// The nearest parent type of the receiver that is a class.
 	private static var enclosingClass: AnyClass? {
-		// Currently (Xcode 12.4, Swift 5), `String(reflecting:)` returns a string containing the fully-qualified type of the argument.  If that changes in a future Swift, then this will probably break.
-		let fullyQualifiedCaseType = String(reflecting: self)
-		let caseTypeHierarchy = fullyQualifiedCaseType.components(separatedBy: ".")
+		let fullyQualifiedCaseType = self.fullyQualifiedTypeName(of: self)
+		guard !fullyQualifiedCaseType.isEmpty else {
+			return nil
+		}
 		
-		let enclosingClass: AnyClass? = (0..<caseTypeHierarchy.count).lazy.compactMap({
-			let typeName = caseTypeHierarchy.dropLast($0).joined(separator: ".")
-			return NSClassFromString(typeName)
+		let caseTypeHierarchy = fullyQualifiedCaseType.components(separatedBy: Self.typeNameSeparator)
+		
+		let enclosingClass: AnyClass? = caseTypeHierarchy.indices.lazy.reversed().compactMap({
+			NSClassFromString(caseTypeHierarchy.prefix(through: $0).joined(separator: self.localizationKeySeparator))
 		}).first
 		
 		return enclosingClass
+	}
+	
+	/// The string that separates the components of a fully-qualified type name.
+	private static var typeNameSeparator: String { "." }
+	
+	/// The string that separates the components of a localization key.
+	private static var localizationKeySeparator: String { "." }
+	
+	/// Returns the basic type name of the receiver.
+	/// - Parameter instance: The instance, class, or case to return the basic
+	/// type name of.
+	/// - Returns: The basic type name of `instance`.
+	private static func basicTypeName(of instance: Any) -> String {
+		"\(instance)"
+	}
+	
+	/// Returns the fully qualified type name of the receiver.
+	/// - Parameter instance: The instance, class, or case to return the fully
+	/// qualified type name of.
+	/// - Returns: The fully qualified type name of `instance`.
+	private static func fullyQualifiedTypeName(of instance: Any) -> String {
+		// Currently (Xcode 12.4, Swift 5), `String(reflecting:)` returns a string containing the fully-qualified type of the argument.  If that changes in a future Swift, then this will probably break.
+		let typeName = String(reflecting: instance)
+		guard !typeName.isEmpty else {
+			assertionFailure("No `CaseLocalizable` type information available.  Check the behavior of `String(reflecting:)`.")
+			return ""
+		}
+		
+		return typeName
 	}
 }
