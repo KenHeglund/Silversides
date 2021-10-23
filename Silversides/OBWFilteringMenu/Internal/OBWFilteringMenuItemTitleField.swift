@@ -1,10 +1,8 @@
-//
-//  OBWFilteringMenuItemTitleField.swift
-//  OBWControls
-//
-//  Created by Ken Heglund on 7/27/19.
-//  Copyright © 2019 OrderedBytes. All rights reserved.
-//
+/*===========================================================================
+ OBWFilteringMenuItemTitleField.swift
+ OBWControls
+ Copyright (c) 2019 OrderedBytes. All rights reserved.
+ ===========================================================================*/
 
 import AppKit
 
@@ -21,13 +19,13 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 		self.isBezeled = false
 		self.cell?.lineBreakMode = .byClipping
 		
-		#if DEBUG_MENU_TINTING
+#if DEBUG_MENU_TINTING
 		self.drawsBackground = true
 		self.backgroundColor = NSColor.systemRed.withAlphaComponent(0.15)
-		#else
+#else
 		self.drawsBackground = true
 		self.backgroundColor = .clear
-		#endif
+#endif
 		
 		self.updateAttributedStringValue()
 		self.sizeToFit()
@@ -67,7 +65,7 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 		let attributedTitle = OBWFilteringMenuItemTitleField.attributedTitle(for: self.menuItem)
 		
 		guard let annotatedTitle = self.filterStatus?.annotatedTitle else {
-			if self.menuItem.enabled {
+			if self.menuItem.isHeadingItem || self.menuItem.enabled {
 				self.attributedStringValue = attributedTitle
 			}
 			else {
@@ -116,8 +114,8 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 		paragraphStyle.lineBreakMode = .byTruncatingTail
 		
 		let foregroundColor: NSColor
-		if menuItem.isHeadingItem || !menuItem.enabled {
-			foregroundColor = .disabledControlTextColor
+		if menuItem.isHeadingItem {
+			foregroundColor = .secondaryLabelColor
 		}
 		else if menuItem.isHighlighted {
 			foregroundColor = .selectedMenuItemTextColor
@@ -143,6 +141,7 @@ private extension NSMutableAttributedString {
 	/// - Parameter range: The portion of the receiver to add attributes to.
 	func addMatchingAttributes(in range: NSRange) {
 		self.addBoldFontTrait(to: range)
+		self.addAttribute(.foregroundColor, value: NSColor.labelColor, range: range)
 	}
 	
 	/// Adds attributes to the receiver that indicate the given range is not a
@@ -151,17 +150,6 @@ private extension NSMutableAttributedString {
 	/// - Parameter range: The portion of the receiver to add attributes to.
 	func addNonmatchingAttributes(in range: NSRange) {
 		self.removeBoldFontTrait(from: range)
-		
-		self.enumerateAttribute(.foregroundColor, in: range, options: []) { (value, range, stopPtr) in
-			let dimmedColor: NSColor
-			if let color = value as? NSColor {
-				dimmedColor = color.withSystemEffect(.disabled)
-			}
-			else {
-				assertionFailure("Not expecting to fail to find a foreground color")
-				dimmedColor = NSColor.systemRed.withSystemEffect(.disabled)
-			}
-			self.addAttribute(.foregroundColor, value: dimmedColor, range: range)
-		}
+		self.applySystemEffect(.disabled, to: range)
 	}
 }
