@@ -1,8 +1,8 @@
 /*===========================================================================
-OBWFilteringMenuBackground.swift
-Silversides
-Copyright (c) 2016 Ken Heglund. All rights reserved.
-===========================================================================*/
+ OBWFilteringMenuBackground.swift
+ Silversides
+ Copyright (c) 2016 Ken Heglund. All rights reserved.
+ ===========================================================================*/
 
 import AppKit
 
@@ -16,7 +16,7 @@ class OBWFilteringMenuBackground: NSVisualEffectView {
 		self.autoresizingMask = [.width, .height]
 		self.autoresizesSubviews = true
 		
-		self.material = .windowBackground
+		self.material = .menu
 		self.state = .active
 		
 		self.updateMaskImage()
