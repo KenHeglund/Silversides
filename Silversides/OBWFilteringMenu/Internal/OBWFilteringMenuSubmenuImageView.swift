@@ -1,8 +1,8 @@
 /*===========================================================================
-OBWFilteringMenuSubmenuImageView.swift
-OBWControls
-Copyright (c) 2019 OrderedBytes. All rights reserved.
-===========================================================================*/
+ OBWFilteringMenuSubmenuImageView.swift
+ OBWControls
+ Copyright (c) 2019 OrderedBytes. All rights reserved.
+ ===========================================================================*/
 
 import AppKit
 
@@ -25,20 +25,27 @@ class OBWFilteringMenuSubmenuImageView: NSView {
 		let frame = NSRect(size: OBWFilteringMenuSubmenuImageView.size)
 		
 		self.menuItem = filteringMenuItem
-		self.arrowImageView = NSImageView(frame: frame)
-		self.spinner = NSProgressIndicator(frame: frame)
+		
+		let arrowImageView = NSImageView(frame: frame)
+		arrowImageView.image = OBWFilteringMenuArrows.image(for: .trailing)
+		arrowImageView.imageFrameStyle = .none
+		arrowImageView.isEditable = false
+		arrowImageView.isHidden = true
+		self.arrowImageView = arrowImageView
+		
+		let spinner = NSProgressIndicator(frame: frame)
+		spinner.usesThreadedAnimation = true
+		spinner.isDisplayedWhenStopped = false
+		spinner.style = .spinning
+		spinner.isHidden = true
+		// The appearance of the spinner is always `.darkAqua` because it is only ever visible on a selected menu item.  When a menu item is selected, the submenu arrow is always light/white in color.  The `.darkAqua` appearance will match that color.
+		spinner.appearance = NSAppearance(named: .darkAqua)
+		self.spinner = spinner
 		
 		super.init(frame: frame)
 		
-		self.arrowImageView.imageFrameStyle = .none
-		self.arrowImageView.isEditable = false
-		
-		self.spinner.usesThreadedAnimation = true
-		self.spinner.isDisplayedWhenStopped = false
-		self.spinner.style = .spinning
-		
-		// The appearance of the spinner is always `.darkAqua` because it is only ever visible on a selected menu item.  When a menu item is selected, the submenu arrow is always light/white in color.  The `.darkAqua` appearance will match that color.
-		self.spinner.appearance = NSAppearance(named: .darkAqua)
+		self.addSubview(self.arrowImageView)
+		self.addSubview(self.spinner)
 	}
 	
 	// Required initializer.
@@ -80,37 +87,38 @@ class OBWFilteringMenuSubmenuImageView: NSView {
 	
 	/// Set up the current image.
 	private func updateImage() {
-		if let _ = self.menuItem.submenu, self.displayMode == .arrow {
+		if self.menuItem.submenu != nil, self.displayMode == .arrow {
+			let tintColor: NSColor
 			if self.menuItem.isHighlighted {
-				self.arrowImageView.image = OBWFilteringMenuArrows.selectedTrailingArrow
+				tintColor = .selectedMenuItemTextColor
 			}
 			else {
-				self.arrowImageView.image = OBWFilteringMenuArrows.unselectedTrailingArrow
+				tintColor = .labelColor
 			}
+			self.arrowImageView.contentTintColor = tintColor
 			
-			if self.arrowImageView.superview == nil {
-				self.addSubview(self.arrowImageView)
+			if self.arrowImageView.isHidden {
+				self.arrowImageView.isHidden = false
 			}
 		}
 		else {
-			self.arrowImageView.removeFromSuperview()
+			self.arrowImageView.isHidden = true
 		}
 	}
 	
 	/// Start or stop the spinner based on the presence of a submenu and the
 	/// current display mode.
 	private func startOrStopSpinner() {
-		if let _ = self.menuItem.submenu, self.displayMode == .spinner {
-			
-			if self.spinner.superview == nil {
-				self.addSubview(self.spinner)
+		if self.menuItem.submenu != nil, self.displayMode == .spinner {
+			if self.spinner.isHidden {
+				self.spinner.isHidden = false
 			}
 			
 			self.spinner.startAnimation(nil)
 		}
 		else {
 			self.spinner.stopAnimation(nil)
-			self.spinner.removeFromSuperview()
+			self.spinner.isHidden = true
 		}
 	}
 }

@@ -1,8 +1,8 @@
 /*===========================================================================
-OBWFilteringMenuItemScrollView.swift
-Silversides
-Copyright (c) 2016 Ken Heglund. All rights reserved.
-===========================================================================*/
+ OBWFilteringMenuItemScrollView.swift
+ Silversides
+ Copyright (c) 2016 Ken Heglund. All rights reserved.
+ ===========================================================================*/
 
 import AppKit
 
@@ -18,9 +18,9 @@ class OBWFilteringMenuItemScrollView: NSView {
 		self.minimumItemWidth = minimumWidth
 		
 		let itemParentView = OBWColorFilledView(frame: .zero)
-		#if DEBUG_MENU_TINTING
+#if DEBUG_MENU_TINTING
 		itemParentView.fillColor = NSColor.black.withAlphaComponent(0.1)
-		#endif
+#endif
 		itemParentView.autoresizesSubviews = true
 		self.itemParentView = itemParentView
 		
@@ -51,7 +51,8 @@ class OBWFilteringMenuItemScrollView: NSView {
 		upArrowView.imageScaling = .scaleProportionallyDown
 		upArrowView.imageAlignment = .alignCenter
 		upArrowView.autoresizingMask = [.minYMargin, .minXMargin, .maxXMargin]
-		upArrowView.image = OBWFilteringMenuArrows.upArrow
+		upArrowView.image = OBWFilteringMenuArrows.image(for: .up)
+		upArrowView.contentTintColor = .labelColor
 		upArrowView.isHidden = true
 		
 		let downArrowFrame = NSRect(
@@ -64,7 +65,8 @@ class OBWFilteringMenuItemScrollView: NSView {
 		downArrowView.imageScaling = .scaleProportionallyDown
 		downArrowView.imageAlignment = .alignCenter
 		downArrowView.autoresizingMask = [.maxYMargin, .minXMargin, .maxXMargin]
-		downArrowView.image = OBWFilteringMenuArrows.downArrow
+		downArrowView.image = OBWFilteringMenuArrows.image(for: .down)
+		downArrowView.contentTintColor = .labelColor
 		downArrowView.isHidden = true
 		
 		itemClipView.drawsBackground = false
