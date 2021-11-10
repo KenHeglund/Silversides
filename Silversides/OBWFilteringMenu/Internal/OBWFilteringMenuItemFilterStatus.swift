@@ -22,15 +22,12 @@ class OBWFilteringMenuItemFilterStatus {
 		
 		if let attributedTitle = menuItem.attributedTitle {
 			self.searchableTitle = attributedTitle.string
-			self.annotatedTitle = NSAttributedString(attributedString: attributedTitle)
 		}
 		else if let title = menuItem.title {
 			self.searchableTitle = title
-			self.annotatedTitle = NSAttributedString(string: title)
 		}
 		else {
 			self.searchableTitle = ""
-			self.annotatedTitle = NSAttributedString()
 		}
 	}
 	
@@ -45,46 +42,48 @@ class OBWFilteringMenuItemFilterStatus {
 	/// items in `menu`.  The filter status objects are in the same order as the
 	/// menu items.
 	class func filterStatus(_ menu: OBWFilteringMenu, filterString: String) -> [OBWFilteringMenuItemFilterStatus] {
-		var statusArray: [OBWFilteringMenuItemFilterStatus] = []
+		let statusArray = menu.itemArray.map(OBWFilteringMenuItemFilterStatus.init)
+		let filter = Filter(string: filterString)
+		
+		let dispatchGroup = DispatchGroup()
+		statusArray.forEach({ status in
+			dispatchGroup.enter()
+			DispatchQueue.global(qos: .userInitiated).async {
+				status.applyFilter(filter)
+				dispatchGroup.leave()
+			}
+		})
+		
+		dispatchGroup.wait()
 		
 		// First pass - create a status for each menu item based on the filter string.  If a heading matched, increment each non-separator item match score until the next unmatched heading.
 		var headingMatched = false
-		
-		for menuItem in menu.itemArray {
-			
-			let status = OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: filterString)
-			
-			if menuItem.isHeadingItem {
-				headingMatched = (status.matchScore != 0)
+		statusArray.forEach({ status in
+			if status.menuItem.isHeadingItem {
+				headingMatched = status.isMatching
 			}
-			else if headingMatched {
-				if menuItem.isSeparatorItem == false {
-					status.matchScore += 1
-				}
+			else if headingMatched, !status.menuItem.isSeparatorItem {
+				status.isMatching = true
 			}
-			
-			statusArray.append(status)
-		}
+		})
 		
 		// Second pass - restore headers that are followed by visible items before the next header.
 		var previousHeaderStatus: OBWFilteringMenuItemFilterStatus?
-		
-		for status in statusArray {
-			
+		statusArray.forEach({ status in
 			if status.menuItem.isHeadingItem {
 				previousHeaderStatus = status
 			}
-			else if previousHeaderStatus?.matchScore != 0 {
-				continue
+			else if previousHeaderStatus?.isMatching == true {
+				return
 			}
 			else if status.menuItem.isSeparatorItem {
-				continue
+				return
 			}
-			else if status.matchScore > 0 {
-				previousHeaderStatus?.matchScore += 1
+			else if status.isMatching {
+				previousHeaderStatus?.isMatching = true
 				previousHeaderStatus = nil
 			}
-		}
+		})
 		
 		if menu.showSeparatorsWhileFiltered == false {
 			return statusArray
@@ -93,87 +92,35 @@ class OBWFilteringMenuItemFilterStatus {
 		// Third pass - remove adjacent separators and the first visible separator if there is nothing visible before it.
 		var previousSeparatorStatus: OBWFilteringMenuItemFilterStatus? = nil
 		var hasVisibleItem = false
-		
-		for status in statusArray {
-			
+		statusArray.forEach({ status in
 			if status.menuItem.isSeparatorItem {
 				if hasVisibleItem == false {
-					status.matchScore = 0
+					status.isMatching = false
 				}
 				else if previousSeparatorStatus == nil {
 					previousSeparatorStatus = status
 				}
 				else {
-					status.matchScore = 0
+					status.isMatching = false
 				}
 			}
 			else if status.menuItem.isHeadingItem {
-				if status.matchScore > 0 {
+				if status.isMatching {
 					previousSeparatorStatus = status
 					hasVisibleItem = true
 				}
 			}
-			else if status.matchScore > 0 {
+			else if status.isMatching {
 				previousSeparatorStatus = nil
 				hasVisibleItem = true
 			}
-		}
+		})
 		
-		previousSeparatorStatus?.matchScore = 0
+		previousSeparatorStatus?.isMatching = false
 		
 		return statusArray
 	}
-	
-	/// Creates a filter status object for a menu item.
-	///
-	/// - Parameters:
-	///   - menuItem: The menu item to create the filter status object for.
-	///   - filterString: The filter text to compare the title of the menu item
-	///   to.
-	///
-	/// - Returns: A filter status object that corresponds to the `menuItem`.
-	class func filterStatus(_ menuItem: OBWFilteringMenuItem, filterString: String) -> OBWFilteringMenuItemFilterStatus {
-		let status = OBWFilteringMenuItemFilterStatus(menuItem: menuItem)
 		
-		let bestScore = MatchCriteria.totalMemberCount
-		
-		guard filterString.isEmpty == false else {
-			status.matchScore = bestScore
-			return status
-		}
-		
-		if menuItem.isSeparatorItem {
-			if menuItem.menu?.showSeparatorsWhileFiltered == true {
-				status.matchScore = bestScore
-			}
-			else {
-				status.matchScore = 0
-			}
-			return status
-		}
-		
-		let filter: Filter
-		if let regexPattern = try? NSRegularExpression(filterString: filterString) {
-			filter = .regex(regexPattern)
-		}
-		else {
-			filter = .string(filterString)
-		}
-		
-		status.applyFilter(filter)
-		
-		for (_,alternateMenuItem) in menuItem.alternates {
-			
-			let alternateStatus = OBWFilteringMenuItemFilterStatus(menuItem: alternateMenuItem)
-			alternateStatus.applyFilter(filter)
-			
-			let modifierMask = alternateMenuItem.keyEquivalentModifierMask
-			status.addAlternateStatus(alternateStatus, withKey: modifierMask.rawValue)
-		}
-		
-		return status
-	}
-	
 	
 	// MARK: - OBWFilteringMenuItemFilterStatus Interface
 	
@@ -183,11 +130,10 @@ class OBWFilteringMenuItemFilterStatus {
 	/// An attributed string that is annotated with matching ranges.  Matching
 	/// ranges will have the `NSAttributedString.Key.filterMatch` attribute with
 	/// a value of `true`.
-	private(set) var annotatedTitle: NSAttributedString
+	private(set) var annotatedTitle: NSAttributedString?
 	
-	/// A score that indicates how well the menu item’s title matched the filter
-	/// string.
-	private(set) var matchScore = MatchCriteria.totalMemberCount
+	/// Indicates whether the menu item matches the current filter.
+	private(set) var isMatching = true
 	
 	/// An arry of status items associated with the menu item’s alternate items.
 	private(set) var alternateStatus: [OBWFilteringMenuItem.AlternateKey: OBWFilteringMenuItemFilterStatus]? = nil
@@ -211,11 +157,32 @@ class OBWFilteringMenuItemFilterStatus {
 	///
 	/// - Parameter filter: The filter to apply.
 	private func applyFilter(_ filter: Filter) {
-		switch filter  {
-			case .string(let stringFilter):
-				self.applyStringFilter(stringFilter)
-			case .regex(let regexFilter):
-				self.applyRegexFilter(regexFilter)
+		if case .empty = filter {
+			self.isMatching = true
+			self.annotatedTitle = nil
+			return
+		}
+		
+		if self.menuItem.isSeparatorItem {
+			self.isMatching = (self.menuItem.menu?.showSeparatorsWhileFiltered == true)
+			self.annotatedTitle = nil
+			return
+		}
+		
+		if case .string(let stringFilter) = filter {
+			self.applyStringFilter(stringFilter)
+		}
+		else if case .regex(let regexFilter) = filter {
+			self.applyRegexFilter(regexFilter)
+		}
+		
+		for (_,alternateMenuItem) in self.menuItem.alternates {
+			
+			let alternateStatus = OBWFilteringMenuItemFilterStatus(menuItem: alternateMenuItem)
+			alternateStatus.applyFilter(filter)
+			
+			let modifierMask = alternateMenuItem.keyEquivalentModifierMask
+			self.addAlternateStatus(alternateStatus, withKey: modifierMask.rawValue)
 		}
 	}
 	
@@ -224,98 +191,50 @@ class OBWFilteringMenuItemFilterStatus {
 	/// - parameter filterString: The filter string to apply.
 	private func applyStringFilter(_ filterString: String) {
 		let searchableTitle = self.searchableTitle
-		let workingAnnotatedTitle = NSMutableAttributedString(attributedString: self.annotatedTitle)
-		let entireRange = NSRange(location: 0, length: workingAnnotatedTitle.length)
-		workingAnnotatedTitle.removeAttribute(.filterMatch, range: entireRange)
-		let nonMatchingAnnotatedTitle = NSAttributedString(attributedString: workingAnnotatedTitle)
+		let workingAnnotatedTitle = NSMutableAttributedString(string: searchableTitle)
 		
-		var searchRange = searchableTitle.startIndex ..< searchableTitle.endIndex
-		var matchMask = MatchCriteria.all
-		var lastMatchIndex: String.Index?
-		
-		for index in filterString.indices {
-			let filterSubstring = String(filterString[index])
-			
-			guard let caseInsensitiveRange = searchableTitle.range(of: filterSubstring, options: .caseInsensitive, range: searchRange, locale: nil) else {
-				self.annotatedTitle = nonMatchingAnnotatedTitle
-				self.matchScore = 0
-				return
-			}
-			
-			if
-				matchMask.contains(.caseSensitive),
-				let caseSensitiveRange = searchableTitle.range(of: filterSubstring, options: [], range: searchRange, locale: nil),
-				caseSensitiveRange == caseInsensitiveRange
-			{
-				// allow the case-sensitive flag to persist...
-			}
-			else {
-				matchMask.remove(.caseSensitive)
-			}
-			
-			if let lastMatchIndex = lastMatchIndex {
-				if caseInsensitiveRange.lowerBound != searchableTitle.index(after: lastMatchIndex) {
-					matchMask.remove(.contiguous)
-				}
-			}
-			
-			let highlightRange = NSRange(
-				location: searchableTitle.distance(from: searchableTitle.startIndex, to: caseInsensitiveRange.lowerBound),
-				length: 1
-			)
-			
-			workingAnnotatedTitle.addAttribute(.filterMatch, value: true, range: highlightRange)
-			
-			lastMatchIndex = caseInsensitiveRange.lowerBound
-			searchRange = caseInsensitiveRange.upperBound ..< searchableTitle.endIndex
+		let caseInsensitiveRanges = searchableTitle.rangesOfCharacters(in: filterString, options: .caseInsensitive)
+		if caseInsensitiveRanges.isEmpty {
+			self.isMatching = false
+			self.annotatedTitle = nil
+			return
 		}
 		
+		caseInsensitiveRanges.forEach({ subrange in
+			let attributeRange = NSRange(
+				location: searchableTitle.distance(from: searchableTitle.startIndex, to: subrange.lowerBound),
+				length: searchableTitle.distance(from: subrange.lowerBound, to: subrange.upperBound)
+			)
+			workingAnnotatedTitle.addAttribute(.filterMatch, value: true, range: attributeRange)
+		})
+		
+		self.isMatching = true
 		self.annotatedTitle = NSAttributedString(attributedString: workingAnnotatedTitle)
-		self.matchScore = matchMask.memberCount
 	}
 	
 	/// Applies the given filter regular expression to the receiver.
 	///
 	/// - parameter regex: The regular expression to apply.
 	private func applyRegexFilter(_ regex: NSRegularExpression) {
-		let bestScore = MatchCriteria.totalMemberCount
-		
 		let searchableTitle = self.searchableTitle
-		let workingAnnotatedTitle = NSMutableAttributedString(attributedString: self.annotatedTitle)
-		let entireRange = NSRange(location: 0, length: workingAnnotatedTitle.length)
-		workingAnnotatedTitle.removeAttribute(.filterMatch, range: entireRange)
-		
-		var matchScore = 0
 		let matchingOptions = NSRegularExpression.MatchingOptions.reportCompletion
-		let searchRange = NSRange(location: 0, length: searchableTitle.distance(from: searchableTitle.startIndex, to: searchableTitle.endIndex))
+		let searchRange = NSRange(
+			location: 0,
+			length: searchableTitle.distance(from: searchableTitle.startIndex, to: searchableTitle.endIndex)
+		)
 		
-		regex.enumerateMatches(in: searchableTitle, options: matchingOptions, range: searchRange) {
-			(result: NSTextCheckingResult?, flags: NSRegularExpression.MatchingFlags, stop: UnsafeMutablePointer<ObjCBool> ) in
-			
-			guard flags.contains(.internalError) == false else {
-				stop.pointee = true
-				return
-			}
-			
-			guard let result = result else {
-				return
-			}
-			
-			for rangeIndex in 0 ..< result.numberOfRanges {
-				
-				let highlightRange = result.range(at: rangeIndex)
-				guard highlightRange.location != NSNotFound else {
-					continue
-				}
-				
-				matchScore = bestScore
-				
-				workingAnnotatedTitle.addAttribute(.filterMatch, value: true, range: highlightRange)
-			}
+		let matchingRange = regex.rangeOfFirstMatch(in: searchableTitle, options: matchingOptions, range: searchRange)
+		if matchingRange.location == NSNotFound {
+			self.isMatching = false
+			self.annotatedTitle = nil
 		}
-		
-		self.annotatedTitle = NSAttributedString(attributedString: workingAnnotatedTitle)
-		self.matchScore = matchScore
+		else {
+			self.isMatching = true
+			
+			let workingAnnotatedTitle = NSMutableAttributedString(string: searchableTitle)
+			workingAnnotatedTitle.addAttribute(.filterMatch, value: true, range: matchingRange)
+			self.annotatedTitle = NSAttributedString(attributedString: workingAnnotatedTitle)
+		}
 	}
 	
 	
@@ -327,6 +246,20 @@ class OBWFilteringMenuItemFilterStatus {
 		case string(String)
 		/// A regular expression filter.
 		case regex(NSRegularExpression)
+		/// An empty filter
+		case empty
+		
+		init(string: String) {
+			if string.isEmpty {
+				self = .empty
+			}
+			else if let expression = try? NSRegularExpression(filterString: string) {
+				self = .regex(expression)
+			}
+			else {
+				self = .string(string)
+			}
+		}
 	}
 	
 	

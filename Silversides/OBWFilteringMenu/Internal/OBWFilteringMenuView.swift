@@ -6,6 +6,7 @@ Copyright (c) 2016 Ken Heglund. All rights reserved.
 
 import AppKit
 import Carbon.HIToolbox.Events
+import OSLog
 
 /// A view class that is the outermost menu-related view.  It’s primary subviews
 /// are the filter field and the menu item scroll view.
@@ -250,19 +251,23 @@ class OBWFilteringMenuView: NSView {
 		self.lastFilterEventNumber = filterEventNumber
 		
 		if filterString.isEmpty {
-			self.applyFilterResults(nil)
+			self.applyFilterResults(nil, stop: { false })
 		}
 		else {
 			DispatchQueue.global(qos: .userInitiated).async {
 				
+				os_signpost(.begin, log: .filteringMenuLogger, name: "Filter", signpostID: .filteringSignpostID, "")
 				let statusArray = OBWFilteringMenuItemFilterStatus.filterStatus(menu, filterString: filterString)
+				os_signpost(.end, log: .filteringMenuLogger, name: "Filter", signpostID: .filteringSignpostID, "")
 				
 				DispatchQueue.main.async {
 					guard self.lastFilterEventNumber == filterEventNumber else {
 						return
 					}
 					
-					self.applyFilterResults(statusArray)
+					os_signpost(.begin, log: .filteringMenuLogger, name: "Apply", signpostID: .filteringSignpostID, "")
+					self.applyFilterResults(statusArray, stop: { self.lastFilterEventNumber != filterEventNumber })
+					os_signpost(.end, log: .filteringMenuLogger, name: "Apply", signpostID: .filteringSignpostID, "")
 				}
 			}
 		}
@@ -504,8 +509,8 @@ class OBWFilteringMenuView: NSView {
 	/// Applies filter status results to the menu.
 	///
 	/// - Parameter statusArray: The status to apply to the menu.
-	func applyFilterResults(_ statusArray: [OBWFilteringMenuItemFilterStatus]?) {
-		if self.scrollView.applyFilterResults(statusArray) {
+	func applyFilterResults(_ statusArray: [OBWFilteringMenuItemFilterStatus]?, stop: (() -> Bool)? = nil) {
+		if self.scrollView.applyFilterResults(statusArray, stop: stop) {
 			if let window = self.window as? OBWFilteringMenuWindow {
 				window.displayUpdatedTotalMenuItemSize(constrainToAnchor: true)
 			}

@@ -5,6 +5,7 @@ Copyright (c) 2019 Ken Heglund. All rights reserved.
 ===========================================================================*/
 
 import AppKit
+import OSLog
 
 // Additional properties and functions for internal use only
 extension OBWFilteringMenu {
@@ -92,6 +93,8 @@ extension OBWFilteringMenu.Key {
 }
 
 
+// MARK: -
+
 extension OBWFilteringMenu {
 	/// Holds information about the deferred appearance of a submenu.
 	struct DeferredUpdate {
@@ -104,4 +107,16 @@ extension OBWFilteringMenu {
 			self.generation = generation
 		}
 	}
+}
+
+
+// MARK: -
+
+// os_log constants
+extension OSLog {
+	static let filteringMenuLogger = OSLog(subsystem: "com.orderedbytes.SilversidesApp", category: "Filtering")
+}
+
+extension OSSignpostID {
+	static let filteringSignpostID = OSSignpostID(log: .filteringMenuLogger)
 }

@@ -5,6 +5,12 @@
  ===========================================================================*/
 
 import AppKit
+import OSLog
+
+/// A private error that is used to terminate a loop early.
+private enum OBWFilteringMenuItemScrollViewError: Error {
+	case terminateEarly
+}
 
 /// A view that acts as a parent to all of the menu-specific content in a menu window.  The up arrow, the down arrow, and the scrollable menu item area.
 class OBWFilteringMenuItemScrollView: NSView {
@@ -433,23 +439,33 @@ class OBWFilteringMenuItemScrollView: NSView {
 	/// - parameter filterResults: The filter result array.
 	///
 	/// - returns: Returns `true` if the overall size of the menu changed.
-	func applyFilterResults(_ filterResults: [OBWFilteringMenuItemFilterStatus]?) -> Bool {
+	func applyFilterResults(_ filterResults: [OBWFilteringMenuItemFilterStatus]?, stop: (() -> Bool)? = nil) -> Bool {
 		let itemViewArray = self.primaryItemViews
 		
+		os_signpost(.begin, log: .filteringMenuLogger, name: "Apply.ApplyToItems", signpostID: .filteringSignpostID, "")
 		if let filterResults = filterResults, filterResults.count == itemViewArray.count {
-			for (status, itemView) in zip(filterResults, itemViewArray) {
-				guard status.menuItem === itemView.menuItem else {
-					continue
+			try? zip(filterResults, itemViewArray).lazy.forEach({ (status, itemView) in
+				guard stop?() != true else {
+					throw OBWFilteringMenuItemScrollViewError.terminateEarly
 				}
+				assert(status.menuItem === itemView.menuItem)
 				
 				itemView.applyFilterStatus(status)
-			}
+			})
 		}
 		else {
 			itemViewArray.forEach({ $0.applyFilterStatus(nil) })
 		}
+		os_signpost(.end, log: .filteringMenuLogger, name: "Apply.ApplyToItems", signpostID: .filteringSignpostID, "")
 		
-		return self.repositionItemViews(modifierFlags: self.currentModifierFlags)
+		guard stop?() != true else {
+			return false
+		}
+		
+		os_signpost(.begin, log: .filteringMenuLogger, name: "Apply.RepositionItems", signpostID: .filteringSignpostID, "")
+		let result = self.repositionItemViews(modifierFlags: self.currentModifierFlags, stop: stop)
+		os_signpost(.end, log: .filteringMenuLogger, name: "Apply.RepositionItems", signpostID: .filteringSignpostID, "")
+		return result
 	}
 	
 	/// Applies keyboard modifier flags to the menu.
@@ -464,7 +480,7 @@ class OBWFilteringMenuItemScrollView: NSView {
 		
 		self.currentModifierFlags = modifierFlags
 		
-		return self.repositionItemViews(modifierFlags: modifierFlags)
+		return self.repositionItemViews(modifierFlags: modifierFlags, stop: { false })
 	}
 	
 	
@@ -538,7 +554,7 @@ class OBWFilteringMenuItemScrollView: NSView {
 	///
 	/// - returns: Returns `true` if the overall size of the menu changed.
 	@discardableResult
-	private func repositionItemViews(modifierFlags: NSEvent.ModifierFlags = []) -> Bool {
+	private func repositionItemViews(modifierFlags: NSEvent.ModifierFlags = [], stop: (() -> Bool)? = nil) -> Bool {
 		let itemParentView = self.itemParentView
 		let itemParentBounds = itemParentView.bounds
 		
@@ -546,12 +562,15 @@ class OBWFilteringMenuItemScrollView: NSView {
 		var parentViewWidth = max(self.minimumItemWidth, itemParentBounds.size.width)
 		
 		for primaryItemView in self.primaryItemViews.reversed() {
+			guard stop?() != true else {
+				return false
+			}
 			
 			let primaryMenuItem = primaryItemView.menuItem
 			let primaryFilterStatus = primaryItemView.filterStatus
 			
 			let primaryViewVisible: Bool
-			if primaryFilterStatus?.matchScore == 0 {
+			if primaryFilterStatus?.isMatching == false {
 				primaryViewVisible = false
 			}
 			else if primaryMenuItem.visibleItemForModifierFlags(modifierFlags) !== primaryMenuItem {
@@ -595,7 +614,7 @@ class OBWFilteringMenuItemScrollView: NSView {
 				let alternateFilterStatus = alternateItemView.filterStatus
 				
 				let alternateViewVisible: Bool
-				if alternateFilterStatus?.matchScore == 0 {
+				if alternateFilterStatus?.isMatching == false {
 					alternateViewVisible = false
 				}
 				else if alternateMenuItem.visibleItemForModifierFlags(modifierFlags) !== alternateMenuItem {
