@@ -28,8 +28,11 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 		self.backgroundColor = .clear
 #endif
 		
-		self.updateAttributedStringValue()
+		// Resize the text field based on the fully-matching title, the largest attributed string that needs to be displayed.
+		self.attributedStringValue = self.matchingAttributedTitle
 		self.sizeToFit()
+		
+		self.updateAttributedStringValue()
 	}
 	
 	// Required initializer.
@@ -40,7 +43,9 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 	
 	override var needsDisplay: Bool {
 		didSet {
-			self.updateAttributedStringValue()
+			if self.needsDisplay != oldValue {
+				self.updateAttributedStringValue()
+			}
 		}
 	}
 	
@@ -53,10 +58,6 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 			os_signpost(.begin, log: .filteringMenuLogger, name: "Apply.ApplyToItems.UpdateAttributedString", signpostID: .filteringSignpostID, "")
 			self.updateAttributedStringValue()
 			os_signpost(.end, log: .filteringMenuLogger, name: "Apply.ApplyToItems.UpdateAttributedString", signpostID: .filteringSignpostID, "")
-			
-			os_signpost(.begin, log: .filteringMenuLogger, name: "Apply.ApplyToItems.SizeToFit", signpostID: .filteringSignpostID, "")
-			self.sizeToFit()
-			os_signpost(.end, log: .filteringMenuLogger, name: "Apply.ApplyToItems.SizeToFit", signpostID: .filteringSignpostID, "")
 		}
 	}
 	
