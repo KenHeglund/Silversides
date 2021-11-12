@@ -5,7 +5,6 @@
  ===========================================================================*/
 
 import AppKit
-import OSLog
 
 /// An `NSTextField` subclass that displays a menu item title.
 class OBWFilteringMenuItemTitleField: NSTextField {
@@ -55,9 +54,7 @@ class OBWFilteringMenuItemTitleField: NSTextField {
 	/// The current filter status of the menu item.
 	var filterStatus: OBWFilteringMenuItemFilterStatus? {
 		didSet {
-			os_signpost(.begin, log: .filteringMenuLogger, name: "Apply.ApplyToItems.UpdateAttributedString", signpostID: .filteringSignpostID, "")
 			self.updateAttributedStringValue()
-			os_signpost(.end, log: .filteringMenuLogger, name: "Apply.ApplyToItems.UpdateAttributedString", signpostID: .filteringSignpostID, "")
 		}
 	}
 	

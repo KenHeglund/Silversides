@@ -5,7 +5,6 @@
  ===========================================================================*/
 
 import AppKit
-import OSLog
 
 /// A private error that is used to terminate a loop early.
 private enum OBWFilteringMenuItemScrollViewError: Error {
@@ -442,7 +441,6 @@ class OBWFilteringMenuItemScrollView: NSView {
 	func applyFilterResults(_ filterResults: [OBWFilteringMenuItemFilterStatus]?, stop: (() -> Bool)? = nil) -> Bool {
 		let itemViewArray = self.primaryItemViews
 		
-		os_signpost(.begin, log: .filteringMenuLogger, name: "Apply.ApplyToItems", signpostID: .filteringSignpostID, "")
 		if let filterResults = filterResults, filterResults.count == itemViewArray.count {
 			try? zip(filterResults, itemViewArray).lazy.forEach({ (status, itemView) in
 				guard stop?() != true else {
@@ -456,15 +454,12 @@ class OBWFilteringMenuItemScrollView: NSView {
 		else {
 			itemViewArray.forEach({ $0.applyFilterStatus(nil) })
 		}
-		os_signpost(.end, log: .filteringMenuLogger, name: "Apply.ApplyToItems", signpostID: .filteringSignpostID, "")
 		
 		guard stop?() != true else {
 			return false
 		}
 		
-		os_signpost(.begin, log: .filteringMenuLogger, name: "Apply.RepositionItems", signpostID: .filteringSignpostID, "")
 		let result = self.repositionItemViews(modifierFlags: self.currentModifierFlags, stop: stop)
-		os_signpost(.end, log: .filteringMenuLogger, name: "Apply.RepositionItems", signpostID: .filteringSignpostID, "")
 		return result
 	}
 	
