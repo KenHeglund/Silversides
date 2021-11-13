@@ -20,49 +20,41 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 	}
 	
 	func testRegexPatternFromString() throws {
-		let menuItem = OBWFilteringMenuItem(title: "sampleTitle")
-		
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/mp/").matchScore, 3)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "/mp/").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/mp").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/mp\\/").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g//").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "gg/mp/").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g\\/mp/").matchScore, 0)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g/mp/").isMatching, true)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "/mp/").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g/mp").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g/mp\\/").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g//").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "gg/mp/").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g\\/mp/").isMatching, false)
 	}
 	
 	func testStringFilterScore() throws {
-		let menuItem = OBWFilteringMenuItem(title: "sampleTitle")
-		
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "mp").matchScore, 3)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "Mp").matchScore, 2)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "mL").matchScore, 1)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "Tt").matchScore, 2)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "sampleTitlee").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "ssampleTitle").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "").matchScore, 3)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "mp").isMatching, true)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "Mp").isMatching, true)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "mL").isMatching, true)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "Tt").isMatching, true)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "sampleTitlee").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "ssampleTitle").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "").isMatching, true)
 	}
 	
 	func testRegExFilterScore() throws {
-		let menuItem = OBWFilteringMenuItem(title: "sampleTitle")
-		
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/mp/").matchScore, 3)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/[Mm]p/").matchScore, 3)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/[l-p]{4}/").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/[as]{2}/").matchScore, 3)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/sampleTitle[0-9]/").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/[0-9]sampleTitle/").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g//").matchScore, 0)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g/mp/").isMatching, true)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g/[Mm]p/").isMatching, true)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g/[l-p]{4}/").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g/[as]{2}/").isMatching, true)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g/sampleTitle[0-9]/").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g/[0-9]sampleTitle/").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: "sampleText", filterString: "g//").isMatching, false)
 	}
 	
 	func testStringFilterHighlight() throws {
-		let menuItem = OBWFilteringMenuItem(title: "sampleTitle")
-		
-		let status = OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "apeil")
-		let annotatedTitle = status.annotatedTitle
+		let filterStatus = try XCTUnwrap(filterStatus(menuItemTitle: "sampleTitle", filterString: "apeil"))
+		let annotatedTitle = try XCTUnwrap(filterStatus.annotatedTitle)
 		XCTAssertNotNil(annotatedTitle)
 		
-		let highlightIndicies = [ 1,3,5,7,9 ]
+		let highlightIndicies = [1, 3, 5, 7, 9]
 		
 		for index in 0 ..< annotatedTitle.length {
 			if highlightIndicies.contains(index) {
@@ -75,11 +67,8 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 	}
 	
 	func testRegExFilterHighlight() throws {
-		let menuItem = OBWFilteringMenuItem(title: "sampleTitle")
-		
-		let status = OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/[l-p]{3}/")
-		let annotatedTitle = status.annotatedTitle
-		XCTAssertNotNil(annotatedTitle)
+		let status = try XCTUnwrap(filterStatus(menuItemTitle: "sampleTitle", filterString: "g/[l-p]{3}/"))
+		let annotatedTitle = try XCTUnwrap(status.annotatedTitle)
 		
 		let highlightIndicies = 2...4
 		
@@ -95,7 +84,6 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 	
 	func testMenuItemWithAttributedTitle() throws {
 		let menuItem = OBWFilteringMenuItem(title: "")
-		
 		menuItem.attributedTitle = NSAttributedString(
 			string: "sampleAttributedTitle",
 			attributes: [
@@ -104,9 +92,11 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 			]
 		)
 		
-		let status = OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/t{2,}/")
-		let annotatedTitle = status.annotatedTitle
-		XCTAssertNotNil(annotatedTitle)
+		let menu = OBWFilteringMenu(title: "menu")
+		menu.addItems([menuItem])
+		
+		let status = try XCTUnwrap(OBWFilteringMenuItemFilterStatus.filterStatus(menu, filterString: "g/t{2,}/").first)
+		let annotatedTitle = try XCTUnwrap(status.annotatedTitle)
 		
 		let highlightIndicies = 7...8
 		
@@ -121,11 +111,9 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 	}
 	
 	func testSeparatorItemMatching() throws {
-		let menuItem = OBWFilteringMenuItem.separatorItem
-		
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "abc").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "g/abc/").matchScore, 0)
-		XCTAssertEqual(OBWFilteringMenuItemFilterStatus.filterStatus(menuItem, filterString: "").matchScore, 3)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: nil, filterString: "abc").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: nil, filterString: "g/abc/").isMatching, false)
+		XCTAssertEqual(try? filterStatus(menuItemTitle: nil, filterString: "").isMatching, true)
 	}
 	
 	func testAlternateMenuItemFiltering() throws {
@@ -133,18 +121,21 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 		
 		let shiftItem = OBWFilteringMenuItem(title: "shiftItem")
 		shiftItem.keyEquivalentModifierMask = [ .shift ]
-		try! parentMenuItem.addAlternateItem(shiftItem)
+		try parentMenuItem.addAlternateItem(shiftItem)
 		
 		let optionItem = OBWFilteringMenuItem(title: "optionItem")
 		optionItem.keyEquivalentModifierMask = [ .option ]
-		try! parentMenuItem.addAlternateItem(optionItem)
+		try parentMenuItem.addAlternateItem(optionItem)
 		
 		let commandItem = OBWFilteringMenuItem(title: "commandItem")
 		commandItem.keyEquivalentModifierMask = [ .command ]
-		try! parentMenuItem.addAlternateItem(commandItem)
+		try parentMenuItem.addAlternateItem(commandItem)
 		
-		let stringFilterStatus = OBWFilteringMenuItemFilterStatus.filterStatus(parentMenuItem, filterString: "tt")
-		XCTAssertEqual(stringFilterStatus.matchScore, 2)
+		let menu = OBWFilteringMenu(title: "menu")
+		menu.addItems([parentMenuItem])
+		
+		let stringFilterStatus = try XCTUnwrap(OBWFilteringMenuItemFilterStatus.filterStatus(menu, filterString: "tt").first)
+		XCTAssertTrue(stringFilterStatus.isMatching)
 		
 		let stringFilterAlternates = try XCTUnwrap(stringFilterStatus.alternateStatus)
 		
@@ -152,34 +143,39 @@ class OBWFilteringMenuItemFilterStatusTests: XCTestCase {
 		let optionKey = NSEvent.ModifierFlags.option.rawValue
 		let commandKey = NSEvent.ModifierFlags.command.rawValue
 		
-		XCTAssertEqual(stringFilterAlternates[shiftKey]?.matchScore, 2)
-		XCTAssertEqual(stringFilterAlternates[optionKey]?.matchScore, 2)
-		XCTAssertEqual(stringFilterAlternates[commandKey]?.matchScore, 0)
+		XCTAssertEqual(stringFilterAlternates[shiftKey]?.isMatching, true)
+		XCTAssertEqual(stringFilterAlternates[optionKey]?.isMatching, true)
+		XCTAssertEqual(stringFilterAlternates[commandKey]?.isMatching, false)
 		
-		let regexFilterStatus = OBWFilteringMenuItemFilterStatus.filterStatus(parentMenuItem, filterString: "g/m{2}/")
-		XCTAssertEqual(regexFilterStatus.matchScore, 0)
+		let regexFilterStatus = try XCTUnwrap(OBWFilteringMenuItemFilterStatus.filterStatus(menu, filterString: "g/m{2}/").first)
+		XCTAssertFalse(regexFilterStatus.isMatching)
 		
 		let regexFilterAlternates = try XCTUnwrap(regexFilterStatus.alternateStatus)
 		
-		XCTAssertEqual(regexFilterAlternates[shiftKey]?.matchScore, 0)
-		XCTAssertEqual(regexFilterAlternates[optionKey]?.matchScore, 0)
-		XCTAssertEqual(regexFilterAlternates[commandKey]?.matchScore, 3)
+		XCTAssertEqual(regexFilterAlternates[shiftKey]?.isMatching, false)
+		XCTAssertEqual(regexFilterAlternates[optionKey]?.isMatching, false)
+		XCTAssertEqual(regexFilterAlternates[commandKey]?.isMatching, true)
 	}
-}
-
-extension NSAttributedString {
-	/// Indicates whether the receiver uses a font with the given trait at the
-	/// given index.
+	
+	/// A helper function that builds the status for a menu item.
 	///
 	/// - Parameters:
-	///   - trait: The font trait to test for.
-	///   - index: The location at which to test the font traits.
-	///
-	/// - Returns: `true` if the receiver uses a font with `trait` at `index`.
-	func hasFontTrait(_ trait: NSFontDescriptor.SymbolicTraits, at index: Int) -> Bool {
-		guard let font = self.attribute(.font, at: index, effectiveRange: nil) as? NSFont else {
-			return false
+	///   - menuItemTitle: The title of the menu item to build.
+	///   - filterString: The filter string to apply to the menu item.
+	///   
+	/// - Returns: The status of applying `filterString` to a menu item with the title `menuItemTitle`.
+	private func filterStatus(menuItemTitle: String?, filterString: String) throws -> OBWFilteringMenuItemFilterStatus {
+		let menuItem: OBWFilteringMenuItem
+		if let menuItemTitle = menuItemTitle {
+			menuItem = OBWFilteringMenuItem(title: menuItemTitle)
 		}
-		return font.fontDescriptor.symbolicTraits.contains(trait)
+		else {
+			menuItem = OBWFilteringMenuItem.separatorItem
+		}
+		let menu = OBWFilteringMenu(title: "menu")
+		menu.addItems([menuItem])
+		
+		let filterStatus = try XCTUnwrap(OBWFilteringMenuItemFilterStatus.filterStatus(menu, filterString: filterString).first, "\(filterString)")
+		return filterStatus
 	}
 }
