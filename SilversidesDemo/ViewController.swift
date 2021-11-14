@@ -671,7 +671,7 @@ class ViewController: NSViewController {
 extension ViewController: OBWFilteringMenuDelegate {
 	/// The given menu is about to appear on-screen.  Perform final configuration of the menu.
 	///
-	/// - Parameter menu: The menu that is aboard to appear.
+	/// - Parameter menu: The menu that is about to appear.
 	///
 	/// - Returns: `.now` if no item exists at the path that the menu
 	/// represents.  `.later` if an item exists at the path that the menu
