@@ -15,6 +15,7 @@ class OBWFilteringMenuEventSource: NSObject {
 	
 	/// Clean up resources.
 	deinit {
+		// Assigning an empty set of active events properly cleans up KVO observations.
 		self.activeEvents = []
 		self.eventTimer?.invalidate()
 	}
@@ -161,12 +162,6 @@ class OBWFilteringMenuEventSource: NSObject {
 		if becomeActive || resignActive {
 			self.currentApplication.addObserver(self, forKeyPath: "active", options: [.new, .old], context: &OBWFilteringMenuEventSource.kvoContext)
 		}
-		if becomeActive {
-			NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive(_:)), name: NSApplication.didBecomeActiveNotification, object: NSApp)
-		}
-		if resignActive {
-			NotificationCenter.default.addObserver(self, selector: #selector(applicationWillResignActive(_:)), name: NSApplication.willResignActiveNotification, object: NSApp)
-		}
 	}
 	
 	/// Remove an observation of `NSRunningApplication.active` if the given
@@ -182,30 +177,5 @@ class OBWFilteringMenuEventSource: NSObject {
 		if becomeActive || resignActive {
 			self.currentApplication.removeObserver(self, forKeyPath: "active", context: &OBWFilteringMenuEventSource.kvoContext)
 		}
-		if becomeActive {
-			NotificationCenter.default.removeObserver(self, name: NSApplication.didBecomeActiveNotification, object: NSApp)
-		}
-		if resignActive {
-			NotificationCenter.default.removeObserver(self, name: NSApplication.willResignActiveNotification, object: NSApp)
-		}
-	}
-	
-	/// Responds to a notification that the application became the active
-	/// application.
-	///
-	/// - Parameter notification: The notification that was posted.
-	@objc private func applicationDidBecomeActive(_ notification: Notification) {
-		OBWFilteringMenuEventSubtype.applicationDidBecomeActive.post(atStart: false)
-	}
-	
-	/// Responds to a notification that the application will resign as the
-	/// active application.
-	///
-	/// - Parameter notification: The notification that was posted.
-	///
-	/// - Note This function posts the `.applicationDidResignActive`
-	/// application-specific event.
-	@objc private func applicationWillResignActive(_ notification: Notification) {
-		OBWFilteringMenuEventSubtype.applicationDidResignActive.post(atStart: false)
 	}
 }
